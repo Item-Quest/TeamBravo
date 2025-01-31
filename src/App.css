@@ -1,0 +1,69 @@
+html, body, #root, .main {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+.main {
+    width: 100%;
+}
+
+.component-container {
+    width: 100%;
+    height: 100%;
+}
+
+.home {
+    width:100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 35% 1fr;
+}
+
+.home-buttons-panel {
+    background-color: darkgrey;
+    padding: 10px;
+    display: grid;
+    grid-template-rows: 120px 120px auto;
+}
+
+.home-menu-button {
+    width: 80%;
+    display: block;
+    margin: auto;
+    height: 100px;
+    border-radius: 8px;
+    background-color: antiquewhite;
+    font-size: large;
+    font-family: fantasy;
+    cursor: pointer;
+}
+
+.home-item {
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    height: 250px;
+    border-radius: 8px;
+    background-color: aliceblue;
+    font-size: large;
+    font-family: fantasy;
+    align-self: end;
+}
+
+.home-camera-panel {
+    background-color: darkgray;
+    padding: 20px;
+    display: grid;
+}
+
+.home-camera {
+    background-color: aliceblue;
+    text-align: center;
+    border-radius: 8px;
+}
