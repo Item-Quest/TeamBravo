@@ -15,10 +15,10 @@ const Leaderboard = props => {
             <div className='leaderboard-players-container'>
             {
                 leaderboardData.map(player =>
-                    <div className='leaderboard-player-container' key={player.place}>
-                        <span className='leaderboard-place'>{player.place}</span>
-                        <span className='leaderboard-name'>{player.name}</span>
-                        <span className='leaderboard-score'>{'score: ' + player.score}</span>
+                    <div className='leaderboard-player-container' key={player.Place}>
+                        <span className='leaderboard-place'>{player.Place}</span>
+                        <span className='leaderboard-name'>{player.Name}</span>
+                        <span className='leaderboard-score'>{'score: ' + player.Score}</span>
                     </div>
                 )
             }

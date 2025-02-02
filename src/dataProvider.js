@@ -1,8 +1,8 @@
 export function getLeaderboardData() {
     return [
-     {place: 1, name: "Joe", score: 45},
-     {place: 2, name: "Anna", score: 40},
-     {place: 3, name: "Alex", score: 35},
-     {place: 4, name: "Kate", score: 30}
+     {Place: 1, Name: "Joe", Score: 45},
+     {Place: 2, Name: "Anna", Score: 40},
+     {Place: 3, Name: "Alex", Score: 35},
+     {Place: 4, Name: "Kate", Score: 30}
     ]; 
  };
