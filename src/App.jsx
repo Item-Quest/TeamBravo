@@ -3,6 +3,7 @@ import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import './App.css'
 
 import Home from './components/Home.jsx'
+import Leaderboard from './components/Leaderboard.jsx'
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Home/>}/>
           <Route path='/home' element={<Home/>}/>
+          <Route path='/leaderboard' element={<Leaderboard/>}/>
         </Routes>
       </div>
     </main>

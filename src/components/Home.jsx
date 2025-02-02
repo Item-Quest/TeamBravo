@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Home = props => {
     
+    const navigate = useNavigate();
+
     const playClick = () => {
         alert("Play was clicked");
     }
 
     const LeaderboardClick = () => {
-        alert("Leaderboard was clicked");
+        navigate("/leaderboard");
     }
 
 

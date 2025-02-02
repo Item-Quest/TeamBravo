@@ -67,3 +67,54 @@ body {
     text-align: center;
     border-radius: 8px;
 }
+
+.leaderboard {
+    background: linear-gradient(to bottom, rgb(40, 70, 90) 0%, rgb(130 177 223) 100%);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.leaderboard-title {
+    position: absolute;
+    top: 20px;
+    font-size: 40px;
+    color: white;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+}
+
+.leaderboard-players-container {
+    background-color: #21527b;
+    border: 2px solid white;
+    height: 80%;
+    width: 60%;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.leaderboard-player-container {
+    border-bottom: 2px solid white;
+    height: 100vh;
+    display: grid;
+    color: white;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    padding: 8px;
+    grid-template-columns: 50px 1fr 1fr;
+    place-items: center;
+}
+
+.leaderboard-player-container:last-child {
+    border-bottom: none;
+}
+
+.leaderboard-place {
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.leaderboard-name, .leaderboard-score {
+    font-size: 30px;
+}
