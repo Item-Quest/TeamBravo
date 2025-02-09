@@ -1,0 +1,78 @@
+/* JoinRoom.css */
+
+.JoinRoom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: white;
+}
+
+.JoinRoom-buttons-panel {
+    display: flex;
+    flex-direction: column;
+    background: #D9D9D9;
+    padding: 2rem;
+}
+
+.JoinRoom-menu-button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.JoinRoom-menu-button:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+button.JoinRoom-menu-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button.JoinRoom-menu-button:hover {
+    background-color: #0056b3;
+}
+
+/* PlayCreate.css */
+
+.PlayCreate {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+.PlayCreate-buttons-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+}
+
+.playClick-menu-button {
+    padding: 15px 30px;
+    font-size: 18px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.playClick-menu-button:hover {
+    background-color: #45a049;
+}
+
+.playClick-menu-button:active {
+    background-color: #3e8e41;
+}
