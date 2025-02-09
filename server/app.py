@@ -16,6 +16,8 @@ users = {}
 #dictionary to track online users in rooms if we implement multiple rooms in the future
 rooms = {}
 
+#Example list of items
+
 
 
 @app.route('/', methods=['GET'])
