@@ -2,6 +2,10 @@
 from flask import Flask, render_template, request
 #import socket.io
 from flask_socketio import SocketIO, join_room, leave_room, emit
+import random
+#for the purposes of threading
+import threading
+import time
 
 #flask constructor. Takes name as argument
 app = Flask(__name__, template_folder='../client/dist', static_folder='../client/dist/assets')
@@ -16,8 +20,13 @@ users = {}
 #dictionary to track online users in rooms if we implement multiple rooms in the future
 rooms = {}
 
-#Example list of items
+#Items for game 
+items = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
 
+#variables for game control
+game_thread = None
+is_game_running = False
+game_lock = threading.Lock()
 
 
 @app.route('/', methods=['GET'])
@@ -52,6 +61,8 @@ def handle_connect_game():
 
   emit('room data', rooms["Game room"],room = "Game room")
 
+  start_game()
+
 @socketio.on('leave game')
 def handle_disconnect_game():
   print(f"Client {request.sid}: {users[request.sid]} left game room")
@@ -61,6 +72,10 @@ def handle_disconnect_game():
   #remove user from room if they go to a different page
   if("Game room" in rooms):
     rooms["Game room"] = [user for user in rooms["Game room"] if user[0] != request.sid]
+
+    #stop game if no players left
+    if not rooms["Game room"]:
+      end_game()
 
   emit('room data', rooms["Game room"],room = "Game room")
     
@@ -74,14 +89,42 @@ def handle_disconnect():
     #remove user from room if they go to a different page
     if("Game room" in rooms):
       rooms["Game room"] = [user for user in rooms["Game room"] if user[0] != request.sid]
+      #stop game if no players left
+
+      if not rooms["Game room"]:
+        end_game()
     
     #remove users from users
     print(f"Client {request.sid}: {users[request.sid]} disconnected")
     del users[request.sid]
 
+    emit('room data', rooms["Game room"],room = "Game room")
 
+#Game Logic
+def send_item():
+  global is_game_running
+  while is_game_running:
+    with game_lock:
+      if("Game room" in rooms):
+        item = random.choice(items)
+        socketio.emit('item data', item)
+    time.sleep(2)
 
-    
+def start_game():
+  global is_game_running
+  with game_lock:
+      if not is_game_running:
+        print("Starting the game")
+        is_game_running = True
+        game_thread = threading.Thread(target=send_item, daemon=True)
+        game_thread.start()
+
+def end_game():
+  global is_game_running
+  with game_lock:
+    if is_game_running:
+      print("Stopping the game")
+      is_game_running = False
 
 if __name__ == '__main__':
   socketio.run(app, debug=True)

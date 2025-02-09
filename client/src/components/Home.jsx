@@ -5,16 +5,26 @@ import socket from '../socket';
 
 const Home = props => {
     const [usersInRoom, updateUsersInRoom] = useState([]);
+    const [currItem, updateCurrItem] = useState([""]);
+    
     useEffect(() => {
         socket.emit('connect game')
 
         socket.on('room data', (data) => {
             console.log(data);
+            const formattedUsers = data.map(([id, username]) => ({ id, username }));
+            updateUsersInRoom(formattedUsers);
+            console.log(usersInRoom);
+        })
+
+        socket.on('item data', (data) => {
+            updateCurrItem(data);
         })
 
         return () => {
             socket.emit('leave game')
         }
+
     },[])
     
     const navigate = useNavigate();
@@ -40,8 +50,17 @@ const Home = props => {
                 <button className='home-menu-button' onClick={Login}>Login</button>
                 <div className='home-item'>Item</div>
             </div>
-            <div className='home-camera-panel'>
-                <Camera/>
+            <div>
+                <h1>Connected Players:</h1>
+                <ul>
+                    {usersInRoom.map((user, index) => (
+                        <li key={index}>{user.username}</li>
+                        
+                    ))}
+                </ul>
+
+                <h2>Item: {currItem}</h2>
+                <input type="text" placeholder="Enter Item"></input>
             </div>
         </div>
     )
