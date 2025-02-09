@@ -22,6 +22,7 @@ rooms = {}
 
 #Items for game 
 items = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+currItem = ""
 
 #variables for game control
 game_thread = None
@@ -57,7 +58,7 @@ def handle_connect_game():
   if("Game room" not in rooms):
     rooms["Game room"] = []
 
-  rooms["Game room"].append([request.sid, users[request.sid]])
+  rooms["Game room"].append([request.sid, users[request.sid],0])
 
   emit('room data', rooms["Game room"],room = "Game room")
 
@@ -74,17 +75,14 @@ def handle_disconnect_game():
     rooms["Game room"] = [user for user in rooms["Game room"] if user[0] != request.sid]
 
     #stop game if no players left
-    if not rooms["Game room"]:
+    if(not rooms["Game room"]):
       end_game()
 
   emit('room data', rooms["Game room"],room = "Game room")
-    
-
-
 
 @socketio.on("disconnect")
 def handle_disconnect():
-  if request.sid in users:
+  if(request.sid in users):
     
     #remove user from room if they go to a different page
     if("Game room" in rooms):
@@ -100,20 +98,39 @@ def handle_disconnect():
 
     emit('room data', rooms["Game room"],room = "Game room")
 
+@socketio.on("check input")
+def handle_check_input(data):
+  if(not request.sid in users):
+    return
+  if(not "Game room" in rooms or not currItem):
+    return
+  
+  #if data is equal to current item, increment score, otherwise give them a false response
+  if(data == currItem):
+    emit('server input res',{"response": "Correct"},room = "Game room")
+    for user in rooms["Game room"]:
+      if user[0] == request.sid:
+        user[2] += 1
+        break
+  else:
+    emit('server input res',{"Reponse": "Inccorrect"},room = "Game room")
+  emit('room data', rooms["Game room"],room = "Game room")
+
 #Game Logic
 def send_item():
   global is_game_running
+  global currItem
   while is_game_running:
     with game_lock:
       if("Game room" in rooms):
-        item = random.choice(items)
-        socketio.emit('item data', item)
-    time.sleep(2)
+        currItem = random.choice(items)
+        socketio.emit('item data', currItem)
+    time.sleep(8)
 
 def start_game():
   global is_game_running
   with game_lock:
-      if not is_game_running:
+      if(not is_game_running):
         print("Starting the game")
         is_game_running = True
         game_thread = threading.Thread(target=send_item, daemon=True)
@@ -122,7 +139,7 @@ def start_game():
 def end_game():
   global is_game_running
   with game_lock:
-    if is_game_running:
+    if(is_game_running):
       print("Stopping the game")
       is_game_running = False
 

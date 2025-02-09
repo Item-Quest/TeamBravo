@@ -5,20 +5,27 @@ import socket from '../socket';
 
 const Home = props => {
     const [usersInRoom, updateUsersInRoom] = useState([]);
-    const [currItem, updateCurrItem] = useState([""]);
+    const [currItem, updateCurrItem] = useState("");
+    const [inputItem, setInputItem] = useState("");
+    const [serverAns, setServerAns] = useState("");
+
     
     useEffect(() => {
         socket.emit('connect game')
 
         socket.on('room data', (data) => {
             console.log(data);
-            const formattedUsers = data.map(([id, username]) => ({ id, username }));
+            const formattedUsers = data.map(([id, username, score]) => ({ id, username, score }));
             updateUsersInRoom(formattedUsers);
             console.log(usersInRoom);
         })
 
         socket.on('item data', (data) => {
             updateCurrItem(data);
+        })
+
+        socket.on('server input res', (data) => {
+            setServerAns(data.response);
         })
 
         return () => {
@@ -35,6 +42,21 @@ const Home = props => {
 
     const LeaderboardClick = () => {
         navigate("/leaderboard");
+    }
+
+    const HandleInput = (event) => {
+        setInputItem(event.target.value);
+    }
+
+    const HandleSubmit = () => {
+        if(inputItem === currItem){
+            //Send answer to server to check
+            socket.emit('check input', inputItem);
+        } else {
+            setServerAns("False");
+        }
+
+        setInputItem("");
     }
 
     const Login = () => {
@@ -54,13 +76,14 @@ const Home = props => {
                 <h1>Connected Players:</h1>
                 <ul>
                     {usersInRoom.map((user, index) => (
-                        <li key={index}>{user.username}</li>
-                        
+                        <li key={index}>User:{user.username} Score:{user.score}</li>
                     ))}
                 </ul>
 
                 <h2>Item: {currItem}</h2>
-                <input type="text" placeholder="Enter Item"></input>
+                <input onChange={HandleInput} value={inputItem} type="text" placeholder="Enter Item"></input>
+                <button onClick={HandleSubmit}>Submit</button>
+                <h2>Server Response: {serverAns}</h2>
             </div>
         </div>
     )
