@@ -4,6 +4,7 @@ import './App.css'
 
 import Home from './components/Home.jsx'
 import Leaderboard from './components/Leaderboard.jsx'
+import PlayScreen from './components/PlayScreen.jsx';
 
 function App() {
 
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Home/>}/>
           <Route path='/home' element={<Home/>}/>
+          <Route path='/play' element={<PlayScreen/>}/>
           <Route path='/leaderboard' element={<Leaderboard/>}/>
         </Routes>
       </div>
