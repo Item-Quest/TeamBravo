@@ -12,7 +12,6 @@ const Home = props => {
     }
 
     const CreateGameClick = () => {
-        alert("Create Goes Here")
         {navigate("/play");}
     }
 
