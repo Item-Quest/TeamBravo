@@ -9,9 +9,15 @@ const Home = props => {
     const [inputItem, setInputItem] = useState("");
     const [serverAns, setServerAns] = useState("");
 
+    const [timeLeft, setTimeLeft] = useState(0);
+    const timerRef = useRef(null);
+
+
     
     useEffect(() => {
         socket.emit('connect game')
+
+
 
         socket.on('room data', (data) => {
             console.log(data);
@@ -63,6 +69,28 @@ const Home = props => {
         navigate("/login")
     }
 
+    socket.on('timer_started', () => {
+        setTimeLeft(10);
+        console.log('timer started');
+    });
+
+    const startTimer = () => {
+        socket.emit('start_timer');
+        console.log('starting timer');
+
+    }
+
+    useEffect(() => {
+        if (timeLeft > 0) {
+            timerRef.current = setTimeout(() => {
+                setTimeLeft(timeLeft - 1);
+            }, 1000);
+        } else if (timeLeft === 0 && timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
+        return () => { clearTimeout(timerRef.current); }
+    }, [timeLeft]);
 
     return (
         <div className='home'>
@@ -71,6 +99,9 @@ const Home = props => {
                 <button className='home-menu-button' onClick={LeaderboardClick}>Leaderboard</button>
                 <button className='home-menu-button' onClick={Login}>Login</button>
                 <div className='home-item'>Item</div>
+                <button className='home-menu-button' onClick={startTimer}>
+                    {(timeLeft > 0) ? timeLeft : "Start Timer"}
+                </button>
             </div>
             <div>
                 <h1>Connected Players:</h1>

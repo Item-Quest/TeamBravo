@@ -49,6 +49,11 @@ def handle_my_event(json):
 def handle_username_change(data):
   users[request.sid] = data['data']
 
+@socketio.on('start_timer')
+def handle_start_timer(): #for rooms emit with room ID
+  print('Timer started')
+  emit('timer_started', broadcast=True)
+
 @socketio.on('connect game')
 def handle_connect_game():
   print(f"Client {request.sid}: {users[request.sid]} joined game room")
