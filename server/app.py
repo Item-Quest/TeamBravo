@@ -67,9 +67,19 @@ def handle_connect_game():
 
   emit('room data', rooms["Game room"],room = "Game room")
 
-  start_game()
-
   emit('item data', currItem, room = "Game room")
+
+@socketio.on('start request')
+def handle_start_game():
+    username = users.get(request.sid, "Unknown User")
+    print(f"{username} requested to start the game.")
+    start_game()
+
+@socketio.on('end request')
+def handle_end_game():
+    username = users.get(request.sid, "Unknown User")
+    print(f"{username} requested to end the game.")
+    end_game()
 
 @socketio.on('leave game')
 def handle_disconnect_game():
