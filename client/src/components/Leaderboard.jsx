@@ -1,12 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
-import {getLeaderboardData} from '../dataProvider.js';
+import React, { useEffect, useState } from 'react';
+import { getLeaderboardData } from '../dataProvider.js';
 
 const Leaderboard = props => {
-
     const [leaderboardData, setLeaderboardData] = useState([]);
 
     useEffect(() => {
-        setLeaderboardData(getLeaderboardData());
+        const fetchData = async () => {
+            const data = await getLeaderboardData();
+            setLeaderboardData(data);
+        };
+        fetchData();
     }, []);
 
     return (

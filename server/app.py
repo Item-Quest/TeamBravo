@@ -6,6 +6,7 @@ import random
 #for the purposes of threading
 import threading
 import time
+import sqlite3
 
 #flask constructor. Takes name as argument
 app = Flask(__name__, template_folder='../client/dist', static_folder='../client/dist/assets')
@@ -33,6 +34,17 @@ game_lock = threading.Lock()
 @app.route('/', methods=['GET'])
 def home():
   return render_template('index.html')
+
+@app.route('/api/leaderboard', methods=['GET'])
+def api_leaderboard():
+    conn = sqlite3.connect('scores.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT user, score FROM users ORDER BY score DESC LIMIT 4')
+    rows = cursor.fetchall()
+    conn.close()
+
+    leaderboard = [{'Place': index + 1, 'Name': row[0], 'Score': row[1]} for index, row in enumerate(rows)]
+    return {'leaderboard': leaderboard}, 200
 
 @socketio.on('connect')
 def hande_connection():
@@ -72,7 +84,10 @@ def handle_connect_game():
 @socketio.on('leave game')
 def handle_disconnect_game():
   print(f"Client {request.sid}: {users[request.sid]} left game room")
-
+  
+  user_in_room = next((user for user in rooms["Game room"] if user[0] == request.sid), None)
+  if user_in_room:
+    saveScore(user_in_room[1], user_in_room[2])
   leave_room("Game room")
 
   #remove user from room if they go to a different page
@@ -83,7 +98,7 @@ def handle_disconnect_game():
     if(not rooms["Game room"]):
       end_game()
 
-  emit('room data', rooms["Game room"],room = "Game room")
+  emit('room data', rooms["Game room"], room = "Game room")
 
 @socketio.on("disconnect")
 def handle_disconnect():
@@ -147,6 +162,44 @@ def end_game():
     if(is_game_running):
       print("Stopping the game")
       is_game_running = False
+
+def saveScore(user, score):
+  #save score to database
+  #for now just save scores later save to db instead
+  print(f"User {user} scored {score}")
+
+  conn = sqlite3.connect('scores.db')  # Connect to your database
+  cursor = conn.cursor()
+  # Create table if it doesn't exist
+  cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user TEXT NOT NULL,
+      score INTEGER NOT NULL,
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  ''')
+
+  # Insert score into the table
+  cursor.execute('''
+    INSERT INTO users (user, score)
+    VALUES (?, ?)
+  ''', (user, score))
+
+  # Commit the transaction and close the connection
+  conn.commit()
+  conn.close()
+
+def saveScores(gameRoom):
+  for user in gameRoom:
+    print(f"User {user[1]} scored {user[2]}")
+    saveScore(user[1], user[2])
+
+@socketio.on('game_over')
+def handle_game_over():
+  print("Game over")
+
+  saveScores(rooms["Game room"])
 
 if __name__ == '__main__':
   socketio.run(app, debug=True)

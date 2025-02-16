@@ -13,7 +13,7 @@ const Home = props => {
     const timerRef = useRef(null);
 
 
-    
+
     useEffect(() => {
         socket.emit('connect game')
 
@@ -38,8 +38,8 @@ const Home = props => {
             socket.emit('leave game')
         }
 
-    },[])
-    
+    }, [])
+
     const navigate = useNavigate();
 
     const playClick = () => {
@@ -55,7 +55,12 @@ const Home = props => {
     }
 
     const HandleSubmit = () => {
-        if(inputItem === currItem){
+        //Check if time is up if no time answer not proccessed
+        if (timeLeft === 0) {
+            setServerAns("Time is up!");
+            return;
+        }
+        if (inputItem === currItem) {
             //Send answer to server to check
             socket.emit('check input', inputItem);
         } else {
@@ -78,6 +83,8 @@ const Home = props => {
         socket.emit('start_timer');
         console.log('starting timer');
 
+        console.log('game over');
+        socket.emit('game_over');
     }
 
     useEffect(() => {
