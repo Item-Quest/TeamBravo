@@ -38,7 +38,7 @@ export default function JoinModal({ isOpen, onClose }) {
           <h2 className = "join-title">Join Room</h2>
           <input className="join-input" onChange = {updateUsername} type="text" placeholder="Enter Username"></input>
             <input className="join-input" onChange = {updateRoomCode} type="text" placeholder="Enter Room Code"></input>
-            {error && <p className="error-message">{error}</p>} {/* Show error if room code is not entered */}
+            {error && <p className="join-error-message">{error}</p>} {/* Show error if room code is not entered */}
             <button className="join-button-play" onClick={clickPlay}>Play</button>
             <button className="join-close-modal" onClick={onClose}>&times;</button>
           </div>
