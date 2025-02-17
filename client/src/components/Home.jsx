@@ -20,14 +20,9 @@ const Home = props => {
     }
 
     const SettingsClick = () => {
-        alert("settings Goes Here")
-        {navigate("/");}
+        {navigate("/MenuSettings");}
     }
 
-    const BackEndClick = () => {
-        navigate("/TestLogin")
-    }
-    
 
     return (
         <div className='home'>
@@ -46,7 +41,6 @@ const Home = props => {
                 <div className='home-left-panel-lower'>
                     <div className='settings-button-container'>
                         <button className='settings-button' onClick={SettingsClick}>Settings</button>
-                        <button className='settings-button' onClick={BackEndClick}>Backend</button>
                     </div>
                 </div>
                 
