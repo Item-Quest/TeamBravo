@@ -406,3 +406,98 @@ display: block;
   margin-top: 5px; 
 }
 
+/* Join Room Overlay css */
+.join-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.join-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent overlay */
+}
+
+.join-modal-content {
+  position: relative;
+  background-color: #60495A;
+  padding: 2rem;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.join-title{
+  top: 10px;
+  font-size: 30px;
+  color: #EFF6EE;
+  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+}
+
+.join-input[type="text"] {
+  background-color: #9197AE;
+  width: 100%;
+  padding: 0.75rem;
+  margin: 0.75rem 0;
+  border: 1px solid #9197AE;
+  border-radius: 2.5px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+
+.join-button-play {
+  background-color: #F02D3A; 
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 1rem 2rem;
+  margin: 1rem 0.5rem 0 0;
+  border: none;
+  border-radius: 2.5px;
+  color: #EFF6EE;
+}
+
+.join-button-play:hover {
+  background-color: #C50122;
+}
+
+
+.join-close-modal {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  background-color: transparent;
+  border: none;
+  font-size: 2rem;
+  color: #EFF6EE;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+}
+
+.join-close-modal:hover {
+  color: #DD0428;
+}
+
+.error-message {
+  color: #DD0428;
+  background-color: #EFF6EE;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  text-align: center;
+}
+
+

@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Camera from './Camera';
-import logo from '../assets/logo.png'
+import JoinModal from './JoinRoom' /* For Join Room Popup/Modal */
+import logo from '../assets/logo.png';
 
 const Home = props => {
     
     const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false); /* Set Join Room Popup/Modal to closed/false */
 
     const JoinClick = () => {
-        alert("Play was clicked");
+        setIsModalOpen(true); /* Open Join Room Popup/Modal */
     }
 
     const CreateGameClick = () => {
@@ -64,6 +66,7 @@ const Home = props => {
                 </div>
             </div>
         </div>
+      <JoinModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> {/* Join Screen Popup/Modal */}
         </div>
     )
 }
