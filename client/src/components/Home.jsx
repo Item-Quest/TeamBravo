@@ -8,11 +8,11 @@ const Home = props => {
     const navigate = useNavigate();
 
     const JoinClick = () => {
-        alert("Play was clicked");
+        navigate("/login");
     }
 
     const CreateGameClick = () => {
-        {navigate("/play");}
+        navigate("/create");
     }
 
     const LeaderboardClick = () => {
@@ -20,9 +20,13 @@ const Home = props => {
     }
 
     const SettingsClick = () => {
-        {navigate("/MenuSettings");}
+        navigate("/MenuSettings");
     }
 
+    const BackEndClick = () => {
+        navigate("/TestLogin")
+    }
+    
 
     return (
         <div className='home'>
@@ -41,6 +45,7 @@ const Home = props => {
                 <div className='home-left-panel-lower'>
                     <div className='settings-button-container'>
                         <button className='settings-button' onClick={SettingsClick}>Settings</button>
+                        <button className='settings-button' onClick={BackEndClick}>Backend</button>
                     </div>
                 </div>
                 
@@ -54,6 +59,7 @@ const Home = props => {
                     <Camera />
                 </div>
                 <div className='home-right-panel-lower'>
+                    <span>How To play </span>
                     <text>How To play </text>
                 </div>
             </div>
