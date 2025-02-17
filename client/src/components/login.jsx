@@ -16,6 +16,7 @@ function Login(){
   function playGame(){
     socket.emit('username change', {data: username});
 
+<<<<<<< HEAD
     navigate("/Home");
   }
 
@@ -25,6 +26,9 @@ function Login(){
 
   function joinRoomClick(){
     navigate("/Room");
+=======
+    navigate("/Test");
+>>>>>>> Dannny
   }
 
   function doAlert(message){
@@ -33,6 +37,7 @@ function Login(){
 
   return (
     <div className='login-background'>
+<<<<<<< HEAD
       <div className='login-logo'><span className='login-item1-logo'>Insert_</span><span className='login-item2-logo'>Logo_Here_<FontAwesomeIcon icon={faCamera} /></span></div>
       <div className='login-container'>
         <input onChange = {updateUsername} type="text" placeholder="Enter Username"></input>
@@ -56,6 +61,12 @@ function Login(){
         
         <span>Made by Team Bravo</span>
       </footer>
+=======
+      <div className='login-container'>
+        <input onChange = {updateUsername} type="text" placeholder="Enter Username"></input>
+        <button className="login-button-play" onClick={playGame}>Play</button>
+      </div>
+>>>>>>> Dannny
     </div>
   );
 }

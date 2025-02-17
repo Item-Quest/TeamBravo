@@ -6,7 +6,10 @@ import random
 #for the purposes of threading
 import threading
 import time
+<<<<<<< HEAD
 import sqlite3
+=======
+>>>>>>> Dannny
 
 #flask constructor. Takes name as argument
 app = Flask(__name__, template_folder='../client/dist', static_folder='../client/dist/assets')
@@ -24,17 +27,29 @@ rooms = {}
 #Items for game 
 items = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
 currItem = ""
+<<<<<<< HEAD
+=======
+global gameLength #number of items to go through
+gameLength = 5 #for testing
+global itemCount #current item count, will go to gameLength
+itemCount = 0
+>>>>>>> Dannny
 
 #variables for game control
 game_thread = None
 is_game_running = False
 game_lock = threading.Lock()
+<<<<<<< HEAD
+=======
+send_item_lock = threading.Lock()
+>>>>>>> Dannny
 
 
 @app.route('/', methods=['GET'])
 def home():
   return render_template('index.html')
 
+<<<<<<< HEAD
 @app.route('/api/leaderboard', methods=['GET'])
 def api_leaderboard():
     conn = sqlite3.connect('scores.db')
@@ -46,6 +61,8 @@ def api_leaderboard():
     leaderboard = [{'Place': index + 1, 'Name': row[0], 'Score': row[1]} for index, row in enumerate(rows)]
     return {'leaderboard': leaderboard}, 200
 
+=======
+>>>>>>> Dannny
 @socketio.on('connect')
 def hande_connection():
   print(f"A Client connected: {request.sid}")
@@ -79,15 +96,35 @@ def handle_connect_game():
 
   emit('room data', rooms["Game room"],room = "Game room")
 
+<<<<<<< HEAD
   start_game()
+=======
+  emit('item data', currItem, room = "Game room")
+
+@socketio.on('start request')
+def handle_start_game():
+    username = users.get(request.sid, "Unknown User")
+    print(f"{username} requested to start the game.")
+    start_game()
+
+@socketio.on('end request')
+def handle_end_game():
+    username = users.get(request.sid, "Unknown User")
+    print(f"{username} requested to end the game.")
+    end_game()
+>>>>>>> Dannny
 
 @socketio.on('leave game')
 def handle_disconnect_game():
   print(f"Client {request.sid}: {users[request.sid]} left game room")
+<<<<<<< HEAD
   
   user_in_room = next((user for user in rooms["Game room"] if user[0] == request.sid), None)
   if user_in_room:
     saveScore(user_in_room[1], user_in_room[2])
+=======
+
+>>>>>>> Dannny
   leave_room("Game room")
 
   #remove user from room if they go to a different page
@@ -98,7 +135,11 @@ def handle_disconnect_game():
     if(not rooms["Game room"]):
       end_game()
 
+<<<<<<< HEAD
   emit('room data', rooms["Game room"], room = "Game room")
+=======
+  emit('room data', rooms["Game room"],room = "Game room")
+>>>>>>> Dannny
 
 @socketio.on("disconnect")
 def handle_disconnect():
@@ -132,6 +173,10 @@ def handle_check_input(data):
       if user[0] == request.sid:
         user[2] += 1
         break
+<<<<<<< HEAD
+=======
+    send_item()
+>>>>>>> Dannny
   else:
     emit('server input res',{"Reponse": "Inccorrect"},room = "Game room")
   emit('room data', rooms["Game room"],room = "Game room")
@@ -140,12 +185,27 @@ def handle_check_input(data):
 def send_item():
   global is_game_running
   global currItem
+<<<<<<< HEAD
   while is_game_running:
     with game_lock:
       if("Game room" in rooms):
         currItem = random.choice(items)
         socketio.emit('item data', currItem)
     time.sleep(8)
+=======
+  global itemCount
+  with send_item_lock:
+    with game_lock:
+      if "Game room" in rooms and is_game_running:
+        if itemCount < gameLength:
+          currItem = random.choice(items)
+          itemCount += 1
+          socketio.emit('item data', currItem)
+        else:
+          itemCount = 0
+          emit('items complete')
+          return 
+>>>>>>> Dannny
 
 def start_game():
   global is_game_running
@@ -155,6 +215,10 @@ def start_game():
         is_game_running = True
         game_thread = threading.Thread(target=send_item, daemon=True)
         game_thread.start()
+<<<<<<< HEAD
+=======
+        emit('game started')
+>>>>>>> Dannny
 
 def end_game():
   global is_game_running
@@ -162,6 +226,7 @@ def end_game():
     if(is_game_running):
       print("Stopping the game")
       is_game_running = False
+<<<<<<< HEAD
 
 def saveScore(user, score):
   #save score to database
@@ -200,6 +265,9 @@ def handle_game_over():
   print("Game over")
 
   saveScores(rooms["Game room"])
+=======
+      emit('game ended')
+>>>>>>> Dannny
 
 if __name__ == '__main__':
   socketio.run(app, debug=True)

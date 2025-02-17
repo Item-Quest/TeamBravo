@@ -1,131 +1,72 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Camera from './Camera';
-import socket from '../socket';
+import logo from '../assets/logo.png'
 
 const Home = props => {
-    const [usersInRoom, updateUsersInRoom] = useState([]);
-    const [currItem, updateCurrItem] = useState("");
-    const [inputItem, setInputItem] = useState("");
-    const [serverAns, setServerAns] = useState("");
-
-    const [timeLeft, setTimeLeft] = useState(0);
-    const timerRef = useRef(null);
-
-
-
-    useEffect(() => {
-        socket.emit('connect game')
-
-
-
-        socket.on('room data', (data) => {
-            console.log(data);
-            const formattedUsers = data.map(([id, username, score]) => ({ id, username, score }));
-            updateUsersInRoom(formattedUsers);
-            console.log(usersInRoom);
-        })
-
-        socket.on('item data', (data) => {
-            updateCurrItem(data);
-        })
-
-        socket.on('server input res', (data) => {
-            setServerAns(data.response);
-        })
-
-        return () => {
-            socket.emit('leave game')
-        }
-
-    }, [])
-
+    
     const navigate = useNavigate();
 
-    const playClick = () => {
+    const JoinClick = () => {
         alert("Play was clicked");
+    }
+
+    const CreateGameClick = () => {
+        {navigate("/play");}
     }
 
     const LeaderboardClick = () => {
         navigate("/leaderboard");
     }
 
-    const HandleInput = (event) => {
-        setInputItem(event.target.value);
+    const SettingsClick = () => {
+        alert("settings Goes Here")
+        {navigate("/");}
     }
 
-    const HandleSubmit = () => {
-        //Check if time is up if no time answer not proccessed
-        if (timeLeft === 0) {
-            setServerAns("Time is up!");
-            return;
-        }
-        if (inputItem === currItem) {
-            //Send answer to server to check
-            socket.emit('check input', inputItem);
-        } else {
-            setServerAns("False");
-        }
-
-        setInputItem("");
+    const BackEndClick = () => {
+        navigate("/TestLogin")
     }
-
-    const Login = () => {
-        navigate("/login")
-    }
-
-    socket.on('timer_started', () => {
-        setTimeLeft(10);
-        console.log('timer started');
-    });
-
-    const startTimer = () => {
-        socket.emit('start_timer');
-        console.log('starting timer');
-
-        console.log('game over');
-        socket.emit('game_over');
-    }
-
-    useEffect(() => {
-        if (timeLeft > 0) {
-            timerRef.current = setTimeout(() => {
-                setTimeLeft(timeLeft - 1);
-            }, 1000);
-        } else if (timeLeft === 0 && timerRef.current) {
-            clearTimeout(timerRef.current);
-            timerRef.current = null;
-        }
-        return () => { clearTimeout(timerRef.current); }
-    }, [timeLeft]);
+    
 
     return (
         <div className='home'>
-            <div className='home-buttons-panel'>
-                <button className='home-menu-button' onClick={playClick}>Play</button>
-                <button className='home-menu-button' onClick={LeaderboardClick}>Leaderboard</button>
-                <button className='home-menu-button' onClick={Login}>Login</button>
-                <div className='home-item'>Item</div>
-                <button className='home-menu-button' onClick={startTimer}>
-                    {(timeLeft > 0) ? timeLeft : "Start Timer"}
-                </button>
+        <div className='home-content'> {/* Container for content */}
+            <div className='home-left-panel'> {/* Left Panel for buttons */}
+                <div className='home-left-panel-upper'>
+                    <img src={logo} alt="Logo" className='logo-container' />
+                </div>
+                <div className='home-left-panel-middle'>
+                    <div className='home-menu-panel'>
+                            <button className='home-menu-button' onClick={JoinClick}>JOIN GAME</button>
+                            <button className='home-menu-button' onClick={CreateGameClick}>Create Game</button>
+                            <button className='home-menu-button' onClick={LeaderboardClick}>Leader Board</button>
+                    </div>
+                </div>
+                <div className='home-left-panel-lower'>
+                    <div className='settings-button-container'>
+                        <button className='settings-button' onClick={SettingsClick}>Settings</button>
+                        <button className='settings-button' onClick={BackEndClick}>Backend</button>
+                    </div>
+                </div>
+                
             </div>
-            <div>
-                <h1>Connected Players:</h1>
-                <ul>
-                    {usersInRoom.map((user, index) => (
-                        <li key={index}>User:{user.username} Score:{user.score}</li>
-                    ))}
-                </ul>
 
-                <h2>Item: {currItem}</h2>
-                <input onChange={HandleInput} value={inputItem} type="text" placeholder="Enter Item"></input>
-                <button onClick={HandleSubmit}>Submit</button>
-                <h2>Server Response: {serverAns}</h2>
+            <div className='home-right-panel'> {/* Right Panel for Camera */}
+                <div className='home-panel-title'>
+                    Test Your Camera
+                </div> {/* Title */}
+                <div className='home-camera-panel'> {/* Container for Camera */}
+                    <Camera />
+                </div>
+                <div className='home-right-panel-lower'>
+                    <text>How To play </text>
+                </div>
             </div>
+        </div>
         </div>
     )
 }
 
 
-export default Home
+export default Home;
