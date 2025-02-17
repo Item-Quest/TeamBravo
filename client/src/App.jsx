@@ -3,14 +3,18 @@ import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import './App.css';
 import socket from './socket';
 
-import Home from './components/Home.jsx'
-import Leaderboard from './components/Leaderboard.jsx'
+import Home from './components/Home.jsx';
+import Leaderboard from './components/Leaderboard.jsx';
+import Login from './components/login.jsx';
+import Room from './components/Room.jsx';
 import PlayScreen from './components/PlayScreen.jsx';
 import Test from './components/Test.jsx';
-import Login from './components/login.jsx';
 import CreateGame from './components/CreateGame.jsx'
 import MenuSettings from './components/MenuSettings.jsx';
 import {getAllPlayers} from './dataProvider.js';
+
+
+
 
 function App() {
    const [game, setGame] = useState({
