@@ -258,6 +258,10 @@ display: block;
   font-size: 30px;
 }
 
+.leaderboard-pfp {
+  height: 100px;
+}
+
 .play-screen {
   display: flex;
   flex-direction: column;
@@ -500,4 +504,119 @@ display: block;
   text-align: center;
 }
 
+
+/*create game settings page*/
+
+.create-game {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.create-container {
+  border: 2px solid white;
+  height: 70%;
+  width: 50%;
+  border-radius: 12px;
+  display: grid;
+  grid-template-rows: 100px 1fr;
+  margin-top: 60px;
+}
+
+.create-title {
+  text-align: center;
+  font-size: 40px;
+  padding: 20px;
+  background: white;
+}
+.create-settings {
+  padding: 30px;
+}
+
+.create-settings label {
+  display: inline-block;
+  width: 150px;
+  font-size: 25px;
+}
+
+.create-button-container {
+  width: 80%;
+  position: absolute;
+  bottom: 60px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.create-button-container button {
+  width: 15%;
+  height: 60px;
+  border-radius: 15px;
+  background-color: #e3eff6;
+  font-size: 20px;
+  font-family:sans-serif;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.create-button-container button:hover{
+  background-color: #f6eee3;
+}
+
+.create-button-container button:active{
+  background-color: #e4b36f;
+}
+
+.settings-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #38dfdc;
+}
+
+.settings-card {
+  width: 28rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+}
+
+.settings-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.settings-item label {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.settings-item input[type="range"],
+.settings-item select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #403a3a;
+  border-radius: 4px;
+}
+
+.credits-text {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.ui-slider {
+  accent-color: #e62525;
+}
+
+.music-slider {
+  accent-color: #e42424;
+}
 

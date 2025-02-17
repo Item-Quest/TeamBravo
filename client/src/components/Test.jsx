@@ -29,11 +29,12 @@ const Home = props => {
         })
 
         socket.on('server input res', (data) => {
-            //setServerAns(data.response);
+            setServerAns(data.response);
         })
 
         return () => {
-            socket.emit('leave game')
+            socket.emit('leave game');
+            socket.emit('end request');
         }
 
     },[])
@@ -89,6 +90,18 @@ const Home = props => {
                 <button className='home-menu-button' onClick={startTimer}>
                     {(timeLeft > 0) ? timeLeft : "Start Timer"}
                 </button>
+                <button 
+                className='home-menu-button' 
+                onClick={() => socket.emit('start request')}
+            >
+                Start Game
+                </button>
+                <button 
+                className='home-menu-button' 
+                onClick={() => socket.emit('end request')}
+            >
+                End Game
+            </button>
             </div>
             <div>
                 <h1>Connected Players:</h1>

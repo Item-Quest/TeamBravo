@@ -14,7 +14,7 @@ const Home = props => {
     }
 
     const CreateGameClick = () => {
-        {navigate("/play");}
+        navigate("/create");
     }
 
     const LeaderboardClick = () => {
@@ -22,8 +22,7 @@ const Home = props => {
     }
 
     const SettingsClick = () => {
-        alert("settings Goes Here")
-        {navigate("/");}
+        navigate("/MenuSettings");
     }
 
     const BackEndClick = () => {
@@ -62,6 +61,7 @@ const Home = props => {
                     <Camera />
                 </div>
                 <div className='home-right-panel-lower'>
+                    <span>How To play </span>
                     <text>How To play </text>
                 </div>
             </div>
