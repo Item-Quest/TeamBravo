@@ -23,11 +23,16 @@ rooms = {}
 #Items for game 
 items = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
 currItem = ""
+global gameLength #number of items to go through
+gameLength = 5 #for testing
+global itemCount #current item count, will go to gameLength
+itemCount = 0
 
 #variables for game control
 game_thread = None
 is_game_running = False
 game_lock = threading.Lock()
+send_item_lock = threading.Lock()
 
 
 @app.route('/', methods=['GET'])
@@ -129,6 +134,7 @@ def handle_check_input(data):
       if user[0] == request.sid:
         user[2] += 1
         break
+    send_item()
   else:
     emit('server input res',{"Reponse": "Inccorrect"},room = "Game room")
   emit('room data', rooms["Game room"],room = "Game room")
@@ -137,12 +143,18 @@ def handle_check_input(data):
 def send_item():
   global is_game_running
   global currItem
-  while is_game_running:
+  global itemCount
+  with send_item_lock:
     with game_lock:
-      if("Game room" in rooms):
-        currItem = random.choice(items)
-        socketio.emit('item data', currItem)
-    time.sleep(8)
+      if "Game room" in rooms and is_game_running:
+        if itemCount < gameLength:
+          currItem = random.choice(items)
+          itemCount += 1
+          socketio.emit('item data', currItem)
+        else:
+          itemCount = 0
+          emit('items complete')
+          return 
 
 def start_game():
   global is_game_running
@@ -152,6 +164,7 @@ def start_game():
         is_game_running = True
         game_thread = threading.Thread(target=send_item, daemon=True)
         game_thread.start()
+        emit('game started')
 
 def end_game():
   global is_game_running
@@ -159,6 +172,7 @@ def end_game():
     if(is_game_running):
       print("Stopping the game")
       is_game_running = False
+      emit('game ended')
 
 if __name__ == '__main__':
   socketio.run(app, debug=True)

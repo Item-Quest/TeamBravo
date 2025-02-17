@@ -171,6 +171,51 @@ display: block;
   align-items: center;
 }
 
+.popup-overlay {
+  position: fixed;
+  top: 20%;
+  right: 20px; /* Aligns popup to the right side */
+  background: none; /* No dark background */
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  z-index: 1000;
+}
+
+.popup {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 10px;
+  border: 2px solid #000; /* Adds an outline like buttons */
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  width: 250px;
+  text-align: center;
+}
+
+.popup h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.popup p {
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+.popup button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.popup button:hover {
+  background: #0056b3;
+}
 .home-right-panel {
   flex: 1; /* Takes up available space */
   padding: 20px;
