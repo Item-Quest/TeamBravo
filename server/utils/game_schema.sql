@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS ROOMS (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  room_code TEXT UNIQUE,
+  game_state TEXT,
+  items TEXT, -- JSON encoded string
+  time_in_game INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS USERS(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  socket_id TEXT UNIQUE,
+  score INTEGER,
+  room_code TEXT,
+  FOREIGN KEY (room_code) REFERENCES ROOMS(room_code)
+);

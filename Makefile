@@ -1,4 +1,4 @@
-.PHONY: all run runC build buildS buildC clean
+.PHONY: all run runC build buildS buildC clean testdb
 
 #make all -> cleans client and server folder, sets up both for running, runs the serverr
 #make run -> runs the server | assumes you've already compiled
@@ -30,6 +30,9 @@ buildS:
 	@-npm run build --prefix client
 	@-python3 -m venv server/environment
 	@-$(ENVIRONMENT_PATH)/pip install flask flask-socketio eventlet redis
+
+testdb:
+	@-python3 ./server/utils/memoryDB.py
 
 clean:
 	@-rm -r client/dist
