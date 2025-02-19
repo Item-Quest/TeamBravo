@@ -25,6 +25,18 @@ def db_add_room(cursor, room_code, game_state, items, time_in_game):
   except sqlite3.Error as e:
     print(f"db_add_room error: {e}")
 
+#checks if a room exists in rooms
+def db_check_rooms_room(cursor, room_code):
+  try:
+    sql = '''SELECT room_code FROM rooms WHERE room_code = ?'''
+    cursor.execute(sql,[room_code])
+    res = cursor.fetchone()
+    if res:
+      return res[0]
+    return None
+  except sqlite3.Error as e:
+    print(f"db_check_rooms_room: {e}")
+
 def db_add_user(cursor, socket_id, username, score):
   try:
     sql = '''INSERT INTO users(socket_id, username, score, room_code)
@@ -64,6 +76,18 @@ def db_set_user_room(cursor, socket_id, roomCode):
   except sqlite3.Error as e:
     print(f"db_set_user_room error:{e}")
 
+def db_get_user_room(cursor, socket_id):
+  try:
+    sql = '''SELECT room_code FROM  users WHERE socket_id = ?'''
+    cursor.execute(sql, [socket_id])
+    res = cursor.fetchone()
+    if res:
+      return res[0]
+    return None
+  except sqlite3.Error as e:
+    print(f"db_get_user_room error:{e}")
+    return None
+
 def db_set_user_score(cursor, socket_id, score):
   try:
     sql = '''UPDATE users SET score = ? WHERE socket_id = ?'''
@@ -72,6 +96,16 @@ def db_set_user_score(cursor, socket_id, score):
   except sqlite3.Error as e:
     print(f"db_set_user_room error:{e}")
 
+def db_get_game_state(cursor, room_code):
+  try:
+    #grab users from users
+    sql = '''SELECT * FROM users WHERE room_code = ?'''
+    cursor.execute(sql, [room_code])
+    users = cursor.fetchall()
+    #grab game_state from rooms
+
+  except sqlite3.Error as e:
+    print(f"db_get_game_state error: {e}")
 
 def db_room_exists(cursor, room_code):
   cursor.execute('SELECT 1 FROM rooms WHERE room_code = ?', (room_code,))

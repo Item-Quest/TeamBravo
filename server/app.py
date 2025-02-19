@@ -99,18 +99,26 @@ def handle_create_game():
   print(f"Client {request.sid}: {username} created room:{roomCode}")
   #Create room with Room code
   join_room(roomCode)
-  # #emit game created to allow user to join room
+  #emit game created to allow user to join room
   emit('game created', room=request.sid)
   
 #TODO: Game Page
 @socketio.on('connect game')
 def handle_connect_game():
-  # #get room code
-  # roomCode = redis_server.hget(f"{request.sid}", "room_code")
-  # if roomCode == None:
-  #   #TODO:Error handling if room code doesn't exist
-  #   return
-  # #check if room exists
+  #check if room exists for user
+  roomCode = db_get_user_room(cursor,request.sid)
+  if roomCode == None or roomCode == "None":
+    #TODO:Error handling if room doesn't exist
+    #emit a reroute signal to home page
+    return
+  #check if room exists in rooms
+  roomCode = db_check_rooms_room(cursor, roomCode)
+  if roomCode == None:
+    #TODO: Error handling if room doesn't exist in rooms
+    #emit a reroute signal to home page
+    return
+  #retrieve game state
+
   # if not redis_server.sismember("rooms", roomCode):
   #   #TODO: create error handling situation for clientside
   #   print(f"Client:{request.sid} attempted to connect without a room")
