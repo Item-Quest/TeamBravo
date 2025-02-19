@@ -26,7 +26,7 @@ const Home = props => {
     }
 
     const BackEndClick = () => {
-        navigate("/TestLogin")
+        navigate("/TestHome")
     }
     
 

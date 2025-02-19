@@ -1,221 +1,303 @@
-#Import Flask object
-from flask import Flask, render_template, request
-#import socket.io
-from flask_socketio import SocketIO, join_room, leave_room, emit
-import random
+import eventlet
+eventlet.monkey_patch() 
 #for the purposes of threading
+import string
 import threading
-import time
+#Import Flask object
+from flask import Flask, render_template, request # type: ignore
+#import socket.io
+from flask_socketio import SocketIO, join_room, leave_room, close_room, emit # type: ignore
+import random, string
+#import redis for memory database
+import redis
 import sqlite3
 
 #flask constructor. Takes name as argument
 app = Flask(__name__, template_folder='../client/dist', static_folder='../client/dist/assets')
 app.config['SECRET_KEY'] = 'secret!'
 
-# Initialize SocketIO
-socketio = SocketIO(app)
+#Initialize SocketIO
+socketio = SocketIO(app, async_mode='eventlet')
 
-#dictionary to track current online users
-users = {}
 
-#dictionary to track online users in rooms if we implement multiple rooms in the future
-rooms = {}
-
-#Items for game 
-items = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-currItem = ""
-global gameLength #number of items to go through
-gameLength = 5 #for testing
-global itemCount #current item count, will go to gameLength
-itemCount = 0
-
+#Setup Redis connection
+try:
+    redis_server = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+    # Try pinging Redis to check if the connection is successful
+    redis_server.ping()
+    print("Successfully connected to Redis")
+    redis_server.flushall()
+except redis.ConnectionError as e:
+    print(f"Error connecting to Redis: {e}")
+ 
 #variables for game control
 game_thread = None
-is_game_running = False
+game_running = False
 game_lock = threading.Lock()
-send_item_lock = threading.Lock()
+
+def room_exists(roomCode):
+    room_data = redis_server.hget(f"room:{roomCode}", "game_state")
+    return room_data is not None
 
 
 @app.route('/', methods=['GET'])
 def home():
   return render_template('index.html')
 
-@app.route('/api/leaderboard', methods=['GET'])
-def api_leaderboard():
-    conn = sqlite3.connect('scores.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT user, score FROM users ORDER BY score DESC LIMIT 4')
-    rows = cursor.fetchall()
-    conn.close()
-
-    leaderboard = [{'Place': index + 1, 'Name': row[0], 'Score': row[1]} for index, row in enumerate(rows)]
-    return {'leaderboard': leaderboard}, 200
-
 @socketio.on('connect')
 def hande_connection():
   print(f"A Client connected: {request.sid}")
-  users[request.sid] = "Anonymous"
+  redis_server.hset(f"{request.sid}", "username", "Anonymous")
 
-
-@socketio.on('client connection')
-def handle_my_event(json):
-  print('Received client connection: ' + str(json))
-  emit('server acknowledge', {'data': 'Server acknowledged your connection'})
-
+#Username change (exits in both join room and create room)
 @socketio.on('username change')
 def handle_username_change(data):
-  users[request.sid] = data['data']
+  redis_server.hset(f"{request.sid}", "username", data['data'])
 
-@socketio.on('start_timer')
-def handle_start_timer(): #for rooms emit with room ID
-  print('Timer started')
-  emit('timer_started', broadcast=True)
+#Join Room page
+@socketio.on('join attempt')
+def handle_join_attempt(data):
+  roomCode = data.get('roomcode')
+  #check if room code exists or not
+  if not redis_server.sismember("rooms", roomCode):
+    #if not, tell user to retype
+    emit('join response', {'success': False}, room=request.sid)
+  else:
+    #get username
+    username = redis_server.hget(f"{request.sid}", "username")
+    #add user details to redis room in redis
+    redis_server.hset(roomCode, f"user:{request.sid}:username", username)
+    redis_server.hset(roomCode, f"user:{request.sid}:score", 0)
+    #print redis state
+    game_state = redis_server.hgetall(roomCode)
+    print(game_state)
+    #associate socket_id with roomcode
+    redis_server.hset(f"{request.sid}", "room_code", roomCode)
 
+    #let user join
+    emit('join response', {'success': True}, room=request.sid)
+    join_room(roomCode)
+
+#Create room Page
+@socketio.on('create game')
+def handle_create_game():
+  #generate random 6 uppercase alphanumeric character room code
+  roomCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+  while redis_server.sismember("rooms", roomCode):
+    roomCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+  #get username
+  username = redis_server.hget(f"{request.sid}", "username")
+  #store room in rooms
+  redis_server.sadd("rooms", roomCode)
+  #set initial game state
+  redis_server.hset(roomCode, "room_code", roomCode)
+  redis_server.hset(roomCode, "game_state", "waiting")
+  redis_server.hset(roomCode, "items", "")
+  redis_server.hset(roomCode, "time", 0)
+  #store user in game state
+  redis_server.hset(roomCode, f"user:{request.sid}:username", username)
+  redis_server.hset(roomCode, f"user:{request.sid}:score", 0)
+  #associate socket_id with roomcode
+  redis_server.hset(f"{request.sid}", "room_code", roomCode)
+  #print game state in redis to terminal
+  game_state = redis_server.hgetall(roomCode)
+  print(game_state)
+  #retrieve username
+  username = redis_server.hget(f"{request.sid}", "username")
+  print(f"Client {request.sid}: {username} created room:{roomCode}")
+  #Create room with Room code
+  join_room(roomCode)
+  #emit game created to allow user to join room
+  emit('game created', room=request.sid)
+  
+#Game Page
 @socketio.on('connect game')
 def handle_connect_game():
-  print(f"Client {request.sid}: {users[request.sid]} joined game room")
-
-  join_room("Game room")
-
-  if("Game room" not in rooms):
-    rooms["Game room"] = []
-
-  rooms["Game room"].append([request.sid, users[request.sid],0])
-
-  emit('room data', rooms["Game room"],room = "Game room")
-
-  start_game()
-
-  emit('item data', currItem, room = "Game room")
+  #get room code
+  roomCode = redis_server.hget(f"{request.sid}", "room_code")
+  if roomCode == None:
+    #TODO:Error handling if room code doesn't exist
+    return
+  #check if room exists
+  if not redis_server.sismember("rooms", roomCode):
+    #TODO: create error handling situation for clientside
+    print(f"Client:{request.sid} attempted to connect without a room")
+    return
+  #retrieve game state
+  gameState=redis_server.hgetall(roomCode)
+  if gameState == None:
+    #TODO: error handling if game state doesn't exist
+    return
+  #Get Game Code
+  roomCode = gameState['room_code']
+  emit('room data', gameState, room=roomCode)
 
 @socketio.on('leave game')
-def handle_disconnect_game():
-  print(f"Client {request.sid}: {users[request.sid]} left game room")
-  
-  user_in_room = next((user for user in rooms["Game room"] if user[0] == request.sid), None)
-  if user_in_room:
-    saveScore(user_in_room[1], user_in_room[2])
+def handle_leave_game():
+  #output to console that user left a room
+  print(f"{request.sid} left a room")
+  #get roomCode data
+  roomCode = redis_server.hget(f"{request.sid}", "room_code")
+  if roomCode:
+    #Remove user from game state
+    redis_server.hdel(roomCode, f"user:{request.sid}:username")
+    redis_server.hdel(roomCode, f"user:{request.sid}:score")
+    #deassociate socketid with a room
+    redis_server.hdel(f"{request.sid}", "room_code")
+    #get game state
+    gameState=redis_server.hgetall(roomCode)
+    #check if there are users in the room
+    users = [key for key in gameState if key.startswith("user:")]
+    if not users:
+      print(f"Room {roomCode} is empty, Deleting room data")
+      #delete game state
+      redis_server.delete(roomCode)
+      #delete room from active set of rooms
+      redis_server.srem("rooms", roomCode)
+      close_room(roomCode)
+    else:
+      #emit updated room data to remaining players
+      emit('room data', gameState, room=roomCode)
+    emit('room data', gameState,room=roomCode)
+    #Make user leave room
+  leave_room(roomCode)
 
-  leave_room("Game room")
-
-  #remove user from room if they go to a different page
-  if("Game room" in rooms):
-    rooms["Game room"] = [user for user in rooms["Game room"] if user[0] != request.sid]
-
-    #stop game if no players left
-    if(not rooms["Game room"]):
-      end_game()
-  emit('room data', rooms["Game room"],room = "Game room")
-
+#Handle if user disconnects
 @socketio.on("disconnect")
 def handle_disconnect():
-  if(request.sid in users):
-    
-    #remove user from room if they go to a different page
-    if("Game room" in rooms):
-      rooms["Game room"] = [user for user in rooms["Game room"] if user[0] != request.sid]
-      #stop game if no players left
+  print(f"{request.sid} has disconnected")
+  #Retrieve roomCode
+  roomCode = redis_server.hget(f"{request.sid}", "room_code")
+  #delete username associated with request.sid
+  redis_server.hdel(f"{request.sid}", "username")
+  if roomCode:
+    #Remove user from game state
+    redis_server.hdel(roomCode, f"user:{request.sid}:username")
+    redis_server.hdel(roomCode, f"user:{request.sid}:score")
+    #deassociate socketid with a room
+    redis_server.hdel(f"{request.sid}", "room_code")
+    #check if room is empty after removing user
+    gameState = redis_server.hgetall(roomCode)
+    users = [key for key in gameState if key.startswith("user:")]
+    #if no users, delete room
+    if not users:
+      print(f"Room {roomCode} is empty, Deleting room data")
+      #delete game state
+      redis_server.delete(roomCode)
+      #delete room from active set of rooms
+      redis_server.srem("rooms", roomCode)
+      close_room(roomCode)
+    else:
+      #emit updated room data to remaining players
+      emit('room data', gameState, room=roomCode)
+  leave_room(roomCode)
 
-      if not rooms["Game room"]:
-        end_game()
-    
-    #remove users from users
-    print(f"Client {request.sid}: {users[request.sid]} disconnected")
-    del users[request.sid]
-
-    emit('room data', rooms["Game room"],room = "Game room")
-
-@socketio.on("check input")
-def handle_check_input(data):
-  if(not request.sid in users):
-    return
-  if(not "Game room" in rooms or not currItem):
-    return
-  
-  #if data is equal to current item, increment score, otherwise give them a false response
-  if(data == currItem):
-    emit('server input res',{"response": "Correct"},room = "Game room")
-    for user in rooms["Game room"]:
-      if user[0] == request.sid:
-        user[2] += 1
-        break
-    send_item()
-  else:
-    emit('server input res',{"Reponse": "Inccorrect"},room = "Game room")
-  emit('room data', rooms["Game room"],room = "Game room")
-
-#Game Logic
-def send_item():
-  global is_game_running
-  global currItem
-  global itemCount
-  with send_item_lock:
+def game_loop():
+  global game_running
+  while game_running:
     with game_lock:
-      if "Game room" in rooms and is_game_running:
-        if itemCount < gameLength:
-          currItem = random.choice(items)
-          itemCount += 1
-          socketio.emit('item data', currItem)
-        else:
-          itemCount = 0
-          emit('items complete')
-          return 
+      rooms = redis_server.smembers("rooms")
+      for roomCode in rooms:
+        if redis_server.hget(roomCode, "game_state") == "running":
+          newTime = int(redis_server.hget(roomCode, "time"))
+          newTime += 1
+          redis_server.hset(roomCode, "time", newTime)
+          gameState = redis_server.hgetall(roomCode)
+          socketio.emit('room data', gameState, room=roomCode)
+    eventlet.sleep(1)
+    
 
-def start_game():
-  global is_game_running
+@socketio.on('start game')
+def handle_start_game():
+  global game_running, game_thread
   with game_lock:
-      if(not is_game_running):
-        print("Starting the game")
-        is_game_running = True
-        game_thread = threading.Thread(target=send_item, daemon=True)
-        game_thread.start()
-        emit('game started')
+    #get room code of user
+    roomCode = redis_server.hget(f"{request.sid}", "room_code")
+    if roomCode == None:
+      #TODO: Error handling if user is not in room
+      return
+    #Get username
+    username = redis_server.hget(f"{request.sid}", "username")
+    if username == None:
+      #TODO: Error handling if user doens't eixt
+      return
+    #Get game state
+    gameState=redis_server.hgetall(roomCode)
+    if gameState == None:
+      #TODO: Error handling if there is no game that exists
+      return
+    #Print that user requested to run game
+    print(f"{request.sid}:{username} has requested to start the game in room:{roomCode}")
+    #Set time to 0
+    redis_server.hset(roomCode, "time", 0)
+    #Update game state to running
+    redis_server.hset(roomCode, "game_state", "running")
+    #Generate items for players to guess
+    random_string = ''.join(random.choices(string.ascii_lowercase, k=5))
+    #set items to be that string
+    redis_server.hset(roomCode, "items", random_string)
+    #reset the scores for all users in the room
+    for key in gameState:
+      if key.startswith("user:"):
+        user_sid = key.split(":")[1]
+        redis_server.hset(roomCode, f"user:{user_sid}:score", 0)
+    #emit start game in case pop up is there
+    emit('start game', room=roomCode)
+    #start game loop if it isn't started
+    if not game_running:
+      game_running = True
+      game_thread = eventlet.spawn(game_loop)
+      #game_thread.start()
+    gameState=redis_server.hgetall(roomCode)
+    emit('room data', gameState, room=roomCode)
 
-def end_game():
-  global is_game_running
+
+@socketio.on('end game')
+def handle_end_game():
+  global game_running
   with game_lock:
-    if(is_game_running):
-      print("Stopping the game")
-      is_game_running = False
-      emit('game ended')
+    #get room code of user
+    roomCode = redis_server.hget(f"{request.sid}", "room_code")
+    if roomCode == None:
+      #TODO: Error handling if user is not in room
+      return
+    #Get username
+    username = redis_server.hget(f"{request.sid}", "username")
+    if username == None:
+      #TODO: Error handling if user doens't eixt
+      return
+    #Get game state
+    gameState=redis_server.hgetall(roomCode)
+    if gameState == None:
+      #TODO: Error handling if there is no game that exists
+      return
+    #Print that user requested to end game
+    print(f"{request.sid}:{username} has requested to end the game in room:{roomCode}")
+    #Update game state
+    redis_server.hset(roomCode, "game_state", "waiting")
+    #get game state
+    gameState=redis_server.hgetall(roomCode)
+    #TODO:logic for ending starting
+    #emit game state
+    emit('room data', gameState, room=roomCode)
 
-def saveScore(user, score):
-  #save score to database
-  #for now just save scores later save to db instead
-  print(f"User {user} scored {score}")
+@socketio.on('submit')
+def handle_submit(data):
+  roomCode = redis_server.hget(f"{request.sid}", "room_code")
+  username = redis_server.hget(f"{request.sid}", "username")
+  items = redis_server.hget(roomCode, "items")
+  current_score = redis_server.hget(roomCode, f"user:{request.sid}:score")
+  current_score = int(current_score)
+  submitVal = data['submit']
+  if submitVal == items[current_score]:
+    newScore = current_score+1
+    redis_server.hset(roomCode, f"user:{request.sid}:score", newScore)
+    if newScore == len(items):
+      if redis_server.hget(roomCode, "game_state") == "running":
+        redis_server.hset(roomCode, "game_state", "waiting")
+        emit('winner', {'message': f"{username}"})
 
-  conn = sqlite3.connect('scores.db')  # Connect to your database
-  cursor = conn.cursor()
-  # Create table if it doesn't exist
-  cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user TEXT NOT NULL,
-      score INTEGER NOT NULL,
-      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  ''')
-
-  # Insert score into the table
-  cursor.execute('''
-    INSERT INTO users (user, score)
-    VALUES (?, ?)
-  ''', (user, score))
-
-  # Commit the transaction and close the connection
-  conn.commit()
-  conn.close()
-
-def saveScores(gameRoom):
-  for user in gameRoom:
-    print(f"User {user[1]} scored {user[2]}")
-    saveScore(user[1], user[2])
-
-@socketio.on('game_over')
-def handle_game_over():
-  print("Game over")
-
-  saveScores(rooms["Game room"])
+  emit('room data', redis_server.hgetall(roomCode), room=roomCode)
 
 if __name__ == '__main__':
   socketio.run(app, debug=True)
