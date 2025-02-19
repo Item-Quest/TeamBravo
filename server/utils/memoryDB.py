@@ -4,71 +4,83 @@ import os
 import time
 
 #initialize database
-def init_game_db():
+def db_init_game_db():
   #connect to in memory database
   connection = sqlite3.connect(':memory:')
   #create cursor object to execute sql commands
   cursor = connection.cursor()
-
   #read schema from game_schema.sql
   schema_path = os.path.join(os.path.dirname(__file__), 'game_schema.sql')
   with open(schema_path, 'r') as f:
     schema = f.read()
   cursor.executescript(schema)
-
   return connection, cursor
 
-def add_room(cursor, room_code, game_state, items, time_in_game):
+def db_add_room(cursor, room_code, game_state, items, time_in_game):
   try:
     sql = '''INSERT INTO rooms(room_code, game_state, items, time_in_game)
             VALUES(?,?,?,?)'''
     values = [room_code, game_state, json.dumps(items), time_in_game]
     cursor.execute(sql, values)
-    print(f"Room successfully added")
   except sqlite3.Error as e:
-    print(f"Room creation error occurred: {e}")
+    print(f"db_add_room error: {e}")
 
-def add_user(cursor, socket_id, score, room_code):
+def db_add_user(cursor, socket_id, username, score):
   try:
-    sql = '''INSERT INTO users(socket_id, score, room_code)
-        VALUES(?,?,?)'''
-    values = [socket_id, score, room_code]
+    sql = '''INSERT INTO users(socket_id, username, score, room_code)
+        VALUES(?,?,?,?)'''
+    values = [socket_id, username, score, "None"]
     cursor.execute(sql, values)
-    print("user successfully added")
+    return True
   except sqlite3.Error as e:
-    print(f"User creation error: {e}")
+    print(f"db_add_user error: {e}")
+    return False
 
-def get_rooms(cursor):
+def db_set_username(cursor, socket_id, username):
+  try:
+    sql = '''UPDATE users SET username = ? WHERE socket_id = ?'''
+    values = [username, socket_id]
+    cursor.execute(sql, values)
+  except sqlite3.Error as e:
+    print(f"Udb_set_username error:{e}")
+
+def db_get_username(cursor, socket_id):
+  try:
+    sql = '''SELECT username FROM users WHERE socket_id = ?'''
+    cursor.execute(sql, [socket_id])
+    res = cursor.fetchone()
+    if res:
+      return res[0]
+    return None
+  except sqlite3.Error as e:
+    print(f"db_get_username error:{e}")
+    return None
+
+def db_set_user_room(cursor, socket_id, roomCode):
+  try:
+    sql = '''UPDATE users SET room_code = ? WHERE socket_id = ?'''
+    values = [roomCode, socket_id]
+    cursor.execute(sql,values)
+  except sqlite3.Error as e:
+    print(f"db_set_user_room error:{e}")
+
+def db_set_user_score(cursor, socket_id, score):
+  try:
+    sql = '''UPDATE users SET score = ? WHERE socket_id = ?'''
+    values = [score, socket_id]
+    cursor.execute(sql,values)
+  except sqlite3.Error as e:
+    print(f"db_set_user_room error:{e}")
+
+
+def db_room_exists(cursor, room_code):
+  cursor.execute('SELECT 1 FROM rooms WHERE room_code = ?', (room_code,))
+  return cursor.fetchone() is not None
+
+def db_get_rooms(cursor):
   cursor.execute('SELECT * FROM rooms')
   return cursor.fetchall()
 
-def get_users(cursor):
+def db_get_users(cursor):
   cursor.execute('SELECT * from users')
   return cursor.fetchall()
-
-# sample data to add
-connection, cursor = init_game_db()
-
-add_room(cursor, 'ROOM123', 'waiting', ['a','b','c'], 0)
-add_user(cursor, 'socket123', 100, 'room123')
-
-connection.commit()
-start_time = time.time()
-rooms = get_rooms(cursor)
-end_time = time.time()
-print(end_time - start_time)
-users = get_users(cursor)
-
-print('Rooms:')
-for room in rooms:
-  room_id, room_code, game_state, items_json, time_in_game = room
-  items = json.loads(items_json)  # Dejsonify the items column
-  print(f"Room ID: {room_id}, Room Code: {room_code}, Game State: {game_state}, Items: {items}, Time in Game: {time_in_game}")
-
-print('Users:')
-for user in users:
-  user_id, socket_id, score, room_code = user
-  print(f"User ID: {user_id}, Socket ID: {socket_id}, Score: {score}, Room Code: {room_code}")
-
-connection.close()
-
