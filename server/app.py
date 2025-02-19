@@ -1,4 +1,4 @@
-import eventlet
+import eventlet # type: ignore
 eventlet.monkey_patch() 
 #for the purposes of threading
 import string
@@ -9,8 +9,7 @@ from flask import Flask, render_template, request # type: ignore
 from flask_socketio import SocketIO, join_room, leave_room, close_room, emit # type: ignore
 import random, string
 #import redis for memory database
-import redis
-import sqlite3
+import redis # type: ignore
 
 #flask constructor. Takes name as argument
 app = Flask(__name__, template_folder='../client/dist', static_folder='../client/dist/assets')
