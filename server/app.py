@@ -51,6 +51,7 @@ def hande_connection():
 #Username change (exits in both join room and create room)
 @socketio.on('username change')
 def handle_username_change(data):
+  print("username change")
   #change username
   username = data['data']
   db_set_username(cursor, request.sid, username)

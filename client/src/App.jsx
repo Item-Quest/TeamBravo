@@ -10,9 +10,9 @@ import CreateGame from './components/CreateGame.jsx'
 import MenuSettings from './components/MenuSettings.jsx';
 import {getAllPlayers} from './dataProvider.js';
 
-//Components used back backend for testing
+//Components used in backend for testing
 import TestHome from './components/testcomponents/TestHome.jsx';
-import TestJoin from './components/testcomponents/TestJoin.jsx';
+import TestJoin from './components/testcomponents/TestJoinRoom.jsx';
 import TestCreate from './components/testcomponents/TestCreate.jsx';
 import TestLeaderboard from './components/testcomponents/TestLeaderboard.jsx';
 import TestGame from './components/testcomponents/TestGame.jsx';
