@@ -21,7 +21,7 @@ run:
 runC:
 	@-npm run dev --prefix client
 
-build: buildS buildC
+build: buildC buildS
 
 buildC:
 	@-npm i --prefix client

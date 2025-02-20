@@ -149,7 +149,6 @@ def handle_leave_game():
   #     #delete game state
   #     redis_server.delete(roomCode)
   #     #delete room from active set of rooms
-  #     redis_server.srem("rooms", roomCode)
   #     close_room(roomCode)
   #   else:
   #     #emit updated room data to remaining players
