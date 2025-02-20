@@ -19,6 +19,8 @@ const TestCreate = () => {
   }
 
   function createGame(){
+    //comment out when running on server
+    navigate("/TestGame")
     //Handle Username
     socket.emit('username change',{data:username});
     //Handle joining room with room code
