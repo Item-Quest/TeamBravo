@@ -13,7 +13,7 @@ import {getAllPlayers} from './dataProvider.js';
 //Components used in backend for testing
 import TestHome from './components/testcomponents/TestHome.jsx';
 import TestJoin from './components/testcomponents/TestJoinRoom.jsx';
-import TestCreate from './components/testcomponents/TestCreate.jsx';
+import TestCreateGame from './components/testcomponents/TestCreateGame.jsx';
 import TestLeaderboard from './components/testcomponents/TestLeaderboard.jsx';
 import TestGame from './components/testcomponents/TestGame.jsx';
 
@@ -50,7 +50,7 @@ function App() {
           {/*Routes for test components for back end*/}
           <Route path='/TestHome' element={<TestHome/>}/>
           <Route path='/TestJoin' element={<TestJoin/>}/>
-          <Route path='/TestCreate' element={<TestCreate/>}/>
+          <Route path='/TestCreateGame' element={<TestCreateGame/>}/>
           <Route path='/TestLeaderboard' element={<TestLeaderboard/>}/>
           <Route path='/TestGame' element={<TestGame/>}/>
         </Routes>

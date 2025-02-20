@@ -125,7 +125,6 @@ def handle_connect_game():
   #output to console that user connected to game
   print(f"Client {request.sid}: {username} connected to room:{roomCode}")
 
-#TODO: leave game function
 @socketio.on('leave game')
 def handle_leave_game():
   #get username
@@ -133,61 +132,58 @@ def handle_leave_game():
   #output to console that user left roomm
   print(f"{request.sid}:{username} left a room")
   #get roomCode data
-  roomCode = db_get_user_room(request.sid)
-  # if roomCode:
-  #   #Remove user from game state
-  #   redis_server.hdel(roomCode, f"user:{request.sid}:username")
-  #   redis_server.hdel(roomCode, f"user:{request.sid}:score")
-  #   #deassociate socketid with a room
-  #   redis_server.hdel(f"{request.sid}", "room_code")
-  #   #get game state
-  #   gameState=redis_server.hgetall(roomCode)
-  #   #check if there are users in the room
-  #   users = [key for key in gameState if key.startswith("user:")]
-  #   if not users:
-  #     print(f"Room {roomCode} is empty, Deleting room data")
-  #     #delete game state
-  #     redis_server.delete(roomCode)
-  #     #delete room from active set of rooms
-  #     close_room(roomCode)
-  #   else:
-  #     #emit updated room data to remaining players
-  #     emit('room data', gameState, room=roomCode)
-  #   emit('room data', gameState,room=roomCode)
-  #   #Make user leave room
+  roomCode = db_get_user_room(cursor, request.sid)
+  if roomCode == "None" or roomCode == None:
+    #TODO: error handling if user doesn't have a room code but attempts to leave room
+    return
+  #check if roomCode is in rooms
+  roomCode = db_room_exists(cursor, roomCode)
+  if roomCode is None:
+    #TODO: error handling if user tried to leave room that isn't in rooms
+    return
+  #Remove user by setting user room to None
+  db_set_user_room(cursor, request.sid, "None")
+  #check if there are still users in room
+  if db_room_empty(cursor, roomCode):
+    print(f"Room:{roomCode} is empty, closing the room")
+    #delete room from rooms table
+    db_delete_room(cursor, roomCode)
+    #close the room
+    close_room(roomCode)
+  else:
+    #get game state
+    gameState = db_get_game_state(cursor, roomCode)
+    #emit updated room data to remaining players
+    emit('room data', gameState,room=roomCode)
+  #Make user leave room
   leave_room(roomCode)
   pass
 
 #TODO: user disconnect function
 @socketio.on("disconnect")
 def handle_disconnect():
-  # print(f"{request.sid} has disconnected")
-  # #Retrieve roomCode
-  # roomCode = redis_server.hget(f"{request.sid}", "room_code")
-  # #delete username associated with request.sid
-  # redis_server.hdel(f"{request.sid}", "username")
-  # if roomCode:
-  #   #Remove user from game state
-  #   redis_server.hdel(roomCode, f"user:{request.sid}:username")
-  #   redis_server.hdel(roomCode, f"user:{request.sid}:score")
-  #   #deassociate socketid with a room
-  #   redis_server.hdel(f"{request.sid}", "room_code")
-  #   #check if room is empty after removing user
-  #   gameState = redis_server.hgetall(roomCode)
-  #   users = [key for key in gameState if key.startswith("user:")]
-  #   #if no users, delete room
-  #   if not users:
-  #     print(f"Room {roomCode} is empty, Deleting room data")
-  #     #delete game state
-  #     redis_server.delete(roomCode)
-  #     #delete room from active set of rooms
-  #     redis_server.srem("rooms", roomCode)
-  #     close_room(roomCode)
-  #   else:
-  #     #emit updated room data to remaining players
-  #     emit('room data', gameState, room=roomCode)
-  # leave_room(roomCode)
-  pass
+  #get username
+  username = db_get_username(cursor, request.sid)
+  print(f"{request.sid}:{username} has disconnected")
+  #get roomcode from user
+  roomCode = db_get_user_room(cursor, request.sid)
+  #delete user from database:
+  db_delete_user(cursor, request.sid)
+  #Check if user was in room
+  if roomCode:
+    #Check if room needs to be deleted
+    if db_room_empty(cursor, roomCode):
+      print(f"Room:{roomCode} is empty, closing the room")
+      #delete room from rooms table
+      db_delete_room(cursor, roomCode)
+      #close the room
+      close_room(roomCode)
+    else:
+      #get game state
+      gameState = db_get_game_state(cursor, roomCode)
+      #emit updated room data to remaining players
+      emit('room data', gameState,room=roomCode)
+  leave_room(roomCode)
 
 #TODO: game loop function on a separate thread
 def game_loop():

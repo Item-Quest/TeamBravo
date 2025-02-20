@@ -16,7 +16,7 @@ const TestHome = () =>{
     }
 
     function CreateGameClick(){
-        navigate("/TestCreate");
+        navigate("/TestCreateGame");
     }
 
     function LeaderboardClick(){

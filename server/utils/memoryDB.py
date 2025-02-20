@@ -38,6 +38,25 @@ def db_room_exists(cursor, room_code):
   except sqlite3.Error as e:
     print(f"db_check_rooms_room: {e}")
 
+def db_room_empty(cursor, room_code):
+  try:
+    sql = '''Select socket_id FROM users where room_code = ?'''
+    cursor.execute(sql,[room_code])
+    res = cursor.fetchall()
+    if not res:
+      return True
+    return False
+  except sqlite3.Error as e:
+    print(f"db_room_empty error: {e}")
+    return False
+
+def db_delete_room(cursor, room_code):
+  try:
+    sql = '''DELETE FROM rooms WHERE room_code = ?'''
+    cursor.execute(sql, [room_code])
+  except sqlite3.Error as e:
+    print(f"db_delete_room error: {e}")
+
 def db_add_user(cursor, socket_id, username, score):
   try:
     sql = '''INSERT INTO users(socket_id, username, score, room_code)
@@ -48,6 +67,13 @@ def db_add_user(cursor, socket_id, username, score):
   except sqlite3.Error as e:
     print(f"db_add_user error: {e}")
     return False
+  
+def db_delete_user(cursor, socket_id):
+  try:
+    sql = '''DELETE FROM users WHERE socket_id = ?'''
+    cursor.execute(sql,[socket_id])
+  except sqlite3.Error as e:
+    print(f"db_delete_user error: {e}")
 
 def db_set_username(cursor, socket_id, username):
   try:
@@ -88,6 +114,7 @@ def db_get_user_room(cursor, socket_id):
   except sqlite3.Error as e:
     print(f"db_get_user_room error:{e}")
     return None
+  
 
 def db_set_user_score(cursor, socket_id, score):
   try:

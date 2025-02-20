@@ -5,7 +5,7 @@ import Camera from '../Camera';
 
 //importing my own css styling because game page is broken
 import './TestGame.css'
-
+import logo from '../../assets/logo.png'
 
 const TestGame = () => {
   const [usersInRoom, updateUsersInRoom] = useState([]);
@@ -89,35 +89,40 @@ const TestGame = () => {
   return(
     <div className = "gameContainer">
       <div className = "gameBar">
-        <h1>Test Game Page</h1>
+        <img src={logo} alt="Logo"/>
         {gameState==="waiting" && (<div className="gameX"><h2>Time</h2><span>Game Hasn't started</span></div>)}
         {gameState==="running" && (<div className="gameX"><h2>Time{time}</h2><span>{time}</span></div>)}  
         {gameState==="waiting" && (<div className="gameX"><h2>Item</h2><span>None</span></div>)}
         {gameState==="running" && (<div className="gameX"><h2>Item</h2><span>{item}</span></div>)}  
       </div>
       <div className="gameSection">
-        <div className="gameLeftPanel">
-          <h2 class="gamePanelTitle">Connected Players:</h2>
-          <ul>
-            {usersInRoom.map((user, index) => (
-                <li key={index}>
-                  User:{user.username} Score:{user.score}
-                </li>
-            ))}
-          </ul>
+        <div className="gamePanel">
+          <div class = "gameX">
+            <h2 class="gameX">Connected Players</h2>
+            <ul>
+              {usersInRoom.map((user, index) => (
+                  <li class="gameX" key={index}>
+                    <h3>{user.username}</h3>
+                    <span>{user.score} points</span>
+                  </li>
+              ))}
+            </ul>
+          </div>
+          {gameState==="waiting" && (<button onClick={startGame}>Start Game</button>)}
+          {gameState==="running" && (<button onClick={endGame}>End Game</button>)}   
         </div>
 
         <div className="gameCamera">
           <Camera/>
         </div>
         
-        <div className="gameRightPanel">
-          <h2>GameState: {gameState}</h2>
-          <h2>Room Code: {roomCode}</h2>
-          {gameState==="waiting" && (<button onClick={startGame}>Start Game</button>)}
-          {gameState==="running" && (<button onClick={endGame}>End Game</button>)}      
+        <div className="gamePanel">
+          <div class="gameX">
+            <h2>Room Code</h2>
+            <span>{roomCode}</span>
+          </div>   
           <input onChange={changeInput} value={input} type="text" placeholder="Enter Item"></input>
-          <button onClick={submit}>Submit</button>
+          {/*<button onClick={submit}>Submit</button>*/}
           {showPopUp && (<div>{winner} wins!</div>)}
         </div>
       </div>
