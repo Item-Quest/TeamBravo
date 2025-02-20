@@ -7,6 +7,8 @@ import Camera from '../Camera';
 import './TestGame.css'
 import logo from '../../assets/logo.png'
 
+let gameCurrent = true; 
+
 const TestGame = () => {
   const [usersInRoom, updateUsersInRoom] = useState([]);
   const [roomCode, updateRoomCode] = useState("");
@@ -71,10 +73,12 @@ const TestGame = () => {
 
   function startGame(){
     socket.emit('start game');
+    gameCurrent = true;
   }
 
   function endGame(){
     socket.emit('end game');
+    gameCurrent = false;
   }
 
   function changeInput(event){
@@ -130,6 +134,16 @@ const TestGame = () => {
   );
 
   
+}
+
+export function submitLabel(label) {
+  if (gameCurrent) {
+    if (label == "shoe") { //shoe now for test purposes. will have to read label data later
+      console.log("got here");
+      console.log(label);
+      socket.emit(label);
+    }
+  }
 }
 
 
