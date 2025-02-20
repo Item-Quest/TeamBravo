@@ -13,6 +13,7 @@ import random, string
 from utils.memoryDB import *
 import signal
 import sys
+import time
 
 
 
@@ -51,37 +52,28 @@ def hande_connection():
 #Username change (exits in both join room and create room)
 @socketio.on('username change')
 def handle_username_change(data):
-  print("username change")
   #change username
   username = data['data']
   db_set_username(cursor, request.sid, username)
 
 
-#TODO: Join Room page
 @socketio.on('join attempt')
 def handle_join_attempt(data):
   roomCode = data.get('roomcode')
-  #check if room code exists or not
-  # if not redis_server.sismember("rooms", roomCode):
-  #   # #if not, tell user to retype
-  #   # emit('join response', {'success': False}, room=request.sid)
-  #   pass
-  # else:
-    # #get username
-    # username = redis_server.hget(f"{request.sid}", "username")
-    # #add user details to redis room in redis
-    # redis_server.hset(roomCode, f"user:{request.sid}:username", username)
-    # redis_server.hset(roomCode, f"user:{request.sid}:score", 0)
-    # #print redis state
-    # game_state = redis_server.hgetall(roomCode)
-    # print(game_state)
-    # #associate socket_id with roomcode
-    # redis_server.hset(f"{request.sid}", "room_code", roomCode)
-
-    # #let user join
-    # emit('join response', {'success': True}, room=request.sid)
-    # join_room(roomCode)
-  pass
+  #check if roomCode exists
+  if db_room_exists(cursor, roomCode) is None:
+    emit('join response', {'success': False}, room=request.sid)
+    return
+  #get username
+  username = db_get_username(cursor, request.sid)
+  #add user to room
+  db_set_user_room(cursor, request.sid, roomCode)
+  #set user score to 0
+  db_set_user_score(cursor, request.sid, 0)
+  #add user to room
+  join_room(roomCode)
+  #let user proceed to game_page
+  emit('join response', {'success': True}, room=request.sid)
 
 #Create room Page
 @socketio.on('create game')
@@ -113,26 +105,22 @@ def handle_connect_game():
     #emit a reroute signal to home page
     return
   #check if room exists in rooms
-  roomCode = db_check_rooms_room(cursor, roomCode)
+  roomCode = db_room_exists(cursor, roomCode)
   if roomCode == None:
     #TODO: Error handling if room doesn't exist in rooms
     #emit a reroute signal to home page
     return
   #retrieve game state
-
-  # if not redis_server.sismember("rooms", roomCode):
-  #   #TODO: create error handling situation for clientside
-  #   print(f"Client:{request.sid} attempted to connect without a room")
-  #   return
-  # #retrieve game state
-  # gameState=redis_server.hgetall(roomCode)
-  # if gameState == None:
-  #   #TODO: error handling if game state doesn't exist
-  #   return
-  # #Get Game Code
-  # roomCode = gameState['room_code']
-  # emit('room data', gameState, room=roomCode)
-  pass
+  start_time = time.time()
+  gameState = db_get_game_state(cursor, roomCode)
+  end_time = time.time()
+  print(end_time - start_time)
+  #check if game state exists
+  if gameState == None:
+    #TODO: error handling if game state doesn't exist
+    return
+  #emit game state to room code
+  emit('room data', gameState, room=roomCode)
 
 #TODO: leave game function
 @socketio.on('leave game')

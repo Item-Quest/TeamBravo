@@ -2,7 +2,8 @@ import sqlite3
 import json
 import os
 import time
-
+#TODO: create list of functions and describe what they do so excessive scrolling is not a problem
+#TODO: add comments
 #initialize database
 def db_init_game_db():
   #connect to in memory database
@@ -26,7 +27,7 @@ def db_add_room(cursor, room_code, game_state, items, time_in_game):
     print(f"db_add_room error: {e}")
 
 #checks if a room exists in rooms
-def db_check_rooms_room(cursor, room_code):
+def db_room_exists(cursor, room_code):
   try:
     sql = '''SELECT room_code FROM rooms WHERE room_code = ?'''
     cursor.execute(sql,[room_code])
@@ -103,13 +104,24 @@ def db_get_game_state(cursor, room_code):
     cursor.execute(sql, [room_code])
     users = cursor.fetchall()
     #grab game_state from rooms
-
+    sql = '''Select * from rooms WHERE room_code = ?'''
+    cursor.execute(sql,[room_code])
+    room_data = cursor.fetchall()[0]
+    _, roomCode, gameState, items, time = room_data
+    game_data = {
+      'room_code': roomCode,
+      'game_state': gameState,
+      'items': json.loads(items),
+      'time': time
+    }
+    for user in users:
+      _, socket_id, username, score, roomCode = user
+      game_data[f'user:{socket_id}:username'] = username
+      game_data[f'user:{socket_id}:score'] = score
+    return game_data
   except sqlite3.Error as e:
     print(f"db_get_game_state error: {e}")
-
-def db_room_exists(cursor, room_code):
-  cursor.execute('SELECT 1 FROM rooms WHERE room_code = ?', (room_code,))
-  return cursor.fetchone() is not None
+    return None
 
 def db_get_rooms(cursor):
   cursor.execute('SELECT * FROM rooms')
