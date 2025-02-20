@@ -15,9 +15,6 @@ import signal
 import sys
 import time
 
-
-
-
 #flask constructor. Takes name as argument
 app = Flask(__name__, template_folder='../client/dist', static_folder='../client/dist/assets')
 app.config['SECRET_KEY'] = 'secret!'
@@ -56,7 +53,6 @@ def handle_username_change(data):
   username = data['data']
   db_set_username(cursor, request.sid, username)
 
-
 @socketio.on('join attempt')
 def handle_join_attempt(data):
   roomCode = data.get('roomcode')
@@ -64,8 +60,6 @@ def handle_join_attempt(data):
   if db_room_exists(cursor, roomCode) is None:
     emit('join response', {'success': False}, room=request.sid)
     return
-  #get username
-  username = db_get_username(cursor, request.sid)
   #add user to room
   db_set_user_room(cursor, request.sid, roomCode)
   #set user score to 0
@@ -74,6 +68,10 @@ def handle_join_attempt(data):
   join_room(roomCode)
   #let user proceed to game_page
   emit('join response', {'success': True}, room=request.sid)
+  #get username
+  username = db_get_username(cursor, request.sid)
+  #print user joined game
+  print(f"Client {request.sid}: {username} joined room:{roomCode}")
 
 #Create room Page
 @socketio.on('create game')
@@ -88,14 +86,15 @@ def handle_create_game():
   # set user room code to be roomCode
   db_set_user_room(cursor, request.sid, roomCode)
   db_set_user_score(cursor, request.sid, 0)
-  username = db_get_username(cursor, request.sid)
-  print(f"Client {request.sid}: {username} created room:{roomCode}")
   #Create room with Room code
   join_room(roomCode)
   #emit game created to allow user to join room
   emit('game created', room=request.sid)
-  
-#TODO: Game Page
+  #get username
+  username = db_get_username(cursor, request.sid)
+  #output that user created room
+  print(f"Client {request.sid}: {username} created room:{roomCode}")
+
 @socketio.on('connect game')
 def handle_connect_game():
   #check if room exists for user
@@ -121,14 +120,20 @@ def handle_connect_game():
     return
   #emit game state to room code
   emit('room data', gameState, room=roomCode)
+  #get username
+  username = db_get_username(cursor, request.sid)
+  #output to console that user connected to game
+  print(f"Client {request.sid}: {username} connected to room:{roomCode}")
 
 #TODO: leave game function
 @socketio.on('leave game')
 def handle_leave_game():
-  # #output to console that user left a room
-  # print(f"{request.sid} left a room")
-  # #get roomCode data
-  # roomCode = redis_server.hget(f"{request.sid}", "room_code")
+  #get username
+  username = db_get_username(cursor, request.sid)
+  #output to console that user left roomm
+  print(f"{request.sid}:{username} left a room")
+  #get roomCode data
+  roomCode = db_get_user_room(request.sid)
   # if roomCode:
   #   #Remove user from game state
   #   redis_server.hdel(roomCode, f"user:{request.sid}:username")
@@ -151,7 +156,7 @@ def handle_leave_game():
   #     emit('room data', gameState, room=roomCode)
   #   emit('room data', gameState,room=roomCode)
   #   #Make user leave room
-  # leave_room(roomCode)
+  leave_room(roomCode)
   pass
 
 #TODO: user disconnect function
