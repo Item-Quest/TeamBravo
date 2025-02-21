@@ -372,18 +372,19 @@ display: block;
 .camera-box {
   flex: 3;
   width: 100%;
-  height: 600px;
-  color: white;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: -30px;
 }
 
 .camera-box video {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 10px; 
+  height: auto;
+  max-height: 77vh;
+  object-fit: contain; 
+  border-radius: 10px;
 }
 
 .reset-timer {
