@@ -190,14 +190,7 @@ def game_loop():
   global game_running
   while game_running:
     with game_lock:
-      # rooms = redis_server.smembers("rooms")
-      # for roomCode in rooms:
-      #   if redis_server.hget(roomCode, "game_state") == "running":
-      #     newTime = int(redis_server.hget(roomCode, "time"))
-      #     newTime += 1
-      #     redis_server.hset(roomCode, "time", newTime)
-      #     gameState = redis_server.hgetall(roomCode)
-      #     socketio.emit('room data', gameState, room=roomCode)
+
       pass
     eventlet.sleep(1)
     
@@ -304,3 +297,11 @@ if __name__ == '__main__':
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
   socketio.run(app, debug=True)
+      # rooms = redis_server.smembers("rooms")
+      # for roomCode in rooms:
+      #   if redis_server.hget(roomCode, "game_state") == "running":
+      #     newTime = int(redis_server.hget(roomCode, "time"))
+      #     newTime += 1
+      #     redis_server.hset(roomCode, "time", newTime)
+      #     gameState = redis_server.hgetall(roomCode)
+      #     socketio.emit('room data', gameState, room=roomCode)

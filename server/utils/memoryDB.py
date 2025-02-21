@@ -133,7 +133,9 @@ def db_get_game_state(cursor, room_code):
     #grab game_state from rooms
     sql = '''Select * from rooms WHERE room_code = ?'''
     cursor.execute(sql,[room_code])
-    room_data = cursor.fetchall()[0]
+    room_data = cursor.fetchone()
+    if not room_data:
+      return None
     _, roomCode, gameState, items, time = room_data
     game_data = {
       'room_code': roomCode,
