@@ -49,6 +49,20 @@ def db_room_empty(cursor, room_code):
   except sqlite3.Error as e:
     print(f"db_room_empty error: {e}")
     return False
+  
+def db_set_room_time(cursor, room_code, time):
+  try:
+    sql = '''UPDATE rooms SET time_in_game = ? WHERE room_code = ?'''
+    cursor.execute(sql, [time, room_code])
+  except sqlite3.Error as e:
+    print(f"db_set_room_time error: {e}")
+
+def db_set_room_game_state(cursor, room_code, setting):
+  try:
+    sql = '''UPDATE rooms SET game_state = ? WHERE room_code = ?'''
+    cursor.execute(sql, [setting, room_code])
+  except sqlite3.Error as e:
+    print(f"db_set_room_game_state error: {e}")
 
 def db_delete_room(cursor, room_code):
   try:
