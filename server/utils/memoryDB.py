@@ -212,3 +212,12 @@ def db_reset_room_scores(cursor, room_code):
     cursor.execute(sql, [room_code])
   except sqlite3.Error as e:
     print(f"db_reset_room_scores error: {e}")
+
+def db_get_room(cursor, room_code):
+  try:
+    sql = '''SELECT * FROM rooms WHERE room_code = ?'''
+    cursor.execute(sql, [room_code])
+    return cursor.fetchone()
+  except sqlite3.Error as e:
+    print(f"db_get_room error: {e}")
+    return None
