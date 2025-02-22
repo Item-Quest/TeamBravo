@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo,  } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import './App.css';
 import socket from './socket';
@@ -12,9 +12,7 @@ import Test from './components/Test.jsx';
 import CreateGame from './components/CreateGame.jsx'
 import MenuSettings from './components/MenuSettings.jsx';
 import {getAllPlayers} from './dataProvider.js';
-
-
-
+import ParticlesBackground from './components/ParticlesBackground.jsx'; // <-- import
 
 function App() {
    const [game, setGame] = useState({
@@ -32,6 +30,7 @@ function App() {
 
   return (
     <main className='main'>
+      <ParticlesBackground />
       <div className='component-container'>
         <Routes>
           <Route path='/' element={<Home/>}/>
