@@ -39,7 +39,6 @@ const TestGame = () => {
       // Extract game state
       if(data.game_state){
         console.log("here");
-        print(data.game_state);
         updateGameState(data.game_state);
       }
       // Extract user data
