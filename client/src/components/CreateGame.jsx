@@ -12,13 +12,14 @@ const CreateGame  = (props) => {
 
     const playClick = () => {
         var uName = usernameRef.current.value;
-        var newGame = createGame(uName);
-        var g = {...props.game};
-        g.gameCode = newGame.gameCode;
-        g.allPlayers.push(newGame.gameOwner);
-        g.gameOwnerIdx = g.allPlayers.length - 1;
-        props.setGame(g);
-        navigate("/play");
+        createGame(uName, (sid) => {
+            alert(sid);
+            var g = {...props.game};
+            g.userSid = sid;
+            g.username = uName ? uName : "Anonymous";
+            props.setGame(g);
+            navigate("/play");
+        });
     }
 
 

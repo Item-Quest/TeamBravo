@@ -12,13 +12,17 @@ import Test from './components/Test.jsx';
 import CreateGame from './components/CreateGame.jsx'
 import MenuSettings from './components/MenuSettings.jsx';
 import {getAllPlayers} from './dataProvider.js';
+<<<<<<< Updated upstream
 import ParticlesBackground from './components/ParticlesBackground.jsx'; // <-- import
+=======
+>>>>>>> Stashed changes
 
 function App() {
    const [game, setGame] = useState({
-    gameCode: null,
+    roomCode: null,
     allPlayers: [],
-    gameOwnerIdx: -1,
+    userSid: null,
+    username: null
    });
 
   useEffect(() => {
@@ -36,7 +40,7 @@ function App() {
           <Route path='/' element={<Home/>}/>
           <Route path='/home' element={<Home/>}/>
           <Route path='/play' element={<PlayScreen/>}/>
-          <Route path='/leaderboard' element={<Leaderboard players={game.allPlayers}/>}/>
+          <Route path='/leaderboard' element={<Leaderboard/>}/>
           <Route path='/MenuSettings' element={<MenuSettings/>}/>
           <Route path='/Test' element={<Test/>}/>
           <Route path='/TestLogin' element={<Login/>}/>
