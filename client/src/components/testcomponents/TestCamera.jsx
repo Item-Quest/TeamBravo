@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { loadModelAndPredict } from '../../utils/imagePredict';
 
 function TestCamera(props) {
+  console.log("component mounted");
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const animationFrameId = useRef(null);

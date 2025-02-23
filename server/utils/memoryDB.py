@@ -57,6 +57,14 @@ def db_set_room_time(cursor, room_code, time):
   except sqlite3.Error as e:
     print(f"db_set_room_time error: {e}")
 
+def db_get_room_time(cursor, room_code):
+  try:
+    sql = '''SELECT time_in_game FROM rooms WHERE room_code = ?'''
+    cursor.execute(sql, [room_code])
+    return cursor.fetchone()
+  except sqlite3.Error as e:
+    print(f"db_set_room_time error: {e}")
+
 def db_set_room_game_state(cursor, room_code, setting):
   try:
     sql = '''UPDATE rooms SET game_state = ? WHERE room_code = ?'''

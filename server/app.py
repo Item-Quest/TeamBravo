@@ -216,8 +216,8 @@ def handle_start_game():
     username = db_get_username(cursor, request.sid)
     #Print that user requested to run game
     print(f"{request.sid}:{username} has requested to start the game in room:{roomCode}")
-    #Set time to 0
-    db_set_room_time(cursor, roomCode, 0)
+    #Set start time
+    db_set_room_time(cursor, roomCode, time.time())
     #Update game state to running
     db_set_room_game_state(cursor, roomCode, "running")
     #Generate items for players to guess
@@ -299,7 +299,11 @@ def handle_submit(data):
       db_set_room_game_state(cursor,roomCode, "waiting")
       #TODO: emit win time
       username = db_get_username(cursor, request.sid)
-      emit('winner', {'message': f"{username}"})
+      #get end time
+      startTime = db_get_room_time(cursor, roomCode)[0]
+      endTime = time.time()
+      finalTime = round(endTime - startTime, 4)
+      emit('winner', {'message': f"{username}", 'time': f"{finalTime}"})
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
   emit('room data', gameState, room=roomCode)
