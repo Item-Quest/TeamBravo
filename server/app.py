@@ -53,6 +53,12 @@ def handle_username_change(data):
   username = data['data']
   db_set_username(cursor, request.sid, username)
 
+#returns an array of all playing users
+@socketio.on('all users')
+def handle_get_all_users():
+  allUsers = db_get_users(cursor)
+  emit('all users response', allUsers)
+
 @socketio.on('join attempt')
 def handle_join_attempt(data):
   roomCode = data.get('roomcode')

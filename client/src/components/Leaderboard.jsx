@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate} from 'react-router-dom';
-import {getLeaderboardData} from '../dataProvider.js';
+import {getAllPlayers} from '../dataProvider.js';
 
 const Leaderboard = (props) => {
 
@@ -12,8 +12,10 @@ const Leaderboard = (props) => {
     }
 
   useEffect(async () => {
-    var lbd = await getLeaderboardData();
-    setLeaderPlayers(lbd);
+    getAllPlayers((allPlayers) => {
+        debugger;
+        setLeaderPlayers(allPlayers);
+    });
   }, []);
 
     return (

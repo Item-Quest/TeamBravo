@@ -55,17 +55,16 @@ export function createGame(username, callback) {
 
 
 //------------------------------------------------
-export function getAllPlayers() {
+export function getAllPlayers(callback) {
     if (isMockup)
-        return [
+        callback([
             {Id: 1, Name: "Joe", Score: 45},
             {Id: 2, Name: "Anna", Score: 40},
             {Id: 3, Name: "Alex", Score: 35},
             {Id: 4, Name: "Kate", Score: 30}
-           ];
+           ]);
            
-     //backend logic here 
-     return [];
+    socketCallWrapper('all users', null, 'all users response', callback);
  };
 
 export async function getLeaderboardData() {

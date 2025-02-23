@@ -12,10 +12,7 @@ import Test from './components/Test.jsx';
 import CreateGame from './components/CreateGame.jsx'
 import MenuSettings from './components/MenuSettings.jsx';
 import {getAllPlayers} from './dataProvider.js';
-<<<<<<< Updated upstream
 import ParticlesBackground from './components/ParticlesBackground.jsx'; // <-- import
-=======
->>>>>>> Stashed changes
 
 function App() {
    const [game, setGame] = useState({
