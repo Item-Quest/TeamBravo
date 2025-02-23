@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from "react";
 import {useNavigate} from 'react-router-dom';
 import socket from '../socket';
 import PlayCamera from './PlayCamera.jsx';
+import {connectGame} from '../dataProvider.js';
 
 //importing my own css styling because game page is broken
 import './PlayScreen.css'
@@ -23,9 +24,7 @@ const PlayScreen = (props) => {
   const intervalRef = useRef(null);
 
   useEffect(() => {
-    socket.emit('connect game');
-
-    socket.on('room data', (data) => {
+    connectGame((data) => {
       console.log("data received", data);
       console.log(socket.id);
       // Extract current item
@@ -60,7 +59,6 @@ const PlayScreen = (props) => {
       updateUsersInRoom(usersArray);
       //set player score
       setYourScore(users[socket.id].score);
-
     });
 
     socket.on('start game', () => {

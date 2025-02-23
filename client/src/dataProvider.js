@@ -42,3 +42,9 @@ export function getAllPlayers(callback) {
  };
 
 
+export function connectGame(callback) {
+    socketCallWrapper('connect game', null, 'room data', (result) => {
+        if (callback)
+            callback(result);
+    });
+}
