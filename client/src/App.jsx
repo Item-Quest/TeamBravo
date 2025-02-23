@@ -11,22 +11,27 @@ import PlayScreen from './components/PlayScreen.jsx';
 import Test from './components/Test.jsx';
 import CreateGame from './components/CreateGame.jsx'
 import MenuSettings from './components/MenuSettings.jsx';
-import {getAllPlayers} from './dataProvider.js';
 import ParticlesBackground from './components/ParticlesBackground.jsx'; // <-- import
 
 function App() {
    const [game, setGame] = useState({
     roomCode: null,
-    allPlayers: [],
     userSid: null,
     username: null
    });
 
-  useEffect(() => {
-    var allPlayers = getAllPlayers();   //retrieve list of all players from server
-    var g = {...game};  //temporary copy game object       
-    g.allPlayers = allPlayers;
+   const updateGame = (uName, rCode, sid) => {
+    var g = {...game};
+    if (sid) 
+      g.userSid = sid;
+    if (rCode) 
+      g.roomCode = rCode;
+    g.username = uName ? uName : "Anonymous";
     setGame(g);
+   }
+
+  useEffect(() => {
+    
   }, []);
 
   return (
@@ -34,14 +39,14 @@ function App() {
       <ParticlesBackground />
       <div className='component-container'>
         <Routes>
-          <Route path='/' element={<Home/>}/>
-          <Route path='/home' element={<Home/>}/>
-          <Route path='/play' element={<PlayScreen/>}/>
+          <Route path='/' element={<Home game={game} updateGame={updateGame}/>}/>
+          <Route path='/home' element={<Home game={game} updateGame={updateGame}/>}/>
+          <Route path='/play' element={<PlayScreen game={game}/>}/>
           <Route path='/leaderboard' element={<Leaderboard/>}/>
           <Route path='/MenuSettings' element={<MenuSettings/>}/>
           <Route path='/Test' element={<Test/>}/>
           <Route path='/TestLogin' element={<Login/>}/>
-          <Route path='/create' element={<CreateGame game={game} setGame={setGame}/>}/>
+          <Route path='/create' element={<CreateGame updateGame={updateGame}/>}/>
         </Routes>
       </div>
     </main>

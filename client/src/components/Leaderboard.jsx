@@ -7,13 +7,12 @@ const Leaderboard = (props) => {
     const navigate = useNavigate();
     const [leaderPlayers, setLeaderPlayers] = useState([]);
     
-    const BackClick = () => {
+    const backClick = () => {
         navigate("/home");
     }
 
   useEffect(async () => {
     getAllPlayers((allPlayers) => {
-        debugger;
         setLeaderPlayers(allPlayers);
     });
   }, []);
@@ -33,7 +32,7 @@ const Leaderboard = (props) => {
             }
             </div>
             <div className='back-button-container'>
-                <button className='back-button' onClick={BackClick}>Back</button>
+               <button className='back-button' onClick={backClick}>Back</button>
             </div>
         </div>
     )

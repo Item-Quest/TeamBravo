@@ -549,10 +549,15 @@ display: block;
   padding: 30px;
 }
 
-.create-settings label {
-  display: inline-block;
-  width: 150px;
-  font-size: 25px;
+.create-settings input[type=text] {
+  background-color: #9197ae;
+  width: 100%;
+  padding: .75rem;
+  margin: .75rem 0;
+  border: 1px solid #9197AE;
+  border-radius: 2.5px;
+  font-size: 1rem;
+  box-sizing: border-box;
 }
 
 .create-button-container {

@@ -13,11 +13,7 @@ const CreateGame  = (props) => {
     const playClick = () => {
         var uName = usernameRef.current.value;
         createGame(uName, (sid) => {
-            alert(sid);
-            var g = {...props.game};
-            g.userSid = sid;
-            g.username = uName ? uName : "Anonymous";
-            props.setGame(g);
+            props.updateGame(uName, null, sid);
             navigate("/play");
         });
     }
@@ -29,8 +25,7 @@ const CreateGame  = (props) => {
             <div className='create-title'>Create Game</div>
             <div className='create-settings'>
                 <div name='username'>
-                    <label name="username">Username:</label>
-                    <input type="text" name="username" ref={usernameRef}></input>
+                    <input type="text" name="username" placeholder="Enter Username" ref={usernameRef}></input>
                 </div>
                 <div className="create-other-settings"></div>
             </div>
