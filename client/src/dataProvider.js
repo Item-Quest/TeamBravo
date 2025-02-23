@@ -21,8 +21,8 @@ export function updateUsername(username) {
 }
 
 export function createGame(username, callback) {
+    socket.emit('username change', {data: username});
     socketCallWrapper('create game', null, 'game created', (result) => {
-        socket.emit('username change', {data: username});
         if (callback)
             callback(result);
     });

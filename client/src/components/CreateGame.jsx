@@ -12,8 +12,8 @@ const CreateGame  = (props) => {
 
     const playClick = () => {
         var uName = usernameRef.current.value;
-        createGame(uName, (sid) => {
-            props.updateGame(uName, null, sid);
+        createGame(uName, (result) => {
+            props.updateGame(uName, result.roomCode, result.sid);
             navigate("/play");
         });
     }

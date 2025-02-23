@@ -95,7 +95,8 @@ def handle_create_game():
   #Create room with Room code
   join_room(roomCode)
   #emit game created to allow user to join room
-  emit('game created', request.sid)
+  res = {'sid':request.sid, 'roomCode':roomCode}
+  emit('game created', res)
   #get username
   username = db_get_username(cursor, request.sid)
   #output that user created room
