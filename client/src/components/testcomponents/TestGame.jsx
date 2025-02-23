@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {useNavigate} from 'react-router-dom';
 import socket from '../../socket';
-import Camera from '../Camera';
+import TestCamera from './TestCamera.jsx';
 
 //importing my own css styling because game page is broken
 import './TestGame.css'
@@ -16,6 +16,7 @@ const TestGame = () => {
   const [gameState, updateGameState] = useState("waiting");
   const [item, updateItem] = useState("");
   const [input, updateInput] = useState("");
+  const [AIOutput, updateAIOutput] = useState("");
 
   const [showPopUp, updatePopUp] = useState(false);
   const [winner, updateWinner] = useState("");
@@ -39,6 +40,8 @@ const TestGame = () => {
       }
       // Extract game state
       if(data.game_state){
+        console.log("here");
+        print(data.game_state);
         updateGameState(data.game_state);
       }
       // Extract user data
@@ -90,6 +93,11 @@ const TestGame = () => {
     updateInput("");
   }
 
+  //callback function that is passed as a prop
+  function getAIOutput(label){
+    updateAIOutput(label)
+  }
+
   return(
     <div className = "gameContainer">
       <div className = "gameBar">
@@ -111,13 +119,14 @@ const TestGame = () => {
                   </li>
               ))}
             </ul>
+            <div>{AIOutput}</div>
           </div>
           {gameState==="waiting" && (<button onClick={startGame}>Start Game</button>)}
           {gameState==="running" && (<button onClick={endGame}>End Game</button>)}   
         </div>
 
         <div className="gameCamera">
-          <Camera/>
+          <TestCamera getAIOutput={getAIOutput} gameState={gameState}/>
         </div>
         
         <div className="gamePanel">

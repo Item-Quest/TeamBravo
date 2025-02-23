@@ -190,14 +190,7 @@ def game_loop():
   global game_running
   while game_running:
     with game_lock:
-      # rooms = redis_server.smembers("rooms")
-      # for roomCode in rooms:
-      #   if redis_server.hget(roomCode, "game_state") == "running":
-      #     newTime = int(redis_server.hget(roomCode, "time"))
-      #     newTime += 1
-      #     redis_server.hset(roomCode, "time", newTime)
-      #     gameState = redis_server.hgetall(roomCode)
-      #     socketio.emit('room data', gameState, room=roomCode)
+
       pass
     eventlet.sleep(1)
     
@@ -206,27 +199,25 @@ def game_loop():
 def handle_start_game():
   global game_running, game_thread
   with game_lock:
-    # #get room code of user
-    # roomCode = redis_server.hget(f"{request.sid}", "room_code")
-    # if roomCode == None:
-    #   #TODO: Error handling if user is not in room
-    #   return
-    # #Get username
-    # username = redis_server.hget(f"{request.sid}", "username")
-    # if username == None:
-    #   #TODO: Error handling if user doens't eixt
-    #   return
+    #get room code of user
+    roomCode = db_get_user_room(cursor,request.sid)
+    if roomCode == None or roomCode == "None":
+      #TODO: Error handling if user is not in room
+      return
     # #Get game state
-    # gameState=redis_server.hgetall(roomCode)
-    # if gameState == None:
-    #   #TODO: Error handling if there is no game that exists
-    #   return
-    # #Print that user requested to run game
-    # print(f"{request.sid}:{username} has requested to start the game in room:{roomCode}")
-    # #Set time to 0
-    # redis_server.hset(roomCode, "time", 0)
-    # #Update game state to running
-    # redis_server.hset(roomCode, "game_state", "running")
+    gameState = db_get_game_state(cursor, roomCode)
+    if gameState == None:
+      #TODO: Error handling if there is no game that exists
+      return
+    #Get username
+    username = db_get_username(cursor, request.sid)
+    #Print that user requested to run game
+    print(f"{request.sid}:{username} has requested to start the game in room:{roomCode}")
+    #Set time to 0
+    db_set_room_time(cursor, roomCode, 0)
+    #Update game state to running
+    db_set_room_game_state(cursor, roomCode, "running")
+    #TODO: Make starting game generate items
     # #Generate items for players to guess
     # random_string = ''.join(random.choices(string.ascii_lowercase, k=5))
     # #set items to be that string
@@ -237,15 +228,12 @@ def handle_start_game():
     #     user_sid = key.split(":")[1]
     #     redis_server.hset(roomCode, f"user:{user_sid}:score", 0)
     # #emit start game in case pop up is there
-    # emit('start game', room=roomCode)
-    # #start game loop if it isn't started
-    # if not game_running:
-    #   game_running = True
-    #   game_thread = eventlet.spawn(game_loop)
-    #   #game_thread.start()
-    # gameState=redis_server.hgetall(roomCode)
-    # emit('room data', gameState, room=roomCode)
-    pass
+    emit('start game', room=roomCode)
+    #start game loop if it isn't started
+    if not game_running:
+      game_running = True
+      game_thread = eventlet.spawn(game_loop)
+    emit('room data', gameState, room=roomCode)
 
 #TODO: end game function on a separate thread
 @socketio.on('end game')
@@ -304,3 +292,11 @@ if __name__ == '__main__':
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
   socketio.run(app, debug=True)
+      # rooms = redis_server.smembers("rooms")
+      # for roomCode in rooms:
+      #   if redis_server.hget(roomCode, "game_state") == "running":
+      #     newTime = int(redis_server.hget(roomCode, "time"))
+      #     newTime += 1
+      #     redis_server.hset(roomCode, "time", newTime)
+      #     gameState = redis_server.hgetall(roomCode)
+      #     socketio.emit('room data', gameState, room=roomCode)
