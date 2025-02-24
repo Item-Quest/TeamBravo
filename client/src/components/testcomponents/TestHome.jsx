@@ -1,37 +1,36 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Camera from './Camera';
-import JoinModal from './JoinRoom' /* For Join Room Popup/Modal */
-import logo from '../assets/logo.png';
+import React, {useState} from "react";
+import { useNavigate} from 'react-router-dom';
+import Camera from '../Camera';
+import JoinModal from './TestJoinRoom' /* For Join Room Popup/Modal */
+import logo from '../../assets/logo.png';
 
-const Home = props => {
-    
+
+const TestHome = () =>{
+
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false); /* Set Join Room Popup/Modal to closed/false */
+    
 
-    const JoinClick = () => {
-        setIsModalOpen(true); /* Open Join Room Popup/Modal */
+    function JoinClick(){
+        setIsModalOpen(true);
     }
 
-    const CreateGameClick = () => {
-        navigate("/create");
+    function CreateGameClick(){
+        navigate("/TestCreateGame");
     }
 
-    const LeaderboardClick = () => {
-        navigate("/leaderboard");
+    function LeaderboardClick(){
+        navigate("/TestLeaderboard");
     }
 
     const SettingsClick = () => {
         navigate("/MenuSettings");
     }
 
-    const BackEndClick = () => {
-        navigate("/TestHome")
-    }
-    
 
-    return (
-        <div className='home'>
+
+  return (
+    <div className='home'>
         <div className='home-content'> {/* Container for content */}
             <div className='home-left-panel'> {/* Left Panel for buttons */}
                 <div className='home-left-panel-upper'>
@@ -47,7 +46,6 @@ const Home = props => {
                 <div className='home-left-panel-lower'>
                     <div className='settings-button-container'>
                         <button className='settings-button' onClick={SettingsClick}>Settings</button>
-                        <button className='settings-button' onClick={BackEndClick}>Backend</button>
                     </div>
                 </div>
                 
@@ -66,10 +64,9 @@ const Home = props => {
                 </div>
             </div>
         </div>
-      <JoinModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> {/* Join Screen Popup/Modal */}
-        </div>
-    )
+        <JoinModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> {/* Join Screen Popup/Modal */}
+    </div>
+  )
 }
 
-
-export default Home;
+export default TestHome;

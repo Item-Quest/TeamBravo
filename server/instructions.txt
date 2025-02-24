@@ -1,0 +1,32 @@
+if environment is not created
+   python3 -m venv environment
+
+set source to environment
+   if linux run command:
+      source environment/bin/activate
+   if windows run command:
+      /environment/Scripts/activate
+
+Install dependencies
+   pip install flask flask-socketio redis eventlet
+
+Set up redis on your local machine
+   if on windows navigate to powershell and install wsl ubuntu
+   wsl --install 
+   run wsl preferably using ubuntu
+   sudo apt update
+   sudo apt intall redis-server
+   sudo service redis-server start
+   redis-cli ping
+
+   If this doesn't work, use docker
+
+Compile react code in client folder
+   npm i
+   npm run build
+
+To run the server
+   python app.py
+
+to deactivate environment
+   deactivate
