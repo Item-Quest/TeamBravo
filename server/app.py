@@ -61,7 +61,7 @@ def handle_username_change(data):
 @socketio.on('all users')
 def handle_get_all_users():
   allUsers = db_get_users(cursor)
-  emit('all users response', allUsers)
+  emit('all users response', allUsers, room=request.sid)
 
 @socketio.on('join attempt')
 def handle_join_attempt(data):

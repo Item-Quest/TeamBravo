@@ -113,6 +113,7 @@ const PlayScreen = (props) => {
 
   //callback function that is passed as a prop
   function getAIOutput(label){
+    console.log("ai output:", label);
     //set aioutput
     updateAIOutput(label);
   }

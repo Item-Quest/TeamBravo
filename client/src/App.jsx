@@ -54,8 +54,8 @@ function App() {
           <Route path='/play' element={<PlayScreen game={game}/>}/>
           <Route path='/leaderboard' element={<Leaderboard/>}/>
           <Route path='/MenuSettings' element={<MenuSettings/>}/>
-          <Route path='/Test' element={<Test/>}/>
-          <Route path='/TestLogin' element={<Login/>}/>
+          {/*<Route path='/Test' element={<Test/>}/>*/}
+          {/*<Route path='/TestLogin' element={<Login/>}/>*/}
           <Route path='/create' element={<CreateGame updateGame={updateGame}/>}/>
           
           {/*Routes for test components for back end*/}
