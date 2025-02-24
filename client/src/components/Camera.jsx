@@ -34,6 +34,7 @@ function Camera() {
       try {
         // Predict the label using imageProcess.js
         const label = await loadModelAndPredict(imageData);
+        // const label = "asdf"
         console.log(`Predicted Label: ${label}`);
       } catch (error) {
         console.error('Prediction error:', error);

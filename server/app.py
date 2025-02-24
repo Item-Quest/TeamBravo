@@ -27,7 +27,11 @@ game_thread = None
 game_running = False
 game_lock = threading.Lock()
 
+#Connect to db
 connection, cursor = db_init_game_db()
+
+#Game items
+items = ['shoe', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']
 
 #ensures connection is closed and database is freed
 def close_db(signal, frame):
@@ -96,7 +100,7 @@ def handle_create_game():
   join_room(roomCode)
   #emit game created to allow user to join room
   res = {'sid':request.sid, 'roomCode':roomCode}
-  emit('game created', res)
+  emit('game created', res, room=request.sid)
   #get username
   username = db_get_username(cursor, request.sid)
   #output that user created room
@@ -197,6 +201,126 @@ def game_loop():
   global game_running
   while game_running:
     with game_lock:
+
+      pass
+    eventlet.sleep(1)
+    
+@socketio.on('start game')
+def handle_start_game():
+  global game_running, game_thread
+  with game_lock:
+    #get room code of user
+    roomCode = db_get_user_room(cursor,request.sid)
+    if roomCode == None or roomCode == "None":
+      #TODO: Error handling if user is not in room
+      return
+    # #Get game state
+    gameState = db_get_game_state(cursor, roomCode)
+    if gameState == None:
+      #TODO: Error handling if there is no game that exists
+      return
+    #Get username
+    username = db_get_username(cursor, request.sid)
+    #Print that user requested to run game
+    print(f"{request.sid}:{username} has requested to start the game in room:{roomCode}")
+    #Set start time
+    db_set_room_time(cursor, roomCode, time.time())
+    #Update game state to running
+    db_set_room_game_state(cursor, roomCode, "running")
+    #Generate items for players to guess
+    game_items = []
+    for _ in range(5):
+      game_items.append(random.choice(items))
+    #turn the items into a json encoded string
+    game_items = json.dumps(game_items)
+    #set the items in the room
+    db_set_room_items(cursor, roomCode, game_items)
+    #reset user scores in room to be 0
+    db_set_room_user_scores(cursor, roomCode, 0)
+    #Get game state
+    gameState = db_get_game_state(cursor, roomCode)
+    #emit start game in case pop up is there
+    emit('start game', room=roomCode)
+    #start game loop if it isn't started
+    if not game_running:
+      game_running = True
+      game_thread = eventlet.spawn(game_loop)
+    emit('room data', gameState, room=roomCode)
+
+@socketio.on('end game')
+def handle_end_game():
+  global game_running
+  with game_lock:
+    #get room code of user
+    roomCode = db_get_user_room(cursor,request.sid)
+    if roomCode == None or roomCode == "None":
+      #TODO: Error handling if user is not in room
+      return
+    # #Get game state
+    gameState = db_get_game_state(cursor, roomCode)
+    if gameState == None:
+      #TODO: Error handling if there is no game that exists
+      return
+    #Get username
+    username = db_get_username(cursor, request.sid)
+    #Print that user requested to run game
+    print(f"{request.sid}:{username} has requested to end the game in room:{roomCode}")
+    #Update game state to running
+    db_set_room_game_state(cursor, roomCode, "waiting")
+    #Update the game state
+    gameState = db_get_game_state(cursor, roomCode)
+    #emit start game in case pop up is there
+    emit('start game', room=roomCode)
+    #end game loop
+    game_running = False
+    #emit updated room data
+    emit('room data', gameState, room=roomCode)
+
+#TODO: FINISH submit function
+@socketio.on('submit')
+def handle_submit(data):
+  print("User has submitted")
+  roomCode = db_get_user_room(cursor,request.sid)
+  if roomCode == None or roomCode == "None":
+    #TODO: Error handling if user is not in room
+    return
+  # #Get game state
+  gameState = db_get_game_state(cursor, roomCode)
+  if gameState == None or gameState == "waiting":
+    #TODO: Error handling if there is no game that exists
+    return
+  #get current user score
+  score = db_get_user_score(cursor, request.sid)[0]
+  #get current items and parse it into an array
+  items = json.loads(db_get_room_items(cursor, roomCode)[0])
+  #get submitted val
+  submitItem = data['submit']
+  print(submitItem)
+  if submitItem == items[score%len(items)]:
+    #update the score
+    score += 1
+    db_set_user_score(cursor, request.sid, score)
+    print(score)
+    #check if victory
+    if score == len(items):
+      db_set_room_game_state(cursor,roomCode, "waiting")
+      #TODO: emit win time
+      username = db_get_username(cursor, request.sid)
+      #get end time
+      startTime = db_get_room_time(cursor, roomCode)[0]
+      endTime = time.time()
+      finalTime = round(endTime - startTime, 4)
+      emit('winner', {'message': f"{username}", 'time': f"{finalTime}"})
+  #get new game state
+  gameState = db_get_game_state(cursor, roomCode)
+  emit('room data', gameState, room=roomCode)
+  print("User has submitted")
+
+if __name__ == '__main__':
+  # Register the signal handler to close the database connection on termination
+  signal.signal(signal.SIGINT, close_db)
+  signal.signal(signal.SIGTERM, close_db)
+  socketio.run(app, debug=True)
       # rooms = redis_server.smembers("rooms")
       # for roomCode in rooms:
       #   if redis_server.hget(roomCode, "game_state") == "running":
@@ -205,109 +329,3 @@ def game_loop():
       #     redis_server.hset(roomCode, "time", newTime)
       #     gameState = redis_server.hgetall(roomCode)
       #     socketio.emit('room data', gameState, room=roomCode)
-      pass
-    eventlet.sleep(1)
-    
-#TODO: start game function
-@socketio.on('start game')
-def handle_start_game():
-  global game_running, game_thread
-  with game_lock:
-    # #get room code of user
-    # roomCode = redis_server.hget(f"{request.sid}", "room_code")
-    # if roomCode == None:
-    #   #TODO: Error handling if user is not in room
-    #   return
-    # #Get username
-    # username = redis_server.hget(f"{request.sid}", "username")
-    # if username == None:
-    #   #TODO: Error handling if user doens't eixt
-    #   return
-    # #Get game state
-    # gameState=redis_server.hgetall(roomCode)
-    # if gameState == None:
-    #   #TODO: Error handling if there is no game that exists
-    #   return
-    # #Print that user requested to run game
-    # print(f"{request.sid}:{username} has requested to start the game in room:{roomCode}")
-    # #Set time to 0
-    # redis_server.hset(roomCode, "time", 0)
-    # #Update game state to running
-    # redis_server.hset(roomCode, "game_state", "running")
-    # #Generate items for players to guess
-    # random_string = ''.join(random.choices(string.ascii_lowercase, k=5))
-    # #set items to be that string
-    # redis_server.hset(roomCode, "items", random_string)
-    # #reset the scores for all users in the room
-    # for key in gameState:
-    #   if key.startswith("user:"):
-    #     user_sid = key.split(":")[1]
-    #     redis_server.hset(roomCode, f"user:{user_sid}:score", 0)
-    # #emit start game in case pop up is there
-    # emit('start game', room=roomCode)
-    # #start game loop if it isn't started
-    # if not game_running:
-    #   game_running = True
-    #   game_thread = eventlet.spawn(game_loop)
-    #   #game_thread.start()
-    # gameState=redis_server.hgetall(roomCode)
-    # emit('room data', gameState, room=roomCode)
-    pass
-
-#TODO: end game function on a separate thread
-@socketio.on('end game')
-def handle_end_game():
-  global game_running
-  with game_lock:
-    # #get room code of user
-    # roomCode = redis_server.hget(f"{request.sid}", "room_code")
-    # if roomCode == None:
-    #   #TODO: Error handling if user is not in room
-    #   return
-    # #Get username
-    # username = redis_server.hget(f"{request.sid}", "username")
-    # if username == None:
-    #   #TODO: Error handling if user doens't eixt
-    #   return
-    # #Get game state
-    # gameState=redis_server.hgetall(roomCode)
-    # if gameState == None:
-    #   #TODO: Error handling if there is no game that exists
-    #   return
-    # #Print that user requested to end game
-    # print(f"{request.sid}:{username} has requested to end the game in room:{roomCode}")
-    # #Update game state
-    # redis_server.hset(roomCode, "game_state", "waiting")
-    # #get game state
-    # gameState=redis_server.hgetall(roomCode)
-    # #TODO:logic for ending starting
-    # #emit game state
-    # emit('room data', gameState, room=roomCode)
-    pass
-
-#TODO: handle data submit function
-@socketio.on('submit')
-def handle_submit(data):
-  # roomCode = redis_server.hget(f"{request.sid}", "room_code")
-  # username = redis_server.hget(f"{request.sid}", "username")
-  # items = redis_server.hget(roomCode, "items")
-  # current_score = redis_server.hget(roomCode, f"user:{request.sid}:score")
-  # current_score = int(current_score)
-  # submitVal = data['submit']
-  # if submitVal == items[current_score]:
-  #   newScore = current_score+1
-  #   redis_server.hset(roomCode, f"user:{request.sid}:score", newScore)
-  #   if newScore == len(items):
-  #     if redis_server.hget(roomCode, "game_state") == "running":
-  #       redis_server.hset(roomCode, "game_state", "waiting")
-  #       emit('winner', {'message': f"{username}"})
-
-  # emit('room data', redis_server.hgetall(roomCode), room=roomCode)
-  pass
-
-
-if __name__ == '__main__':
-  # Register the signal handler to close the database connection on termination
-  signal.signal(signal.SIGINT, close_db)
-  signal.signal(signal.SIGTERM, close_db)
-  socketio.run(app, debug=True)
