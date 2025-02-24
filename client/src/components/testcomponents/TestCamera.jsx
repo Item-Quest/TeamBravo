@@ -2,8 +2,11 @@ import React, { useRef, useEffect } from 'react';
 import { loadModelAndPredict } from '../../utils/imagePredict';
 
 function TestCamera(props) {
+  console.log("component mounted");
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const animationFrameId = useRef(null);
+  const timeoutId = useRef(null);
 
   useEffect(() => {
     const getCameraStream = async () => {
@@ -32,18 +35,27 @@ function TestCamera(props) {
           // Predict the label using imageProcess.js
           const label = await loadModelAndPredict(imageData);
           // const label = "asdf"
-          console.log(`Predicted Label: ${label}`);
+          //console.log(`Predicted Label: ${label}`);
           props.getAIOutput(label)
         } catch (error) {
           console.error('Prediction error:', error);
         }
   
-        requestAnimationFrame(processFrame);
+        // Schedule the next frame processing after 1 second
+        timeoutId.current = setTimeout(() => {
+          animationFrameId.current = requestAnimationFrame(processFrame);
+        }, 1000);
       };
       getCameraStream()
-      if(props.gameState === "running"){
-        requestAnimationFrame(processFrame);
+      if (props.gameState === "running") {
+        animationFrameId.current = requestAnimationFrame(processFrame);
       }
+  
+      return () => {
+        if (animationFrameId.current) {
+          cancelAnimationFrame(animationFrameId.current);
+        }
+      };
   }, [props.getAIOutput, props.gameState]);
 
   return (
