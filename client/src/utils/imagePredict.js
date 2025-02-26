@@ -9,6 +9,10 @@ export async function loadModelAndPredict(imageData) {
     if(!model){
         model = await tf.loadLayersModel('https://teachablemachine.withgoogle.com/models/j5Voge3Vq/model.json');
     }
+
+    //trying tf.tidy for better memory management
+    //memory management wrapper
+    return tf.tidy(() => {
     // Preprocess the image
     const image = tf.browser.fromPixels(imageData);
     const resizedImage = tf.image.resizeBilinear(image, [224, 224]);
@@ -17,15 +21,12 @@ export async function loadModelAndPredict(imageData) {
 
     // Predict
     const predictions = model.predict(batchedImage);
-    const predictionArray = await predictions.array();
+    const predictionArray = predictions.arraySync();
 
     // Get the index of the highest confidence prediction
     const maxIndex = predictionArray[0].indexOf(Math.max(...predictionArray[0]));
 
-    // Cleanup tensors to free memory
-    tf.dispose([resizedImage, normalizedImage, batchedImage, predictions]);
-    //tf.dispose([image, resizedImage, batchedImage, predictions]);
-
     // Return the label corresponding to the highest confidence prediction
     return labels[maxIndex];
+    });
 }

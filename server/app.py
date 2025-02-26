@@ -31,7 +31,7 @@ game_lock = threading.Lock()
 connection, cursor = db_init_game_db()
 
 #Game items
-items = ['shoe', 'a']
+items = ['shoe','no_item','mug','notebook','phone','water_bottle']
 
 #ensures connection is closed and database is freed
 def close_db(signal, frame):
