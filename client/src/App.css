@@ -9,10 +9,22 @@ body {
 
 .main {
   
+  position: relative;
   background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
+  width: 100%;
+  height: 100%;
+  /* background-size: 400% 400%;
+  /* animation: gradient 15s ease infinite;
   /* background: radial-gradient(ellipse at center, rgba(49,16,47,1) 0%, rgba(40,11,41,1) 100%); */
+}
+
+#tsparticles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;  /* behind main content if main content has a higher z-index */
 }
 
 @keyframes gradient {
@@ -28,8 +40,10 @@ body {
 }
 
 .component-container {
+  position: relative;
   width:100vw;
   height: 100vh; 
+  z-index: 1;
 }
 
  /*Home css */
@@ -535,10 +549,15 @@ display: block;
   padding: 30px;
 }
 
-.create-settings label {
-  display: inline-block;
-  width: 150px;
-  font-size: 25px;
+.create-settings input[type=text] {
+  background-color: #9197ae;
+  width: 100%;
+  padding: .75rem;
+  margin: .75rem 0;
+  border: 1px solid #9197AE;
+  border-radius: 2.5px;
+  font-size: 1rem;
+  box-sizing: border-box;
 }
 
 .create-button-container {

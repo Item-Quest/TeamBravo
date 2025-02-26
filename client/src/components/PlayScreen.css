@@ -1,0 +1,56 @@
+
+.gameContainer{
+    display: grid;
+    grid-template-rows: 1fr 5fr;
+    height: 100%;
+    max-height: 100vh;
+    padding-left: 5%;
+    padding-right: 5%;
+    background-color: white;
+  }
+  
+  .gameBar{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    background-color:aquamarine;
+  }
+  
+  .gameBar > *{
+    width: 25%;
+  }
+  
+  .gameBar > img{
+    height: 100%;
+  }
+  
+  .gameSection{
+    background-color:grey;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+  }
+  
+  .gamePanel{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .gameCamera{
+    display: flex;
+    height: 480;
+    width: 640;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow:hidden;
+  }
+  
+  .gameX{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center
+  }

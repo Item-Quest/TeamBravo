@@ -212,4 +212,10 @@ def db_get_rooms(cursor):
 
 def db_get_users(cursor):
   cursor.execute('SELECT * from users')
-  return cursor.fetchall()
+  users = cursor.fetchall()
+  result = []
+  for user in users:
+      _, socket_id, username, score, roomCode = user
+      userData = {'Id':socket_id, 'Name': username, 'Score': score}
+      result.append(userData)
+  return result

@@ -66,7 +66,7 @@ const Home = props => {
                 </div>
             </div>
         </div>
-      <JoinModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> {/* Join Screen Popup/Modal */}
+      <JoinModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} updateGame = {props.updateGame}/> {/* Join Screen Popup/Modal */}
         </div>
     )
 }

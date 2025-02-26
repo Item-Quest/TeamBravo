@@ -31,7 +31,7 @@ game_lock = threading.Lock()
 connection, cursor = db_init_game_db()
 
 #Game items
-items = ['shoe', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']
+items = ['shoe', 'a']
 
 #ensures connection is closed and database is freed
 def close_db(signal, frame):
@@ -56,6 +56,12 @@ def handle_username_change(data):
   #change username
   username = data['data']
   db_set_username(cursor, request.sid, username)
+
+#returns an array of all playing users
+@socketio.on('all users')
+def handle_get_all_users():
+  allUsers = db_get_users(cursor)
+  emit('all users response', allUsers, room=request.sid)
 
 @socketio.on('join attempt')
 def handle_join_attempt(data):
@@ -93,7 +99,8 @@ def handle_create_game():
   #Create room with Room code
   join_room(roomCode)
   #emit game created to allow user to join room
-  emit('game created', room=request.sid)
+  res = {'sid':request.sid, 'roomCode':roomCode}
+  emit('game created', res, room=request.sid)
   #get username
   username = db_get_username(cursor, request.sid)
   #output that user created room
@@ -303,7 +310,7 @@ def handle_submit(data):
       startTime = db_get_room_time(cursor, roomCode)[0]
       endTime = time.time()
       finalTime = round(endTime - startTime, 4)
-      emit('winner', {'message': f"{username}", 'time': f"{finalTime}"})
+      emit('winner', {'message': f"{username}", 'time': f"{finalTime}"}, room=roomCode)
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
   emit('room data', gameState, room=roomCode)
