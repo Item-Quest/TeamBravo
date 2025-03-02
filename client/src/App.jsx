@@ -10,6 +10,7 @@ import CreateGame from './components/CreateGame.jsx'
 import MenuSettings from './components/MenuSettings.jsx';
 import ParticlesBackground from './components/ParticlesBackground.jsx'; // <-- import
 import {getAllPlayers} from './dataProvider.js';
+import Game from './components/Game.jsx';
 
 //Components used in backend for testing
 import TestHome from './components/testcomponents/TestHome.jsx';
@@ -51,11 +52,11 @@ function App() {
         <Routes>
           <Route path='/' element={<Home game={game} updateGame={updateGame}/>}/>
           <Route path='/home' element={<Home game={game} updateGame={updateGame}/>}/>
+          {/*<Route path='/play' element={<PlayScreen game={game}/>}/>*/}
+          <Route path='/play' element={<Game game={game}/>}/>
           <Route path='/play' element={<PlayScreen game={game}/>}/>
           <Route path='/leaderboard' element={<Leaderboard/>}/>
           <Route path='/MenuSettings' element={<MenuSettings/>}/>
-          {/*<Route path='/Test' element={<Test/>}/>*/}
-          {/*<Route path='/TestLogin' element={<Login/>}/>*/}
           <Route path='/create' element={<CreateGame updateGame={updateGame}/>}/>
           
           {/*Routes for test components for back end*/}

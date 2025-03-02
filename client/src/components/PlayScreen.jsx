@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useRef} from "react";
 import {useNavigate} from 'react-router-dom';
 import socket from '../socket';
-import PlayCamera from './PlayCamera.jsx';
 import {connectGame} from '../dataProvider.js';
 
 //importing my own css styling because game page is broken
@@ -9,19 +8,17 @@ import './PlayScreen.css'
 import logo from '../assets/logo.png'
 
 const PlayScreen = (props) => {
+  console.log(props.gameState, "Gamestate");
   const [usersInRoom, updateUsersInRoom] = useState([]);
   const [time, updateTime] = useState(0);
-  const [gameState, updateGameState] = useState("waiting");
   const [item, updateItem] = useState([])
   const [input, updateInput] = useState("");
-  const [AIOutput, updateAIOutput] = useState("");
   const [yourScore, setYourScore] = useState(0);
+  const intervalRef = useRef(null);
 
   const [showPopUp, updatePopUp] = useState(false);
   const [winner, updateWinner] = useState("");
   const [winnerTime, updateWinnerTime] = useState("");
-
-  const intervalRef = useRef(null);
 
   useEffect(() => {
     connectGame((data) => {
@@ -35,10 +32,10 @@ const PlayScreen = (props) => {
       }
       // Extract game state
       if(data.game_state){
-        updateGameState(data.game_state);
-        if(gameState === "waiting"){
-          if(AIOutput != ""){
-            updateAIOutput("");
+        props.updateGameState(data.game_state);
+        if(props.gameState === "waiting"){
+          if(props.AIOutput != ""){
+            props.updateAIOutput("");
           }
         }
       }
@@ -81,13 +78,13 @@ const PlayScreen = (props) => {
   //use effect hook for incrementing time
   useEffect(() => {
     let interval;
-    if(gameState === "running"){
+    if(props.gameState === "running"){
       intervalRef.current = setInterval(() => {
         updateTime((prev) => prev+1);
       }, 1000);
     }
     return () => clearInterval(intervalRef.current);
-  }, [gameState])
+  }, [props.gameState])
 
   function startGame(){
     socket.emit('start game');
@@ -105,28 +102,21 @@ const PlayScreen = (props) => {
     console.log("submit attempt: ", input, " ", item[yourScore%item.length]);
     if(input === item[yourScore%item.length]){
       socket.emit('submit', {submit:input});
-    } else if(AIOutput === item[yourScore%item.length]){
-      socket.emit('submit', {submit:AIOutput});
+    } else if(props.AIOutput === item[yourScore%item.length]){
+      socket.emit('submit', {submit:props.AIOutput});
     }
     updateInput("");
-  }
-
-  //callback function that is passed as a prop
-  function getAIOutput(label){
-    console.log("ai output:", label);
-    //set aioutput
-    updateAIOutput(label);
   }
 
   return(
     <div className = "gameContainer">
       <div className = "gameBar">
         <img src={logo} alt="Logo"/>
-        {gameState==="waiting" && (<div className="gameX"><h2>Time</h2><span>Game Hasn't started</span></div>)}
-        {gameState==="running" && (<div className="gameX"><h2>Time</h2><span>{time}</span></div>)}  
-        {gameState==="waiting" && (<div className="gameX"><h2>Item</h2><span>None</span></div>)}
+        {props.gameState==="waiting" && (<div className="gameX"><h2>Time</h2><span>Game Hasn't started</span></div>)}
+        {props.gameState==="running" && (<div className="gameX"><h2>Time</h2><span>{time}</span></div>)}  
+        {props.gameState==="waiting" && (<div className="gameX"><h2>Item</h2><span>None</span></div>)}
         {
-          gameState==="running" && (
+          props.gameState==="running" && (
             <div className="gameX">
               <h2>Item</h2>
               <span>{item[yourScore%item.length]}</span>
@@ -147,19 +137,20 @@ const PlayScreen = (props) => {
               ))}
             </ul>
           </div>
-          {gameState==="waiting" && (<button onClick={startGame}>Start Game</button>)}
-          {gameState==="running" && (<button onClick={endGame}>End Game</button>)}   
+          {props.gameState==="waiting" && (<button onClick={startGame}>Start Game</button>)}
+          {props.gameState==="running" && (<button onClick={endGame}>End Game</button>)}   
         </div>
 
         <div className="gameCamera">
-          <PlayCamera getAIOutput={getAIOutput} gameState={gameState}/>
+          {props.camera}
+          {/*<PlayCamera getAIOutput={getAIOutput} gameState={gameState}/>*/}
         </div>
         
         <div className="gamePanel">
           <div class="gameX">
             <h2>Room Code</h2>
             <span>{props.game.roomCode}</span>
-            <div>Detected Item: {AIOutput}</div>
+            <div>Detected Item: {props.AIOutput}</div>
           </div>
           <div class ="gameX">
             {showPopUp && (<div>{winner} wins with a time of {winnerTime} seconds</div>)}

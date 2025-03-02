@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { loadModelAndPredict } from '../utils/imagePredict';
+import { submitLabel } from './testcomponents/TestGame'
 
 function Camera() {
   const videoRef = useRef(null);
@@ -36,6 +37,8 @@ function Camera() {
         const label = await loadModelAndPredict(imageData);
         // const label = "asdf"
         console.log(`Predicted Label: ${label}`);
+        submitLabel(label); // should send to testGame which will send to server if game on
+
       } catch (error) {
         console.error('Prediction error:', error);
       }
