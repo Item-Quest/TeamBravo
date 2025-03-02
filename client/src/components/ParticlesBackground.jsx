@@ -3,9 +3,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
-
-const ParticlesBackground = () => {
+ 
+ const ParticlesBackground = () => {
   const [init, setInit] = useState(false);
+  const [renderCount, setRenderCount] = useState(0);
 
   // this runs once per application lifetime
   useEffect(() => {
@@ -57,7 +58,7 @@ const ParticlesBackground = () => {
         },
         number: {
           density: { enable: true },
-          value: 80,
+          value: 40,
         },
         opacity: { value: 0.5 },
         shape: { type: "circle" },

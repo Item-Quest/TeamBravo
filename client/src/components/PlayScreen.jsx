@@ -1,11 +1,19 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Camera from './Camera';
+import { Grid, Button, Typography, Container, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
+import logo from '../assets/logo2.png';
 
 const PlayScreen = () => {
     const [time, setTime] = useState(90);
     const [skips, setSkips] = useState(3);
     const [resetTime, setResetTime] = useState(30);
     const [isResetTimerActive, setIsResetTimerActive] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const handleMenuClose = () => {
+        setIsMenuOpen(false);
+    };
 
     useEffect(() => {
         if (time > 0) {
@@ -43,35 +51,81 @@ const PlayScreen = () => {
     const formattedResetTime = `${resetMinutes}:${resetSeconds < 10 ? `0${resetSeconds}` : resetSeconds}`;
 
     return (
-        <div className="play-screen">
-            <div className="top-section">
-                <div className="top-box">Logo</div>
-                <div className="top-box">Item</div>
-                <div className="top-box timer">
-                    <span className="timer-label">Timer</span>
-                    <span className="timer-count">
-                        {time > 0 ? `${Math.floor(time / 60)}:${time % 60 < 10 ? `0${time % 60}` : time % 60}` : "Time's Up!"}
-                    </span>
-                </div>
-            </div>
+        <Container>
+            <Grid container spacing={2}>
+                <Grid item xs={12}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={4}>
+                            <img
+                                src={logo}
+                                alt="Logo"
+                                style={{ width: '200px', cursor: 'pointer' }}
+                                onClick={() => {
+                                    console.log("Logo clicked!");
+                                    setIsMenuOpen(true);
+                                }}
+                                onLoad={(e) => {
+                                    console.log("Logo container dimensions:", e.target.parentElement.offsetWidth, 'x', e.target.parentElement.offsetHeight);
+                                  }}
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            
+                        </Grid>
+                        <Grid item xs={4}>
+                            
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={8}>
+                            <Camera />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <Typography variant="subtitle1">Timer</Typography>
+                                    <Typography variant="h6">
+                                        {time > 0 ? `${Math.floor(time / 60)}:${time % 60 < 10 ? `0${time % 60}` : time % 60}` : "Time's Up!"}
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Typography variant="h6">Your Score</Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Typography variant="h6">Opponent Score</Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Button variant="contained" color="primary" onClick={handleSkip}>Skip</Button>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    {Array.from({ length: skips }, (_, i) => <SkipNextIcon key={i} />)}
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Typography variant="subtitle1">Recharge</Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Typography variant="body1">{formattedResetTime}</Typography>
+                                    {console.log("Current time:", time)}
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
 
-            <div className="main-section">
-                <div className="camera-box">
-                    <Camera />
-                </div>
-                <div className="score-section">
-                    <div className="score-box">Your Score</div>
-                    <div className="score-box">Opponent Score</div>
-                    <button className="skip-button" onClick={handleSkip}>Skip</button>
-                    <div className="skip-count">Skips Left: {skips}</div>
-
-                    <div className="reset-timer">
-                        <div className="reset-timer-label">Recharge</div>
-                        <div className="reset-timer-count">{formattedResetTime}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <Dialog open={isMenuOpen} onClose={handleMenuClose}>
+                <DialogTitle>Quit Game?</DialogTitle>
+                <DialogContent>
+                    Are you sure you want to quit?
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleMenuClose}>Cancel</Button>
+                    <Button onClick={() => { /* Handle quit logic here */ }}>Quit</Button>
+                </DialogActions>
+            </Dialog>
+        </Container>
     );
 };
 
