@@ -86,6 +86,12 @@ const PlayScreen = (props) => {
     return () => clearInterval(intervalRef.current);
   }, [props.gameState])
 
+  useEffect(() => {
+    if (props.AIOutput && props.AIOutput === item[yourScore % item.length]) {
+      submit();
+    }
+  }, [props.AIOutput]);  // Dependency on AIOutput
+
   function startGame(){
     socket.emit('start game');
   }
