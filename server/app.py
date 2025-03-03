@@ -229,8 +229,8 @@ def handle_start_game():
     db_set_room_game_state(cursor, roomCode, "running")
     #Generate items for players to guess
     game_items = []
-    for _ in range(5):
-      game_items.append(random.choice(items))
+    #creates list of 5 unique items from items
+    game_items.extend(random.sample(items, 5))   
     #turn the items into a json encoded string
     game_items = json.dumps(game_items)
     #set the items in the room
