@@ -206,9 +206,11 @@ def game_loop():
     eventlet.sleep(1)
     
 @socketio.on('start game')
-def handle_start_game():
+def handle_start_game(data):
   global game_running, game_thread
   with game_lock:
+    #get mode name
+    mode_value = data.get('mode')
     #get room code of user
     roomCode = db_get_user_room(cursor,request.sid)
     if roomCode == None or roomCode == "None":
@@ -222,15 +224,21 @@ def handle_start_game():
     #Get username
     username = db_get_username(cursor, request.sid)
     #Print that user requested to run game
-    print(f"{request.sid}:{username} has requested to start the game in room:{roomCode}")
+    print(f"{request.sid}:{username} has requested to start the game in room:{roomCode} playing {mode_value}")
     #Set start time
     db_set_room_time(cursor, roomCode, time.time())
     #Update game state to running
     db_set_room_game_state(cursor, roomCode, "running")
     #Generate items for players to guess
     game_items = []
-    #creates list of 5 unique items from items
-    game_items.extend(random.sample(items, 5))   
+    #item storage will be different based on mode
+    if mode_value == "countUp":
+      #creates list of 5 unique items from items
+      game_items.extend(random.sample(items, 5)) 
+    else:
+      #randomly orders every item (for countDown mode)
+      random.shuffle(items)
+      game_items.extend(items)  
     #turn the items into a json encoded string
     game_items = json.dumps(game_items)
     #set the items in the room

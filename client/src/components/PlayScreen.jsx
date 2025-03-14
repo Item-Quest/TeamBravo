@@ -15,6 +15,8 @@ const PlayScreen = (props) => {
   const [input, updateInput] = useState("");
   const [yourScore, setYourScore] = useState(0);
   const intervalRef = useRef(null);
+  const [gameMode, setGameMode] = useState("countUp");
+  const [firstTime, setFirstTime] = useState(true); //for count down timer
 
   const [showPopUp, updatePopUp] = useState(false);
   const [winner, updateWinner] = useState("");
@@ -60,6 +62,7 @@ const PlayScreen = (props) => {
 
     socket.on('start game', () => {
       updateTime(0);
+      setFirstTime(true);
       updatePopUp(false);
     })
 
@@ -74,17 +77,41 @@ const PlayScreen = (props) => {
     }
   },[])
 
-
-  //use effect hook for incrementing time
+//timer effect for both game modes
   useEffect(() => {
     let interval;
-    if(props.gameState === "running"){
-      intervalRef.current = setInterval(() => {
-        updateTime((prev) => prev+1);
-      }, 1000);
+    if (props.gameState === "running") {
+      if (gameMode === "countUp") {
+        interval = setInterval(() => {
+          updateTime((prev) => prev + 1);
+        }, 1000);
+      }
+  
+      if (gameMode === "countDown") {
+        if (time === 0 && firstTime) {
+          // Set the initial time only once when countdown starts
+          updateTime(10);
+          setFirstTime(false);
+        } else if (!firstTime) {
+          interval = setInterval(() => {
+            updateTime((prev) => {
+              if (prev > 0) {
+                return prev - 1;
+              } else {
+                endGame(); 
+                return 0; 
+              }
+            });
+          }, 1000);
+        }
+      }
+      
+      intervalRef.current = interval;
     }
+    
     return () => clearInterval(intervalRef.current);
-  }, [props.gameState])
+  
+  }, [props.gameState, gameMode, time, firstTime]);
 
   useEffect(() => {
     if (props.AIOutput && props.AIOutput === item[yourScore % item.length]) {
@@ -93,10 +120,11 @@ const PlayScreen = (props) => {
   }, [props.AIOutput]);  // Dependency on AIOutput
 
   function startGame(){
-    socket.emit('start game');
+    socket.emit('start game', { mode: gameMode });
   }
 
   function endGame(){
+    updatePopUp(true);
     socket.emit('end game');
   }
 
@@ -109,7 +137,7 @@ const PlayScreen = (props) => {
     if(input === item[yourScore%item.length]){
       socket.emit('submit', {submit:input});
     } else if(props.AIOutput === item[yourScore%item.length]){
-      socket.emit('submit', {submit:props.AIOutput});
+      socket.emit('submit',{submit:props.AIOutput});
     }
     updateInput("");
   }
@@ -143,7 +171,15 @@ const PlayScreen = (props) => {
               ))}
             </ul>
           </div>
-          {props.gameState==="waiting" && (<button onClick={startGame}>Start Game</button>)}
+          {props.gameState === "waiting" && (
+            <>
+              <select value={gameMode} onChange={(e) => setGameMode(e.target.value)}>
+                <option value="countUp">Count Up</option>
+                <option value="countDown">Count Down</option>
+              </select>
+              <button onClick={startGame}>Start Game</button>
+            </>
+          )}
           {props.gameState==="running" && (<button onClick={endGame}>End Game</button>)}   
         </div>
 
