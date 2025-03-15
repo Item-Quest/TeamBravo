@@ -48,3 +48,7 @@ export function connectGame(callback) {
             callback(result);
     });
 }
+
+export function getTopScores(gameMode, callback) {
+    socketCallWrapper('get top scores', gameMode, 'top scores', callback);
+}

@@ -11,6 +11,7 @@ import random, string
 
 #import database functions
 from utils.memoryDB import *
+from utils.persistantDB import *
 import signal
 import sys
 import time
@@ -204,7 +205,24 @@ def game_loop():
 
       pass
     eventlet.sleep(1)
-    
+  
+@socketio.on('get top scores')
+def handle_get_top_scores(data):
+  '''
+  return top scores in a game mode
+  -1 for all game modes, 0-n for game id
+  '''
+  if(data == -1):
+    top_scores = get_top_scores()
+  else:
+    top_scores = get_top_scores(data)
+    #TODO add page numbers later just return top 4 for now
+    pageNumber = 0
+    result = top_scores[pageNumber*4:pageNumber*4+4]
+    print("result: \n",result)
+    emit('top scores', result, target=request.sid)
+  
+
 @socketio.on('start game')
 def handle_start_game():
   global game_running, game_thread
@@ -273,6 +291,10 @@ def handle_end_game():
     emit('start game', room=roomCode)
     #end game loop
     game_running = False
+
+    #save scores in room
+    save_scores(roomCode)
+
     #emit updated room data
     emit('room data', gameState, room=roomCode)
 
@@ -315,6 +337,13 @@ def handle_submit(data):
   gameState = db_get_game_state(cursor, roomCode)
   emit('room data', gameState, room=roomCode)
   print("User has submitted")
+
+def save_scores(room_code):
+  print("saving scores")
+  users = db_get_users(cursor, room_code)
+  print(users)
+  for user in users:
+    save_score(user[2], user[3], get_game_mode(room_code))
 
 if __name__ == '__main__':
   # Register the signal handler to close the database connection on termination
