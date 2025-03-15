@@ -35,9 +35,6 @@ def insert_record(table_name, record, db_path=DB_PATH):
     }
     insert_record('table_name', record)
     """
-    print("insert record arguments")
-    print(table_name) 
-    print(record)
     # Connect to the SQLite database
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -51,7 +48,6 @@ def insert_record(table_name, record, db_path=DB_PATH):
     query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
 
     # Execute the query
-    print(query, values)
     cursor.execute(query, values)
 
     # Commit the changes and close the connection
@@ -99,15 +95,17 @@ def get_records(table_name, conditions=None, order_by=None, db_path=DB_PATH):
 
 
 def save_score(username, score, game_mode):
-    user = get_records("users", {'username': username})
-    print("user: ", user, user[0][0])
-    record = {
-        'user_id': user[0][0],
-        'score': score,
-        'game_mode': game_mode
-    }
-    print(record)
-    insert_record("scores", record)
+    user = find_user(username)
+    if(user):
+        record = {
+            'user_id': user[0][0],
+            'score': score,
+            'game_mode': game_mode
+        }
+        insert_record("scores", record)
+    else:
+        #TODO: error handiling for user not found
+        pass
 
 def get_top_scores(game_mode=-1, orderBy=None):
     if(game_mode == -1):
@@ -129,6 +127,15 @@ def construct_record(columns, values):
 def construct_condition(columns, values):
     '''different name for construct record, inherently the same'''
     return construct_record(columns, values)
+
+def get_username(id):
+    return get_records("users", {'id': id})[0][1]
+
+def find_user(username):
+    return get_records("users", {'username': username})
+
+def create_user(username):
+    insert_record("users", {'username': username, 'password': 'pass'})
 
 if __name__ == "__main__":
     initialize_db()

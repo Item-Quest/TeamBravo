@@ -2,6 +2,7 @@ import sqlite3
 import json
 import os
 import time
+from utils.debug import *
 #TODO: create list of functions and describe what they do so excessive scrolling is not a problem
 #TODO: add comments
 #initialize database
@@ -24,7 +25,7 @@ def db_add_room(cursor, room_code, game_state, items, time_in_game):
     values = [room_code, game_state, json.dumps(items), time_in_game]
     cursor.execute(sql, values)
   except sqlite3.Error as e:
-    print(f"db_add_room error: {e}")
+    log("error",f"db_add_room error: {e}")
 
 #checks if a room exists in rooms
 def db_room_exists(cursor, room_code):
@@ -36,7 +37,7 @@ def db_room_exists(cursor, room_code):
       return res[0]
     return None
   except sqlite3.Error as e:
-    print(f"db_check_rooms_room: {e}")
+    log("error",f"db_check_rooms_room: {e}")
 
 def db_room_empty(cursor, room_code):
   try:
@@ -47,7 +48,7 @@ def db_room_empty(cursor, room_code):
       return True
     return False
   except sqlite3.Error as e:
-    print(f"db_room_empty error: {e}")
+    log("error",f"db_room_empty error: {e}")
     return False
   
 def db_set_room_time(cursor, room_code, time):
@@ -55,7 +56,7 @@ def db_set_room_time(cursor, room_code, time):
     sql = '''UPDATE rooms SET time_in_game = ? WHERE room_code = ?'''
     cursor.execute(sql, [time, room_code])
   except sqlite3.Error as e:
-    print(f"db_set_room_time error: {e}")
+    log("error",f"db_set_room_time error: {e}")
 
 def db_get_room_time(cursor, room_code):
   try:
@@ -63,21 +64,21 @@ def db_get_room_time(cursor, room_code):
     cursor.execute(sql, [room_code])
     return cursor.fetchone()
   except sqlite3.Error as e:
-    print(f"db_set_room_time error: {e}")
+    log("error",f"db_set_room_time error: {e}")
 
 def db_set_room_game_state(cursor, room_code, setting):
   try:
     sql = '''UPDATE rooms SET game_state = ? WHERE room_code = ?'''
     cursor.execute(sql, [setting, room_code])
   except sqlite3.Error as e:
-    print(f"db_set_room_game_state error: {e}")
+    log("error",f"db_set_room_game_state error: {e}")
 
 def db_delete_room(cursor, room_code):
   try:
     sql = '''DELETE FROM rooms WHERE room_code = ?'''
     cursor.execute(sql, [room_code])
   except sqlite3.Error as e:
-    print(f"db_delete_room error: {e}")
+    log("error",f"db_delete_room error: {e}")
 
 def db_add_user(cursor, socket_id, username, score):
   try:
@@ -87,7 +88,7 @@ def db_add_user(cursor, socket_id, username, score):
     cursor.execute(sql, values)
     return True
   except sqlite3.Error as e:
-    print(f"db_add_user error: {e}")
+    log("error",f"db_add_user error: {e}")
     return False
   
 def db_delete_user(cursor, socket_id):
@@ -95,7 +96,7 @@ def db_delete_user(cursor, socket_id):
     sql = '''DELETE FROM users WHERE socket_id = ?'''
     cursor.execute(sql,[socket_id])
   except sqlite3.Error as e:
-    print(f"db_delete_user error: {e}")
+    log("error",f"db_delete_user error: {e}")
 
 def db_set_username(cursor, socket_id, username):
   try:
@@ -103,7 +104,7 @@ def db_set_username(cursor, socket_id, username):
     values = [username, socket_id]
     cursor.execute(sql, values)
   except sqlite3.Error as e:
-    print(f"Udb_set_username error:{e}")
+    log("error",f"Udb_set_username error:{e}")
 
 def db_get_username(cursor, socket_id):
   try:
@@ -114,7 +115,7 @@ def db_get_username(cursor, socket_id):
       return res[0]
     return None
   except sqlite3.Error as e:
-    print(f"db_get_username error:{e}")
+    log("error",f"db_get_username error:{e}")
     return None
 
 def db_set_user_room(cursor, socket_id, roomCode):
@@ -123,7 +124,7 @@ def db_set_user_room(cursor, socket_id, roomCode):
     values = [roomCode, socket_id]
     cursor.execute(sql,values)
   except sqlite3.Error as e:
-    print(f"db_set_user_room error:{e}")
+    log("error",f"db_set_user_room error:{e}")
 
 def db_get_user_score(cursor, socket_id):
   try:
@@ -131,7 +132,7 @@ def db_get_user_score(cursor, socket_id):
     cursor.execute(sql, [socket_id])
     return cursor.fetchone()
   except sqlite3.Error as e:
-    print(f"db_get_user_score error: {e}")
+    log("error",f"db_get_user_score error: {e}")
 
 def db_get_user_room(cursor, socket_id):
   try:
@@ -142,7 +143,7 @@ def db_get_user_room(cursor, socket_id):
       return res[0]
     return None
   except sqlite3.Error as e:
-    print(f"db_get_user_room error:{e}")
+    log("error",f"db_get_user_room error:{e}")
     return None
   
 
@@ -152,7 +153,7 @@ def db_set_user_score(cursor, socket_id, score):
     values = [score, socket_id]
     cursor.execute(sql,values)
   except sqlite3.Error as e:
-    print(f"db_set_user_room error:{e}")
+    log("error",f"db_set_user_room error:{e}")
 
 def db_get_game_state(cursor, room_code):
   try:
@@ -179,7 +180,7 @@ def db_get_game_state(cursor, room_code):
       game_data[f'user:{socket_id}:score'] = score
     return game_data
   except sqlite3.Error as e:
-    print(f"db_get_game_state error: {e}")
+    log("error",f"db_get_game_state error: {e}")
     return None
 
 def db_set_room_items(cursor, room_code, items):
@@ -187,7 +188,7 @@ def db_set_room_items(cursor, room_code, items):
     sql = '''UPDATE rooms SET items = ? WHERE room_code = ?'''
     cursor.execute(sql, [items, room_code])
   except sqlite3.Error as e:
-    print(f"db_set_room_items error: {e}")
+    log("error",f"db_set_room_items error: {e}")
 
 def db_get_room_items(cursor, room_code):
   try:
@@ -195,7 +196,7 @@ def db_get_room_items(cursor, room_code):
     cursor.execute(sql, [room_code])
     return cursor.fetchone()
   except sqlite3.Error as e:
-    print(f"db_set_room_items error: {e}")
+    log("error",f"db_set_room_items error: {e}")
 
 
 def db_set_room_user_scores(cursor, room_code, score):
@@ -203,7 +204,7 @@ def db_set_room_user_scores(cursor, room_code, score):
     sql = '''UPDATE users SET score = ? WHERE room_code = ?'''
     cursor.execute(sql, [score, room_code])
   except sqlite3.Error as e:
-    print(f"db_set_room_items error: {e}")
+    log("error",f"db_set_room_items error: {e}")
 
 
 def db_get_rooms(cursor):
@@ -226,9 +227,9 @@ def db_get_users(cursor, room_code):
     cursor.execute(sql, [room_code])
     return cursor.fetchall()
   except sqlite3.Error as e:
-    print(f"db_get_scores error: {e}")
+    log("error",f"db_get_scores error: {e}")
 
-def get_game_mode(room_code):
+def db_get_game_mode(room_code):
   # TODO implment gameModes
   # for now always return 0 (default game mode)
   return 0

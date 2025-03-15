@@ -1,4 +1,4 @@
-.PHONY: all run runC build buildS buildC clean testdb
+.PHONY: all run runC build buildS buildC clean testdb allish cleanish
 
 #make all -> cleans client and server folder, sets up both for running, runs the serverr
 #make run -> runs the server | assumes you've already compiled
@@ -15,6 +15,9 @@ endif
 
 all: clean build run
 
+# save a few seconds on build time by not cleaning node_modules
+allish: cleanish build run
+
 run:
 	@-$(ENVIRONMENT_PATH)/python3 server/app.py
 
@@ -30,6 +33,7 @@ buildS:
 	@-npm run build --prefix client
 	@-python3 -m venv server/environment
 	@-$(ENVIRONMENT_PATH)/pip install flask flask-socketio eventlet redis
+	@-python3 -m pip install --upgrade pip
 
 testdb:
 	@-python3 ./server/utils/memoryDB.py
@@ -37,4 +41,8 @@ testdb:
 clean:
 	@-rm -r client/dist
 	@-rm -r client/node_modules
+	@-rm -r server/environment
+
+cleanish:
+	@-rm -r client/dist
 	@-rm -r server/environment
