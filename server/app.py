@@ -206,9 +206,11 @@ def game_loop():
     eventlet.sleep(1)
     
 @socketio.on('start game')
-def handle_start_game():
+def handle_start_game(data):
   global game_running, game_thread
   with game_lock:
+    #get mode name
+    mode_value = data.get('mode')
     #get room code of user
     roomCode = db_get_user_room(cursor,request.sid)
     if roomCode == None or roomCode == "None":
@@ -222,15 +224,21 @@ def handle_start_game():
     #Get username
     username = db_get_username(cursor, request.sid)
     #Print that user requested to run game
-    print(f"{request.sid}:{username} has requested to start the game in room:{roomCode}")
+    print(f"{request.sid}:{username} has requested to start the game in room:{roomCode} playing {mode_value}")
     #Set start time
     db_set_room_time(cursor, roomCode, time.time())
     #Update game state to running
     db_set_room_game_state(cursor, roomCode, "running")
     #Generate items for players to guess
     game_items = []
-    for _ in range(5):
-      game_items.append(random.choice(items))
+    #item storage will be different based on mode
+    if mode_value == "ItemRace":
+      #creates list of 5 unique items from items
+      game_items.extend(random.sample(items, 5)) 
+    else:
+      #randomly orders every item (for countDown mode)
+      random.shuffle(items)
+      game_items.extend(items)  
     #turn the items into a json encoded string
     game_items = json.dumps(game_items)
     #set the items in the room
@@ -321,11 +329,3 @@ if __name__ == '__main__':
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
   socketio.run(app, debug=True)
-      # rooms = redis_server.smembers("rooms")
-      # for roomCode in rooms:
-      #   if redis_server.hget(roomCode, "game_state") == "running":
-      #     newTime = int(redis_server.hget(roomCode, "time"))
-      #     newTime += 1
-      #     redis_server.hset(roomCode, "time", newTime)
-      #     gameState = redis_server.hgetall(roomCode)
-      #     socketio.emit('room data', gameState, room=roomCode)
