@@ -232,7 +232,7 @@ def handle_start_game(data):
     #Generate items for players to guess
     game_items = []
     #item storage will be different based on mode
-    if mode_value == "countUp":
+    if mode_value == "ItemRace":
       #creates list of 5 unique items from items
       game_items.extend(random.sample(items, 5)) 
     else:

@@ -15,7 +15,7 @@ const PlayScreen = (props) => {
   const [input, updateInput] = useState("");
   const [yourScore, setYourScore] = useState(0);
   const intervalRef = useRef(null);
-  const [gameMode, setGameMode] = useState("countUp");
+  const [gameMode, setGameMode] = useState("ItemRace");
   const [firstTime, setFirstTime] = useState(true); //for count down timer
 
   const [showPopUp, updatePopUp] = useState(false);
@@ -81,16 +81,16 @@ const PlayScreen = (props) => {
   useEffect(() => {
     let interval;
     if (props.gameState === "running") {
-      if (gameMode === "countUp") {
+      if (gameMode === "ItemRace") {
         interval = setInterval(() => {
           updateTime((prev) => prev + 1);
         }, 1000);
       }
   
-      if (gameMode === "countDown") {
+      if (gameMode === "ItemBlitz") {
         if (time === 0 && firstTime) {
           // Set the initial time only once when countdown starts
-          updateTime(10);
+          updateTime(120);
           setFirstTime(false);
         } else if (!firstTime) {
           interval = setInterval(() => {
@@ -174,8 +174,8 @@ const PlayScreen = (props) => {
           {props.gameState === "waiting" && (
             <>
               <select value={gameMode} onChange={(e) => setGameMode(e.target.value)}>
-                <option value="countUp">Count Up</option>
-                <option value="countDown">Count Down</option>
+                <option value="ItemRace">ItemRace</option>
+                <option value="ItemBlitz">ItemBlitz</option>
               </select>
               <button onClick={startGame}>Start Game</button>
             </>
