@@ -1,75 +1,71 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Camera from './Camera';
-import JoinModal from './JoinRoom' /* For Join Room Popup/Modal */
-import logo from '../assets/logo.png';
+// eslint-disable-next-line no-unused-vars
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Box, Paper } from "@mui/material";
 
-const Home = props => {
-    
-    const navigate = useNavigate();
-    const [isModalOpen, setIsModalOpen] = useState(false); /* Set Join Room Popup/Modal to closed/false */
+import NavigationPanel from "./NavigationPanel";
+import CameraPanel from "./CameraPanel";
+import JoinGameModal from "./JoinGameModal";
 
-    const JoinClick = () => {
-        setIsModalOpen(true); /* Open Join Room Popup/Modal */
-    }
+const Home = () => {
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [roomCode, setRoomCode] = useState("");
 
-    const CreateGameClick = () => {
-        navigate("/create");
-    }
+  const JoinClick = () => {
+    setIsModalOpen(true);
+  };
 
-    const LeaderboardClick = () => {
-        navigate("/leaderboard");
-    }
+  const handleClose = () => {
+    setIsModalOpen(false);
+  };
 
-    const SettingsClick = () => {
-        navigate("/MenuSettings");
-    }
+  const handleJoin = () => {
+    navigate("/play");
+  }
 
-    const BackEndClick = () => {
-        navigate("/TestHome")
-    }
-    
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        alignItems: "center",
+        color: "text.primary",
+      }}
+    >
+      <nav style={{ width: 'auto', boxSizing: 'border-box', backgroundColor: 'rgba(0,0,0,0.1)', padding: '10px' }}>
+        {/* Navbar content will go here later */}
+      </nav>
+      <Paper
+        elevation={6}
+        sx={{
+          display: "flex",
+          width: "80vw",
+          maxWidth: "1200px",
+          minHeight: "500px",
+          borderRadius: "12px",
+          overflow: "hidden",
+          padding: 3,
+          backgroundColor: "rgba(255, 255, 255, 0.08)", // Optional transparency
+        }}
+      >
+        <NavigationPanel onJoinClick={JoinClick} />
+        <CameraPanel />
 
-    return (
-        <div className='home'>
-        <div className='home-content'> {/* Container for content */}
-            <div className='home-left-panel'> {/* Left Panel for buttons */}
-                <div className='home-left-panel-upper'>
-                    <img src={logo} alt="Logo" className='logo-container' />
-                </div>
-                <div className='home-left-panel-middle'>
-                    <div className='home-menu-panel'>
-                            <button className='home-menu-button' onClick={JoinClick}>JOIN GAME</button>
-                            <button className='home-menu-button' onClick={CreateGameClick}>Create Game</button>
-                            <button className='home-menu-button' onClick={LeaderboardClick}>Leader Board</button>
-                    </div>
-                </div>
-                <div className='home-left-panel-lower'>
-                    <div className='settings-button-container'>
-                        <button className='settings-button' onClick={SettingsClick}>Settings</button>
-                        <button className='settings-button' onClick={BackEndClick}>Backend</button>
-                    </div>
-                </div>
-                
-            </div>
-
-            <div className='home-right-panel'> {/* Right Panel for Camera */}
-                <div className='home-panel-title'>
-                    Test Your Camera
-                </div> {/* Title */}
-                <div className='home-camera-panel'> {/* Container for Camera */}
-                    <Camera />
-                </div>
-                <div className='home-right-panel-lower'>
-                    <span>How To play </span>
-                    <text>How To play </text>
-                </div>
-            </div>
+        <JoinGameModal
+          isOpen={isModalOpen}
+          onClose={handleClose}
+          onJoin={handleJoin}
+          roomCode={roomCode}
+          setRoomCode={setRoomCode}
+        />
+      </Paper>
+        <div style={{ textAlign: 'center', marginTop: '20px', width: '80vw', maxWidth: '1200px', margin: '0 auto' }}>
+          © 2025 Team Bravo. All rights reserved.
         </div>
-      <JoinModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} updateGame = {props.updateGame}/> {/* Join Screen Popup/Modal */}
-        </div>
-    )
-}
-
+    </Box>
+  );
+};
 
 export default Home;

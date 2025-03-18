@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { Box, Typography } from "@mui/material";
 import { loadModelAndPredict } from '../utils/imagePredict';
 
 function Camera() {
@@ -55,3 +56,51 @@ function Camera() {
 }
 
 export default Camera;
+
+// Need to fix
+// const CameraPanel = () => {
+//   console.log("CameraPanel rendering"); // Log statement
+//   return (
+//     <Box
+//       sx={{
+//         flex: 2,
+//         display: "flex",
+//         flexDirection: "column",
+//         alignItems: "center",
+//         justifyContent: "center",
+//         backgroundColor: "black",
+//         color: "white",
+//         padding: 2,
+//         borderRadius: "8px",
+//       }}
+//     >
+//       <Typography variant="h5" gutterBottom>
+//         Test Your Camera
+//       </Typography>
+//       <Typography variant="body2" sx={{ marginTop: 2 }}>
+//         How to play instructions here...
+//       </Typography>
+//       <Box
+//         sx={{
+//           width: "90%",
+//           height: "300px",
+//           backgroundColor: "#222",
+//           display: "flex",
+//           alignItems: "center",
+//           justifyContent: "center",
+//           borderRadius: "8px",
+//           padding: 2,
+//         }}
+//       >
+//         <Camera />
+//       </Box>
+//       <Typography variant="body2" sx={{ marginTop: 2 }}>
+//         How to play instructions here...
+//       </Typography>
+//     </Box>
+//   );
+// };
+
+// CameraPanel.propTypes = {};
+
+// export default CameraPanel;

@@ -1,0 +1,78 @@
+/* client/src/styles/home.css */
+.homeContainer {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.homePaper {
+    display: flex;
+    width: 80vw;
+    max-width: 1200px;
+    min-height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 3px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navigationPanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2px;
+}
+
+.navigationPanelImg {
+    width: 100px;
+    margin-bottom: 16px;
+}
+
+.joinGameButton {
+    width: 90%;
+    height: 60px;
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+.createGameButton, .leaderboardButton {
+    width: 90%;
+    height: 50px;
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+.settingsBackendButtons {
+    display: flex;
+    width: 90%;
+    justify-content: space-between;
+}
+
+.settingsButton, .backendButton {
+    width: 48%;
+}
+
+.cameraPanel {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    color: rgb(255, 0, 0);
+    padding: 2px;
+    border-radius: 8px;
+}
+
+.cameraContainer {
+    width: 90%;
+    height: 300px;
+    background-color: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    padding: 2px;
+}
