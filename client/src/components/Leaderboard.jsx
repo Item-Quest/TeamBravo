@@ -1,42 +1,50 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate} from 'react-router-dom';
-import {getAllPlayers} from '../dataProvider.js';
+import { useNavigate } from 'react-router-dom';
+import { Paper, List, ListItem, ListItemAvatar, Avatar, ListItemText, Button, Typography } from '@mui/material';
+import PropTypes from 'prop-types';
 
 const Leaderboard = (props) => {
-
     const navigate = useNavigate();
-    const [leaderPlayers, setLeaderPlayers] = useState([]);
-    
-    const backClick = () => {
+
+    const BackClick = () => {
         navigate("/home");
     }
 
-  useEffect(async () => {
-    getAllPlayers((allPlayers) => {
-        setLeaderPlayers(allPlayers);
-    });
-  }, []);
-
     return (
-        <div className='leaderboard'>
-            <div className='leaderboard-title'>Leaderboard</div>
-            <div className='leaderboard-players-container'>
-            {
-                leaderPlayers.sort(x=>x.Score).map((player, index) =>
-                    <div className='leaderboard-player-container' key={player.Id}>
-                        <span className='leaderboard-place'>{index + 1}</span>
-                        <span className='leaderboard-name'>{player.Name}</span>
-                        <span className='leaderboard-score'>{'score: ' + player.Score}</span>
-                    </div>
-                )
-            }
-            </div>
-            <div className='back-button-container'>
-               <button className='back-button' onClick={backClick}>Back</button>
-            </div>
-        </div>
+        <Paper elevation={6} sx={{ padding: 3, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "12px", width: "80vw", maxWidth: "1200px", margin: "0 auto" }}>
+            <Typography variant="h4" sx={{ textAlign: 'center', marginBottom: 2 }}>Leaderboard</Typography>
+            <List>
+                {props.players.sort((a, b) => b.Score - a.Score).map((player, index) => (
+                    <ListItem key={player.Id}>
+                        <ListItemAvatar>
+                            <Avatar src={player.Pfp} alt="Player Profile" />
+                        </ListItemAvatar>
+                        <ListItemText
+                            primary={player.Name}
+                            secondary={`Score: ${player.Score}`}
+                            sx={{
+                                '& .MuiListItemText-primary': { fontWeight: 'bold' },
+                                '& .MuiListItemText-secondary': { color: 'text.secondary' }
+                            }}
+                        />
+                        <Typography>{index + 1}</Typography>
+                    </ListItem>
+                ))}
+            </List>
+            <Button variant="contained" onClick={BackClick} sx={{ display: 'block', margin: '20px auto 0' }}>Back</Button>
+        </Paper>
     )
 }
+
+Leaderboard.propTypes = {
+    players: PropTypes.arrayOf(
+        PropTypes.shape({
+            Id: PropTypes.string.isRequired,
+            Pfp: PropTypes.string.isRequired,
+            Name: PropTypes.string.isRequired,
+            Score: PropTypes.number.isRequired
+        })
+    ).isRequired,
+};
 
 export default Leaderboard;
 
