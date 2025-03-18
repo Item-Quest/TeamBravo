@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import './App.css';
+
 import Home from './components/Home.jsx';
 import Leaderboard from './components/Leaderboard.jsx';
 import Login from './components/login.jsx';
@@ -13,12 +14,6 @@ import { getAllPlayers } from './dataProvider.js';
 import ParticlesBackground from './components/ParticlesBackground.jsx'; // <-- import
 import { ThemeProvider, useTheme } from './ThemeContext'; // Import ThemeProvider
 import './themes.css';
-import Game from './components/Game.jsx';
-import TestHome from './components/testcomponents/TestHome.jsx';
-import TestJoin from './components/testcomponents/TestJoinRoom.jsx';
-import TestCreateGame from './components/testcomponents/TestCreateGame.jsx';
-import TestLeaderboard from './components/testcomponents/TestLeaderboard.jsx';
-import TestGame from './components/testcomponents/TestGame.jsx';
 
 function App() {
   const [game, setGame] = useState({
@@ -58,7 +53,6 @@ function AppContent({ game }) {
           <Route path='/Test' element={<Test />} />
           <Route path='/TestLogin' element={<Login />} />
           <Route path='/create' element={<CreateGame game={game} />} />
-
         </Routes>
       </div>
     </main>

@@ -1,78 +1,35 @@
-/* client/src/styles/home.css */
-.homeContainer {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.homePaper {
-    display: flex;
-    width: 80vw;
-    max-width: 1200px;
-    min-height: 500px;
-    border-radius: 12px;
-    overflow: hidden;
-    padding: 3px;
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.navigationPanel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2px;
-}
-
-.navigationPanelImg {
-    width: 100px;
-    margin-bottom: 16px;
-}
-
-.joinGameButton {
-    width: 90%;
-    height: 60px;
-    font-size: 18px;
-    margin-bottom: 2px;
-}
-
-.createGameButton, .leaderboardButton {
-    width: 90%;
-    height: 50px;
-    font-size: 16px;
-    margin-bottom: 2px;
-}
-
-.settingsBackendButtons {
-    display: flex;
-    width: 90%;
-    justify-content: space-between;
-}
-
-.settingsButton, .backendButton {
-    width: 48%;
-}
-
-.cameraPanel {
-    flex: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: black;
-    color: rgb(255, 0, 0);
-    padding: 2px;
-    border-radius: 8px;
-}
-
-.cameraContainer {
-    width: 90%;
-    height: 300px;
-    background-color: #222;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    padding: 2px;
-}
+:root {
+    --background-color: #ffffff;
+    --text-color: #000000;
+    --primary-color: #21527b;
+    --secondary-color: #e3eff6;
+    --accent-color: #e4b36f;
+    --button-hover-color: #f6eee3;
+    --button-active-color: #e4b36f;
+    --border-color: #ccc;
+      --home-content-background-color: #ccc;
+  }
+  
+  .dark-theme {
+    --background-color: #121212;
+    --text-color: #ffffff;
+    --primary-color: #bb86fc;
+    --secondary-color: #373737;
+    --accent-color: #6f8ce4;
+    --button-hover-color: #444444;
+    --button-active-color: #5572b8;
+    --border-color: #555555;
+      --home-content-background-color: #333;
+  }
+  
+  .high-contrast-theme {
+    --background-color: #000000;
+    --text-color: #ffffff;
+    --primary-color: #ffff00; /* Yellow */
+    --secondary-color: #000000;
+    --accent-color: #00ffff; /* Cyan */
+    --button-hover-color: #333333;
+    --button-active-color: #000080; /* Dark blue */
+    --border-color: #ffffff;
+      --home-content-background-color: #000;
+  }
