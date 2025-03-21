@@ -11,6 +11,7 @@ import random, string
 
 #import database functions
 from utils.memoryDB import *
+from utils.persistantDB import *
 import signal
 import sys
 import time
@@ -56,6 +57,7 @@ def handle_username_change(data):
   #change username
   username = data['data']
   db_set_username(cursor, request.sid, username)
+  create_user(username)
 
 #returns an array of all playing users
 @socketio.on('all users')
@@ -275,6 +277,7 @@ def handle_end_game():
     game_running = False
     #emit updated room data
     emit('room data', gameState, room=roomCode)
+    save_scores(roomCode)
 
 #TODO: FINISH submit function
 @socketio.on('submit')
@@ -303,6 +306,7 @@ def handle_submit(data):
     print(score)
     #check if victory
     if score == len(items):
+      print("winner in room: ", roomCode)
       db_set_room_game_state(cursor,roomCode, "waiting")
       #TODO: emit win time
       username = db_get_username(cursor, request.sid)
@@ -311,10 +315,35 @@ def handle_submit(data):
       endTime = time.time()
       finalTime = round(endTime - startTime, 4)
       emit('winner', {'message': f"{username}", 'time': f"{finalTime}"}, room=roomCode)
+      save_scores(roomCode)
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
   emit('room data', gameState, room=roomCode)
   print("User has submitted")
+
+@socketio.on('get top scores')
+def handle_get_top_scores(data):
+  '''
+  return top scores in a game mode
+  -1 for all game modes, 0-n for game id
+  '''
+  if(data == -1):
+    top_scores = get_top_scores()
+  else:
+    top_scores = get_top_scores(data)
+  #TODO add page numbers later just return top 4 for now
+  pageNumber = 0
+  records = top_scores[pageNumber*4:pageNumber*4+4]
+  result = [construct_leaderboard_entry(record) for record in records]
+
+  emit('top scores', result, target=request.sid)
+  
+def save_scores(room_code):
+  print("saving scores")
+  users = db_get_users_in_room(cursor, room_code)
+  print(users)
+  for user in users:
+    save_score(user[2], user[3], db_get_game_mode(room_code))
 
 if __name__ == '__main__':
   # Register the signal handler to close the database connection on termination

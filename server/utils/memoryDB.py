@@ -219,3 +219,18 @@ def db_get_users(cursor):
       userData = {'Id':socket_id, 'Name': username, 'Score': score}
       result.append(userData)
   return result
+
+def db_get_game_mode(room_code):
+  # TODO implment gameModes
+  # for now always return 0 (default game mode)
+  return 0
+
+def db_get_users_in_room(cursor, room_code):
+  try:
+    sql = '''SELECT * FROM users WHERE room_code = ?'''
+    cursor.execute(sql, [room_code])
+    return cursor.fetchall()
+    
+  except sqlite3.Error as e:
+    print(f"db_get_users_in_room error: {e}")
+    return None
