@@ -1,0 +1,3 @@
+[submodule "TeamBravo"]
+    path = TeamBravo
+    url = https://github.com/Item-Quest/TeamBravo.git
