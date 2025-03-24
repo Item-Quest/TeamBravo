@@ -21,6 +21,7 @@ app.config['SECRET_KEY'] = 'secret!'
 
 #Initialize SocketIO
 socketio = SocketIO(app, async_mode='eventlet')
+# socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
 
 #variables for game control
 game_thread = None
@@ -214,7 +215,7 @@ def game_loop():
     eventlet.sleep(1)
     
 @socketio.on('start game')
-def handle_start_game():
+def handle_start_game(data=None):
   global game_running, game_thread
   with game_lock:
 
