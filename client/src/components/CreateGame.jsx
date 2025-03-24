@@ -14,37 +14,29 @@ const CreateGame  = (props) => {
         var uName = usernameRef.current.value;
         var newGame = createGame(uName, (result) => {
             props.updateGame(uName, result.roomCode, result.sid);
-            //navigate("play");
         });
-        /* redundant code - Game state is handled server side
-        var g = {...props.game};
-        g.gameCode = newGame.gameCode;
-        g.allPlayers.push(newGame.gameOwner);
-        g.gameOwnerIdx = g.allPlayers.length - 1;
-        props.setGame(g);
-        */
+        
         navigate("/play");
     }
 
 
     return (
-    <div className='create-game'>
-        <div className='create-container'>
-            <div className='create-title'>Create Game</div>
-            <div className='create-settings'>
-                <div name='username'>
-                    <label name="username">Username:</label>
-                    <input type="text" name="username" ref={usernameRef}></input>
+        <div className='create-game'>
+            <div className='create-container'>
+                <div className='create-title'>Create Game</div>
+                <div className='create-settings'>
+                    <div name='username'>
+                        <input type="text" name="username" placeholder="Enter Username" ref={usernameRef}></input>
+                    </div>
+                    <div className="create-other-settings"></div>
                 </div>
-                <div className="create-other-settings"></div>
+            </div>
+            <div className='create-button-container'>
+                <button className='back-button' onClick={backClick}>Back</button>
+                <button className='play-button' onClick={playClick}>Play</button>
             </div>
         </div>
-        <div className='create-button-container'>
-            <button className='back-button' onClick={backClick}>Back</button>
-            <button className='play-button' onClick={playClick}>Play</button>
-        </div>
-    </div>
-    )
+        )
 }
 
 export default CreateGame;
