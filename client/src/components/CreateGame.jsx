@@ -11,13 +11,18 @@ const CreateGame  = (props) => {
     }
 
     const playClick = () => {
-        var uName = usernameRef.current.value;a
-        var newGame = createGame(uName);
+        var uName = usernameRef.current.value;
+        var newGame = createGame(uName, (result) => {
+            props.updateGame(uName, result.roomCode, result.sid);
+            //navigate("play");
+        });
+        /* redundant code - Game state is handled server side
         var g = {...props.game};
         g.gameCode = newGame.gameCode;
         g.allPlayers.push(newGame.gameOwner);
         g.gameOwnerIdx = g.allPlayers.length - 1;
         props.setGame(g);
+        */
         navigate("/play");
     }
 

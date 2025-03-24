@@ -1,6 +1,7 @@
 // client/src/components/JoinGameModal.jsx
 // eslint-disable-next-line no-unused-vars
-import React from "react";
+import React, {useState} from "react";
+
 import {
   Button,
   Dialog,
@@ -11,10 +12,25 @@ import {
 } from "@mui/material";
 import PropTypes from 'prop-types';
 
-const JoinGameModal = ({ isOpen, onClose, onJoin, roomCode, setRoomCode }) => {
+const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
+  //state for getting username and room code
+  const [username, setUsername] = useState("Anonymous");
+  const [roomCode, setRoomCode] = useState("");
+
     return (
       <Dialog open={isOpen} onClose={onClose}>
         <DialogTitle>Join Game</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Enter Username"
+            type="text"
+            fullWidth
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </DialogContent>
         <DialogContent>
           <TextField
             autoFocus
@@ -33,8 +49,8 @@ const JoinGameModal = ({ isOpen, onClose, onJoin, roomCode, setRoomCode }) => {
           <Button
             onClick={() => {
               // Handle join logic
-              onJoin();
-              onClose();
+              onJoin(username, roomCode);
+              //onClose();
             }}
             color="primary"
           >
@@ -48,9 +64,7 @@ const JoinGameModal = ({ isOpen, onClose, onJoin, roomCode, setRoomCode }) => {
 JoinGameModal.propTypes = {
     isOpen: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    onJoin: PropTypes.func.isRequired,
-    roomCode: PropTypes.string.isRequired,
-    setRoomCode: PropTypes.func.isRequired
+    onJoin: PropTypes.func.isRequired
 }
 
 export default JoinGameModal;

@@ -7,6 +7,7 @@ import Home from './components/Home.jsx';
 import Leaderboard from './components/Leaderboard.jsx';
 import Login from './components/login.jsx';
 import PlayScreen from './components/PlayScreen.jsx';
+import Game from './components/Game.jsx';
 import Test from './components/Test.jsx';
 import CreateGame from './components/CreateGame.jsx';
 import MenuSettings from './components/MenuSettings.jsx';
@@ -22,30 +23,42 @@ function App() {
     gameOwnerIdx: -1,
   });
 
-  useEffect(() => {
-    var allPlayers = getAllPlayers(); //retrieve list of all players from server
-    var g = { ...game }; //temporary copy game object
-    g.allPlayers = allPlayers;
+  const updateGame = (uName, rCode, sid) => {
+    var g = {...game};
+    if (sid) 
+      g.userSid = sid;
+    if (rCode) 
+      g.roomCode = rCode;
+    g.username = uName ? uName : "Anonymous";
+    console.log("successfully updated the game");
     setGame(g);
+    console.log("successfully updated the game");
+   }
+
+  useEffect(() => {
+    // var allPlayers = getAllPlayers(); //retrieve list of all players from server
+    // var g = { ...game }; //temporary copy game object
+    // g.allPlayers = allPlayers;
+    // setGame(g);
   }, []);
 
   return (
     <ThemeProvider>
-      <AppContent game={game} />
+      <AppContent game={game} updateGame={updateGame} />
     </ThemeProvider>
   );
 }
 
-function AppContent({ game }) {
+function AppContent({ game, updateGame }) {
   const { theme } = useTheme();
   return (
     <main className={`main ${theme}`}>
       <ParticlesBackground />
       <div className='component-container'>
         <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/home' element={<Home />} />
-          <Route path='/play' element={<PlayScreen />} />
+          <Route path='/' element={<Home updateGame={updateGame}/>} />
+          <Route path='/home' element={<Home updateGame={updateGame}/>} />
+          <Route path='/play' element={<Game game={game}/>}/>
           <Route path='/leaderboard'
                  element={<Leaderboard players={game.allPlayers} />}
           />

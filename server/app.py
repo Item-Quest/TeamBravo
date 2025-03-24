@@ -65,9 +65,12 @@ def handle_get_all_users():
 
 @socketio.on('join attempt')
 def handle_join_attempt(data):
+  print('join attempt')
   roomCode = data.get('roomcode')
+  print(roomCode, " this is the room code")
   #check if roomCode exists
   if db_room_exists(cursor, roomCode) is None:
+    print("room not found")
     emit('join response', {'success': False}, room=request.sid)
     return
   #add user to room
@@ -93,6 +96,11 @@ def handle_create_game():
     roomCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
   # create room and set initial game state
   db_add_room(cursor, roomCode, "waiting", "[no items]", 0)
+  #check if room exists
+  if(db_room_exists(cursor, roomCode) == False):
+    print("room creation failed")
+    return
+
   # set user room code to be roomCode
   db_set_user_room(cursor, request.sid, roomCode)
   db_set_user_score(cursor, request.sid, 0)
@@ -206,11 +214,16 @@ def game_loop():
     eventlet.sleep(1)
     
 @socketio.on('start game')
-def handle_start_game(data):
+def handle_start_game():
   global game_running, game_thread
   with game_lock:
-    #get mode name
-    mode_value = data.get('mode')
+
+    #TODO: reimplement
+    #################################
+    # #get mode name
+    # mode_value = data.get('mode')
+    #################################
+
     #get room code of user
     roomCode = db_get_user_room(cursor,request.sid)
     if roomCode == None or roomCode == "None":
@@ -224,22 +237,37 @@ def handle_start_game(data):
     #Get username
     username = db_get_username(cursor, request.sid)
     #Print that user requested to run game
-    print(f"{request.sid}:{username} has requested to start the game in room:{roomCode} playing {mode_value}")
+
+    #TODO: reimplement
+    ########################
+    # print(f"{request.sid}:{username} has requested to start the game in room:{roomCode} playing {mode_value}")
+    ########################
+
     #Set start time
     db_set_room_time(cursor, roomCode, time.time())
     #Update game state to running
     db_set_room_game_state(cursor, roomCode, "running")
     #Generate items for players to guess
     game_items = []
-    #item storage will be different based on mode
-    if mode_value == "ItemRace":
-      #creates list of 5 unique items from items
-      game_items.extend(random.sample(items, 5)) 
-    else:
-      #randomly orders every item (for countDown mode)
-      random.shuffle(items)
-      game_items.extend(items)  
-    #turn the items into a json encoded string
+
+    #Old Code - Used because front end is broken
+    #TODO: replace with game modes
+    for _ in range(5):
+      game_items.append(random.choice(items))
+
+    #TODO: reimplement
+    # ################################################
+    # #item storage will be different based on mode
+    # if mode_value == "ItemRace":
+    #   #creates list of 5 unique items from items
+    #   game_items.extend(random.sample(items, 5)) 
+    # else:
+    #   #randomly orders every item (for countDown mode)
+    #   random.shuffle(items)
+    #   game_items.extend(items)  
+    # #turn the items into a json encoded string
+    # ##################################################
+
     game_items = json.dumps(game_items)
     #set the items in the room
     db_set_room_items(cursor, roomCode, game_items)
@@ -287,7 +315,6 @@ def handle_end_game():
 #TODO: FINISH submit function
 @socketio.on('submit')
 def handle_submit(data):
-  print("User has submitted")
   roomCode = db_get_user_room(cursor,request.sid)
   if roomCode == None or roomCode == "None":
     #TODO: Error handling if user is not in room
@@ -322,7 +349,6 @@ def handle_submit(data):
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
   emit('room data', gameState, room=roomCode)
-  print("User has submitted")
 
 if __name__ == '__main__':
   # Register the signal handler to close the database connection on termination

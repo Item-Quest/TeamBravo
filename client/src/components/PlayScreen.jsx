@@ -1,135 +1,175 @@
-import { useState, useEffect } from "react";
-import Camera from './Camera';
-import { Grid, Button, Typography, Container, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import SkipNextIcon from '@mui/icons-material/SkipNext';
-import logo from '../assets/logo2.png';
+import React, {useState, useEffect, useRef} from "react";
+import {useNavigate} from 'react-router-dom';
+import socket from '../socket';
+import {connectGame} from '../dataProvider.js';
 
-const PlayScreen = () => {
-    const [time, setTime] = useState(90);
-    const [skips, setSkips] = useState(3);
-    const [resetTime, setResetTime] = useState(30);
-    const [isResetTimerActive, setIsResetTimerActive] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+//importing my own css styling because game page is broken
+import './PlayScreen.css'
+import logo from '../assets/logo.png'
 
-    const handleMenuClose = () => {
-        setIsMenuOpen(false);
-    };
+const PlayScreen = (props) => {
+  console.log(props.gameState, "Gamestate");
+  const [usersInRoom, updateUsersInRoom] = useState([]);
+  const [time, updateTime] = useState(0);
+  const [item, updateItem] = useState([])
+  const [input, updateInput] = useState("");
+  const [yourScore, setYourScore] = useState(0);
+  const intervalRef = useRef(null);
+  const [roomCode, updateRoomCode] = useState("");
 
-    useEffect(() => {
-        if (time > 0) {
-            const timer = setInterval(() => {
-                setTime((prevTime) => prevTime - 1);
-            }, 1000);
-            return () => clearInterval(timer);
+  const [showPopUp, updatePopUp] = useState(false);
+  const [winner, updateWinner] = useState("");
+  const [winnerTime, updateWinnerTime] = useState("");
+
+  useEffect(() => {
+    connectGame((data) => {
+      console.log("data received", data);
+      console.log(socket.id);
+      // Extract current item
+      if(data.items){
+        updateItem(data.items);
+        console.log(data.items)
+        //Grab client's score for the purposes of only displaying item associated with score
+      }
+      // Extract game state
+      if(data.game_state){
+        props.updateGameState(data.game_state);
+        if(props.gameState === "waiting"){
+          if(props.AIOutput != ""){
+            props.updateAIOutput("");
+          }
         }
-    }, [time]);
+      }
+      // Extract Room code
+      if(data.room_code){
+        updateRoomCode(data.room_code);
+      }
 
-    useEffect(() => {
-        if (isResetTimerActive && resetTime > 0) {
-            const resetTimer = setInterval(() => {
-                setResetTime((prevResetTime) => prevResetTime - 1);
-            }, 1000);
-            return () => clearInterval(resetTimer);
-        } else if (resetTime === 0) {
-            setSkips(3);
-            setIsResetTimerActive(false);
-            setResetTime(30);
+      // Extract user data
+      const users = {}
+      Object.entries(data).forEach(([key,value]) => {
+        if(key.startsWith("user:")) {
+          const [, socketID, field] = key.split(":");
+          if(!users[socketID]){
+            users[socketID] = {};
+          }
+          users[socketID][field] = value;
         }
-    }, [resetTime, isResetTimerActive]);
+      })
 
-    const handleSkip = () => {
-        if (skips > 0) {
-            setSkips((prevSkips) => prevSkips - 1);
-            if (!isResetTimerActive) {
-                setIsResetTimerActive(true);
-            }
-        }
-    };
+      //convert user data to array
+      const usersArray = Object.values(users);
+      updateUsersInRoom(usersArray);
+      //set player score
+      setYourScore(users[socket.id].score);
+    });
 
-    const resetMinutes = Math.floor(resetTime / 60);
-    const resetSeconds = resetTime % 60;
-    const formattedResetTime = `${resetMinutes}:${resetSeconds < 10 ? `0${resetSeconds}` : resetSeconds}`;
+    socket.on('start game', () => {
+      updateTime(0);
+      updatePopUp(false);
+    })
 
-    return (
-        <Container>
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={4}>
-                            <img
-                                src={logo}
-                                alt="Logo"
-                                style={{ width: '200px', cursor: 'pointer' }}
-                                onClick={() => {
-                                    console.log("Logo clicked!");
-                                    setIsMenuOpen(true);
-                                }}
-                                onLoad={(e) => {
-                                    console.log("Logo container dimensions:", e.target.parentElement.offsetWidth, 'x', e.target.parentElement.offsetHeight);
-                                  }}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            
-                        </Grid>
-                        <Grid item xs={4}>
-                            
-                        </Grid>
-                    </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={8}>
-                            <Camera />
-                        </Grid>
-                        <Grid item xs={12} md={4}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                    <Typography variant="subtitle1">Timer</Typography>
-                                    <Typography variant="h6">
-                                        {time > 0 ? `${Math.floor(time / 60)}:${time % 60 < 10 ? `0${time % 60}` : time % 60}` : "Time's Up!"}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Typography variant="h6">Your Score</Typography>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Typography variant="h6">Opponent Score</Typography>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Button variant="contained" color="primary" onClick={handleSkip}>Skip</Button>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    {Array.from({ length: skips }, (_, i) => <SkipNextIcon key={i} />)}
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Typography variant="subtitle1">Recharge</Typography>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Typography variant="body1">{formattedResetTime}</Typography>
-                                    {console.log("Current time:", time)}
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                </Grid>
-            </Grid>
+    socket.on('winner', (data) => {
+      updatePopUp(true);
+      updateWinner(data.message);
+      updateWinnerTime(data.time);
+    });
 
-            <Dialog open={isMenuOpen} onClose={handleMenuClose}>
-                <DialogTitle>Quit Game?</DialogTitle>
-                <DialogContent>
-                    Are you sure you want to quit?
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleMenuClose}>Cancel</Button>
-                    <Button onClick={() => { /* Handle quit logic here */ }}>Quit</Button>
-                </DialogActions>
-            </Dialog>
-        </Container>
-    );
-};
+    return () => {
+      socket.emit('leave game');
+    }
+  },[])
+
+
+  //use effect hook for incrementing time
+  useEffect(() => {
+    let interval;
+    if(props.gameState === "running"){
+      intervalRef.current = setInterval(() => {
+        updateTime((prev) => prev+1);
+      }, 1000);
+    }
+    return () => clearInterval(intervalRef.current);
+  }, [props.gameState])
+
+  function startGame(){
+    socket.emit('start game');
+  }
+
+  function endGame(){
+    socket.emit('end game');
+  }
+
+  function changeInput(event){
+    updateInput(event.target.value);
+  }
+
+  function submit(){
+    console.log("submit attempt: ", input, " ", item[yourScore%item.length]);
+    if(input === item[yourScore%item.length]){
+      socket.emit('submit', {submit:input});
+    } else if(props.AIOutput === item[yourScore%item.length]){
+      socket.emit('submit', {submit:props.AIOutput});
+    }
+    updateInput("");
+  }
+
+  return(
+    <div className = "gameContainer">
+      <div className = "gameBar">
+        <img src={logo} alt="Logo"/>
+        {props.gameState==="waiting" && (<div className="gameX"><h2>Time</h2><span>Game Hasn't started</span></div>)}
+        {props.gameState==="running" && (<div className="gameX"><h2>Time</h2><span>{time}</span></div>)}  
+        {props.gameState==="waiting" && (<div className="gameX"><h2>Item</h2><span>None</span></div>)}
+        {
+          props.gameState==="running" && (
+            <div className="gameX">
+              <h2>Item</h2>
+              <span>{item[yourScore%item.length]}</span>
+            </div>
+          )
+        }  
+      </div>
+      <div className="gameSection">
+        <div className="gamePanel">
+          <div class = "gameX">
+            <h2 class="gameX">Connected Players</h2>
+            <ul>
+              {usersInRoom.map((user, index) => (
+                  <li class="gameX" key={index}>
+                    <h3>{user.username}</h3>
+                    <span>{user.score} points</span>
+                  </li>
+              ))}
+            </ul>
+          </div>
+          {props.gameState==="waiting" && (<button onClick={startGame}>Start Game</button>)}
+          {props.gameState==="running" && (<button onClick={endGame}>End Game</button>)}   
+        </div>
+
+        <div className="gameCamera">
+          {props.camera}
+          {/*<PlayCamera getAIOutput={getAIOutput} gameState={gameState}/>*/}
+        </div>
+        
+        <div className="gamePanel">
+          <div class="gameX">
+            <h2>Room Code</h2>
+            <span>{roomCode}</span>
+            <div>Detected Item: {props.AIOutput}</div>
+          </div>
+          <div class ="gameX">
+            {showPopUp && (<div>{winner} wins with a time of {winnerTime} seconds</div>)}
+            <input onChange={changeInput} value={input} type="text" placeholder="Enter Item"></input>
+            <button onClick={submit}>Submit</button>
+          </div>   
+        </div>
+      </div>
+    </div>
+  );
+
+  
+}
+
 
 export default PlayScreen;
-
-
-

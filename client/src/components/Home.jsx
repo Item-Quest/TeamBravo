@@ -6,11 +6,11 @@ import { Box, Paper } from "@mui/material";
 import NavigationPanel from "./NavigationPanel";
 import CameraPanel from "./CameraPanel";
 import JoinGameModal from "./JoinGameModal";
+import {joinGame} from "../dataProvider.js";
 
-const Home = () => {
+const Home = (updateGame) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [roomCode, setRoomCode] = useState("");
 
   const JoinClick = () => {
     setIsModalOpen(true);
@@ -20,8 +20,21 @@ const Home = () => {
     setIsModalOpen(false);
   };
 
-  const handleJoin = () => {
-    navigate("/play");
+  const handleJoin = (username, roomCode) => {
+    console.log("Join attempt");
+    console.log(username, roomCode);
+    joinGame(username, roomCode, (result) => {
+      if (result.success) {
+        console.log("made it to result.success");
+        setIsModalOpen(false);
+        console.log("made it here as well");
+        console.log("made it here as well");
+        navigate("/play");
+      }
+      else {
+        alert('Invalid room code');
+      }
+    });
   }
 
   return (
@@ -57,8 +70,6 @@ const Home = () => {
           isOpen={isModalOpen}
           onClose={handleClose}
           onJoin={handleJoin}
-          roomCode={roomCode}
-          setRoomCode={setRoomCode}
         />
       </Paper>
         <div style={{ textAlign: 'center', marginTop: '20px', width: '80vw', maxWidth: '1200px', margin: '0 auto' }}>
