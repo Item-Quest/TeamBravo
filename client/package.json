@@ -19,6 +19,7 @@
     "@mui/icons-material": "^6.4.5",
     "@mui/material": "^6.4.5",
     "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow-models/coco-ssd": "^2.0.0",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.8.1",
     "cra-template": "^1.2.0",
