@@ -134,6 +134,16 @@ def get_username(id):
 def find_user(username):
     return get_records("users", {'username': username})
 
+def matchPassword(username, password):
+    user = find_user(username)
+    if(user):
+        return user[0][2] == password
+    else:
+        return False
+    
+def userExists(username):
+    return find_user(username) != []
+
 def create_user(username, password="Password"):
     insert_record("users", {'username': username, 'password': password})
 

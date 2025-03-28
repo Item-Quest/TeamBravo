@@ -59,6 +59,29 @@ def handle_username_change(data):
   db_set_username(cursor, request.sid, username)
   create_user(username)
 
+@socketio.on('login attempt')
+def handle_login_attempt(data):
+  #get credentials
+  username = data.get('username')
+  password = data.get('password')
+  #check if user exists
+  #TODO: implement check function for persistent db when pull request accepted
+  if(matchPassword(username, password)): # find matchPass(username, password):
+    #emit success
+    emit('login response', {'success': True, 'message': 'login Successful'}, room=request.sid)
+    handle_username_change({'data': username})
+  else:
+    #TODO implement userExists funciton in persistent db
+    if(userExists(username)): 
+      #emit username exists but password is incorrect
+      emit('login response', {'success': False, 'message': 'Username exists but password is incorrect'}, room=request.sid)
+    else:
+      #user doesn't exist create record
+      create_user(username, password)
+      #emit 
+      emit('login response', {'success': True, 'message': 'User Created'}, room=request.sid)
+      handle_username_change({'data': username})
+
 #returns an array of all playing users
 @socketio.on('all users')
 def handle_get_all_users():
