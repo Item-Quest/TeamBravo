@@ -9,10 +9,14 @@ import NavigationPanel from "./NavigationPanel";
 import CameraPanel from "./CameraPanel";
 import JoinGameModal from "./JoinGameModal";
 import {joinGame} from "../dataProvider.js";
+import {submitSupport} from "../dataProvider.js";
+
+import SupportModal from "./SupportModal"
 
 const Home = (updateGame) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
 
   const JoinClick = () => {
     setIsModalOpen(true);
@@ -20,6 +24,20 @@ const Home = (updateGame) => {
 
   const handleClose = () => {
     setIsModalOpen(false);
+  };
+
+  const SupportClick = () => {
+    setIsSupportOpen(true);
+  };
+
+  const handleSupportClose = () => {
+    setIsSupportOpen(false);
+  };
+
+  const handleSupport = (email, question) => {
+      submitSupport(email, question, () => {
+          setIsSupportOpen(false);
+      })
   };
 
   const handleJoin = (username, roomCode) => {
@@ -54,7 +72,7 @@ const Home = (updateGame) => {
             Item Quest
           </Typography>
           <Tooltip title="Help & Support">
-            <IconButton color="inherit" aria-label="help and support">
+            <IconButton onClick={SupportClick} color="inherit" aria-label="help and support">
               <MessageIcon />
             </IconButton>
           </Tooltip>
@@ -95,6 +113,12 @@ const Home = (updateGame) => {
             isOpen={isModalOpen}
             onClose={handleClose}
             onJoin={handleJoin}
+          />
+
+          <SupportModal
+            isOpen={isSupportOpen}
+            onClose={handleSupportClose}
+            onSupport={handleSupport}
           />
         </Paper>
       </Box>
