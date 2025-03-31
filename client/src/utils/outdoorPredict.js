@@ -3,13 +3,12 @@ import * as cocoSsd from '@tensorflow-models/coco-ssd';
 
 //possible prediction labels
 const cocoLabels = [
-    "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
+    "person", "bicycle", "car", "motorcycle", "bus", "train", "truck",
     "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
-    "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra",
-    "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee",
+    "bird", "cat", "dog", "backpack", "umbrella", "handbag", "suitcase", "frisbee",
     "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove",
     "skateboard", "surfboard", "tennis racket",
-    "banana", "apple", "sandwich", "orange", "broccoli",
+    "banana", "apple", "sandwich", "orange",
     "carrot", "hot dog", "pizza", "donut", "cake", "potted plant"
 ];
 
@@ -22,23 +21,24 @@ export async function loadModelAndPredict(imageData) {
         model = await cocoSsd.load();
     }
 
-    //trying tf.tidy for better memory management
-    //memory management wrapper
-    return tf.tidy(() => {
-    // Preprocess the image
-    const image = tf.browser.fromPixels(imageData);
-    const resizedImage = tf.image.resizeBilinear(image, [224, 224]);
-    const normalizedImage = resizedImage.div(127.5).sub(1);
-    const batchedImage = normalizedImage.expandDims(0);
+    // Unable to use model with tf.tidy as it is not a tensor
+    // and will throw an error if used with tf.tidy
 
-    // Predict
-    const predictions = model.predict(batchedImage);
-    const predictionArray = predictions.arraySync();
+    // Run Detection
+    const predictions = await model.detect(imageData);
 
-    // Get the index of the highest confidence prediction
-    const maxIndex = predictionArray[0].indexOf(Math.max(...predictionArray[0]));
+    // Filter predictions to only include those from cocoLabels and with a confidence greater than 0.5
+    const filteredPredictions = predictions.filter(prediction => cocoLabels.includes(prediction.class) && prediction.score > 0.5);
+    
+    // Sort predictions by confidence in descending order
+    filteredPredictions.sort((a, b) => b.score - a.score);
 
-    // Return the label corresponding to the highest confidence prediction
-    return labels[maxIndex];
-    });
+    // Get the labels of the filtered predictions
+    const labels = filteredPredictions.map(prediction => prediction.class);
+
+    // Get the confidence scores of the filtered predictions
+    const scores = filteredPredictions.map(prediction => prediction.score);
+
+    // Return the top prediction label and confidence score
+    return filteredPredictions.length > 0 ? filteredPredictions[0].class: 'no_item';  // Custom fallback value if no predictions are found
 }

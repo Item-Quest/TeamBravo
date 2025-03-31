@@ -20,13 +20,10 @@ export async function loadModelAndPredict(imageData) {
     const batchedImage = normalizedImage.expandDims(0);
 
     // Predict
-    const predictions = model.predict(batchedImage);
-    const predictionArray = predictions.arraySync();
+    const predictions = model.predict(batchedImage).arraySync()[0];
+    const maxIndex = predictions.indexOf(Math.max(...predictions)); // get the index of the highest confidence prediction
+    const confidence = predictions[maxIndex];
 
-    // Get the index of the highest confidence prediction
-    const maxIndex = predictionArray[0].indexOf(Math.max(...predictionArray[0]));
-
-    // Return the label corresponding to the highest confidence prediction
-    return labels[maxIndex];
+    return confidence > 0.6 ? labels[maxIndex] : 'no_item'; // Custom fallback value if confidence is below threshold
     });
 }
