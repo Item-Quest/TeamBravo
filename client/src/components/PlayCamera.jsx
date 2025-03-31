@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { loadModelAndPredict } from '../utils/imagePredict';
+import { loadModelAndPredict } from '../utils/outdoorPredict';
 
 function PlayCamera(props) {
   console.log("component mounted");
