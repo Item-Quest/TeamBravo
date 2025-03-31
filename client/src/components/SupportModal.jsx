@@ -40,6 +40,8 @@ const SupportModal = ({ isOpen, onClose, onSupport}) => {
             fullWidth
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
+            multiline // Allows more lines
+            rows={4} // Controls height
           />
         </DialogContent>
         <DialogActions>
