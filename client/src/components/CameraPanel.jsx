@@ -9,38 +9,54 @@ const CameraPanel = () => {
   return (
     <Box
       sx={{
-        flex: 2,
+        flex: { xs: 1, md: 2 },
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
         justifyContent: "center",
+        alignItems: "center",
         backgroundColor: "black",
         color: "white",
-        padding: 2,
+        padding: { xs: 1, sm: 2 },
         borderRadius: "8px",
+        margin: { xs: '10px 0', md: 0 }, // Add margin on mobile for separation
       }}
     >
       <Typography variant="h5" gutterBottom>
-        Test Your Camera
       </Typography>
-      <Typography variant="body2" sx={{ marginTop: 2 }}>
-        How to play instructions here...
+      <Typography 
+        variant="body2" 
+        sx={{ 
+          marginTop: 2,
+          fontSize: { xs: '0.875rem', md: '1rem' },
+          textAlign: 'center'
+        }}
+      >
+      Test Your Camera
       </Typography>
       <Box
         sx={{
-          width: "90%",
-          height: "300px",
+          width: "100%",
+          height: { xs: "250px", sm: "300px" },
           backgroundColor: "#222",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           borderRadius: "8px",
-          padding: 2,
+          padding: { xs: 1, sm: 2 },
+          overflow: "hidden"
         }}
       >
-        <Camera />
+        <Camera height="100%" width="100%" maxWidth="100%" />
       </Box>
-      <Typography variant="body2" sx={{ marginTop: 2 }}>
+      <Typography 
+        variant="body2" 
+        sx={{ 
+          marginTop: 2,
+          fontSize: { xs: '0.875rem', md: '1rem' },
+          padding: { xs: '0 8px', md: 0 },
+          textAlign: 'center'
+        }}
+      >
         How to play instructions here...
       </Typography>
     </Box>
