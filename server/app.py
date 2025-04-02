@@ -32,7 +32,15 @@ game_lock = threading.Lock()
 connection, cursor = db_init_game_db()
 
 #Game items
-items = ['shoe','no_item','mug','notebook','phone','water_bottle']
+indoorItems = ['shoe','mug','notebook','phone','water_bottle', 'plant']
+
+outDoorItems = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
+    'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
+    'bird', 'cat', 'dog', 'backpack', 'umbrella', 'handbag', 'suitcase', 'frisbee',
+    'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove',
+    'skateboard', 'surfboard', 'tennis racket',
+    'banana', 'apple', 'sandwich', 'orange',
+    'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'potted plant']
 
 #ensures connection is closed and database is freed
 def close_db(signal, frame):
@@ -96,7 +104,7 @@ def handle_create_game():
     #Generate random 6 uppercase alphanumeric character room code
     roomCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
   # create room and set initial game state
-  db_add_room(cursor, roomCode, "waiting", "[no items]", 0)
+  db_add_room(cursor, roomCode, "waiting", "[no items]", 0, "ItemRace")
   #check if room exists
   if(db_room_exists(cursor, roomCode) == False):
     print("room creation failed")
@@ -219,12 +227,6 @@ def handle_start_game(data=None):
   global game_running, game_thread
   with game_lock:
 
-    #TODO: reimplement
-    #################################
-    # #get mode name
-    # mode_value = data.get('mode')
-    #################################
-
     #get room code of user
     roomCode = db_get_user_room(cursor,request.sid)
     if roomCode == None or roomCode == "None":
@@ -239,22 +241,30 @@ def handle_start_game(data=None):
     username = db_get_username(cursor, request.sid)
     #Print that user requested to run game
 
-    #TODO: reimplement
-    ########################
-    # print(f"{request.sid}:{username} has requested to start the game in room:{roomCode} playing {mode_value}")
-    ########################
+    #gets game mode
+    game_mode = data.get('mode')
+
+    print(f"{request.sid}:{username} has requested to start the game in room:{roomCode} playing {game_mode}")
+
+    #Set game mode
+    db_set_game_mode(cursor, roomCode, game_mode)
 
     #Set start time
     db_set_room_time(cursor, roomCode, time.time())
     #Update game state to running
     db_set_room_game_state(cursor, roomCode, "running")
     #Generate items for players to guess
+    
     game_items = []
 
-    #Old Code - Used because front end is broken
-    #TODO: replace with game modes
-    for _ in range(5):
-      game_items.append(random.choice(items))
+    # selects game items based on mode
+    if game_mode == "GeoQuest":
+      for _ in range(5):
+        game_items.append(random.choice(outDoorItems))
+    else:
+      for _ in range(5):
+        game_items.append(random.choice(indoorItems))
+
 
     #TODO: reimplement
     # ################################################
@@ -350,6 +360,12 @@ def handle_submit(data):
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
   emit('room data', gameState, room=roomCode)
+
+@socketio.on('game mode')
+def get_gamemode():
+  game_mode = db_get_game_mode(cursor, db_get_user_room(cursor, request.sid))
+  emit ('game mode', game_mode, room=request.sid)
+
 
 if __name__ == '__main__':
   # Register the signal handler to close the database connection on termination

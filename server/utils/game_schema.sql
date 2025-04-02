@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS ROOMS (
   room_code TEXT UNIQUE,
   game_state TEXT,
   items TEXT, -- JSON encoded string
-  time_in_game INTEGER DEFAULT 0
+  time_in_game INTEGER DEFAULT 0,
+  game_mode TEXT
 );
 
 CREATE TABLE IF NOT EXISTS USERS(

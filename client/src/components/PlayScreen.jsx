@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import socket from '../socket';
 import { connectGame } from '../dataProvider.js';
+import { setMode } from "../utils/imagePredict.js";
 
 // Material-UI imports
 import {
@@ -391,13 +392,16 @@ const PlayScreen = (props) => {
                     <Typography variant="subtitle1" gutterBottom>Game Mode</Typography>
                     <Select
                       value={gameMode}
-                      onChange={(e) => setGameMode(e.target.value)}
+                      onChange={(e) => {
+                        console.log("selected game mode:", e.target.value);
+                        setGameMode(e.target.value); setMode(e.target.value);}}
                       fullWidth
                       size="small"
                       sx={{ mb: 1 }}
                     >
                       <MenuItem value="ItemRace">Item Race</MenuItem>
                       <MenuItem value="ItemBlitz">Item Blitz</MenuItem>
+                      <MenuItem value="GeoQuest">GeoQuest</MenuItem>
                     </Select>
                     <Button 
                       variant="contained" 

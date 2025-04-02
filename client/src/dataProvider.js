@@ -48,3 +48,7 @@ export function connectGame(callback) {
             callback(result);
     });
 }
+
+export function getGameMode(callback) {
+    socketCallWrapper('game mode', null, 'game mode response', callback);
+}
