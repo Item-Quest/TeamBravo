@@ -11,6 +11,7 @@ import random, string
 
 #import database functions
 from utils.memoryDB import *
+from utils.persistentDB import *
 import signal
 import sys
 import time
@@ -57,6 +58,7 @@ def handle_username_change(data):
   #change username
   username = data['data']
   db_set_username(cursor, request.sid, username)
+  create_user(username)
 
 #returns an array of all playing users
 @socketio.on('all users')
@@ -346,13 +348,53 @@ def handle_submit(data):
       startTime = db_get_room_time(cursor, roomCode)[0]
       endTime = time.time()
       finalTime = round(endTime - startTime, 4)
+      save_scores(roomCode, finalTime)
       emit('winner', {'message': f"{username}", 'time': f"{finalTime}"}, room=roomCode)
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
   emit('room data', gameState, room=roomCode)
 
+@socketio.on('get leaderboard')
+def handle_get_leaderboard_data(data):
+    top_scores = get_top_scores()
+    
+    print("data from get_top_scores: ", top_scores)
+    formatted_scores = [{'Id': score[0], 'Pfp': '', 'Name': get_username(score[1]), 'Score': score[2]} for score in top_scores]
+    print("formatted data: ", formatted_scores)
+    emit('leaderboard data', formatted_scores, room=request.sid)
+
+def save_scores(roomCode, finalTime):
+  print("saving scores")
+  finalTime = f"{finalTime} seconds"  # clarify time unit
+  gameMode = db_get_game_mode(roomCode)
+  place = 1
+  users = db_get_users_in_room_by_score(cursor, roomCode)
+  if gameMode == "itemRace":
+    # score == time
+    for user in users:
+      save_score(user[2], finalTime, "itemRace", place)
+      place += 1
+  elif gameMode == "itemBlitz":
+  # score == time;
+      for user in users:
+        save_score(user[2], user[3], "itemBlitz", place)
+        place += 1
+  elif gameMode == "geoQuest":
+  # TODO i think this is first to complete may need to change 
+    for user in users:
+        save_score(user[2], finalTime, "itemBlitz", place)
+        place += 1
+  else:
+    print(f"Unknown game mode: {gameMode}")
+    return
+  print('scores saved')
+  
+
 if __name__ == '__main__':
   # Register the signal handler to close the database connection on termination
+  initialize_db()
+  _, DB_PATH, _ = get_DB_path()
+  print("db location: ", DB_PATH)
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
   socketio.run(app, debug=True)

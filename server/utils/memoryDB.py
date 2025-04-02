@@ -166,12 +166,13 @@ def db_get_game_state(cursor, room_code):
     room_data = cursor.fetchone()
     if not room_data:
       return None
-    _, roomCode, gameState, items, time = room_data
+    _, roomCode, gameState, items, time, gameMode= room_data
     game_data = {
       'room_code': roomCode,
       'game_state': gameState,
       'items': json.loads(items),
-      'time': time
+      'time': time,
+      'gameMode': gameMode
     }
     for user in users:
       _, socket_id, username, score, roomCode = user
@@ -205,6 +206,8 @@ def db_set_room_user_scores(cursor, room_code, score):
   except sqlite3.Error as e:
     print(f"db_set_room_items error: {e}")
 
+def db_get_game_mode(room_code):
+  return "itemRace"
 
 def db_get_rooms(cursor):
   cursor.execute('SELECT * FROM rooms')
@@ -219,3 +222,12 @@ def db_get_users(cursor):
       userData = {'Id':socket_id, 'Name': username, 'Score': score}
       result.append(userData)
   return result
+
+def db_get_users_in_room_by_score(cursor, room_code):
+  try:
+    sql = '''SELECT * FROM users WHERE room_code = ? ORDER BY score DESC'''
+    cursor.execute(sql, [room_code])
+    return cursor.fetchall()  
+  except sqlite3.Error as e:
+    print(f"db_get_users_in_room error: {e}")
+    return None
