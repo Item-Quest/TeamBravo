@@ -51,6 +51,14 @@ jobs:
       - name: Deploy Code to Cassini
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no itemquest@cassini.cs.kent.edu << 'EOF'
+           # Load NVM
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+            # Confirm correct Node.js version is being used
+            echo "Using correct Node.js version..."
+            which node
             node -v
             npm -v
             cd TeamBravo || exit 1
