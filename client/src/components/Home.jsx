@@ -9,7 +9,6 @@ import NavigationPanel from "./NavigationPanel";
 import CameraPanel from "./CameraPanel";
 import JoinGameModal from "./JoinGameModal";
 import {joinGame} from "../dataProvider.js";
-import {submitSupport} from "../dataProvider.js";
 
 import SupportModal from "./SupportModal"
 
@@ -32,12 +31,6 @@ const Home = (updateGame) => {
 
   const handleSupportClose = () => {
     setIsSupportOpen(false);
-  };
-
-  const handleSupport = (email, question) => {
-      submitSupport(email, question, () => {
-          setIsSupportOpen(false);
-      })
   };
 
   const handleJoin = (username, roomCode) => {
@@ -118,7 +111,6 @@ const Home = (updateGame) => {
           <SupportModal
             isOpen={isSupportOpen}
             onClose={handleSupportClose}
-            onSupport={handleSupport}
           />
         </Paper>
       </Box>

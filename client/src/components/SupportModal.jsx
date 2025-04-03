@@ -12,23 +12,34 @@ import {
 } from "@mui/material";
 import PropTypes from 'prop-types';
 
-const SupportModal = ({ isOpen, onClose, onSupport}) => {
-  //state for getting username and room code
-  const [email, setEmail] = useState("");
-  const [question, setQuestion] = useState("");
+const SupportModal = ({ isOpen, onClose}) => {
+  const [name, setName] = useState("");
+  const [message, setMessage] = useState("");
+
+  const sendEmail = () => {
+    if (!name || !message) {
+      alert("Error: Name and message are required.");
+      return;
+    } 
+    var mName=encodeURIComponent(name);
+    var mMessage=encodeURIComponent(message);
+    onClose();
+    window.location.href="mailto:itemquesthelpdesk@gmail.com?subject=Support Ticket from "+mName+"&body="+mMessage;
+  };
 
     return (
       <Dialog open={isOpen} onClose={onClose}>
-        <DialogTitle>Help and Support</DialogTitle>
+        <DialogTitle>Send Help and Support</DialogTitle>
+        <DialogTitle className="support-page-context">By clicking submit, your default email application will open a new message with your inquiry to <strong>itemquesthelpdesk@gmail.com</strong>.</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="Enter Email"
+            label="Name"
             type="text"
             fullWidth
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
         </DialogContent>
         <DialogContent>
@@ -38,8 +49,8 @@ const SupportModal = ({ isOpen, onClose, onSupport}) => {
             label="Enter Your Inquiry"
             type="text"
             fullWidth
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
             multiline // Allows more lines
             rows={4} // Controls height
           />
@@ -50,9 +61,7 @@ const SupportModal = ({ isOpen, onClose, onSupport}) => {
           </Button>
           <Button
             onClick={() => {
-              // Handle support logic
-              onSupport(email, question);
-              //onClose();
+              sendEmail();
             }}
             color="primary"
           >
@@ -65,8 +74,7 @@ const SupportModal = ({ isOpen, onClose, onSupport}) => {
 
 SupportModal.propTypes = {
     isOpen: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onSupport: PropTypes.func.isRequired
+    onClose: PropTypes.func.isRequired
 }
 
 export default SupportModal;
