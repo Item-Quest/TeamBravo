@@ -28,6 +28,26 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no itemquest@cassini.cs.kent.edu "echo 'Connected to Cassini'"
 
+      - name: Debug Node.js Version on Cassini
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no itemquest@cassini.cs.kent.edu << 'EOF'
+            echo "Checking system-wide Node.js version..."
+            which node
+            node -v
+
+            echo "Checking user profile..."
+            source ~/.bashrc
+            which node
+            node -v
+
+            echo "Checking NVM (if installed)..."
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            which node
+            node -v
+          EOF
+
       - name: Deploy Code to Cassini
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no itemquest@cassini.cs.kent.edu << 'EOF'
