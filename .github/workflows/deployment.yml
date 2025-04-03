@@ -37,7 +37,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no itemquest@cassini.cs.kent.edu << 'EOF'
             cd TeamBravo || exit 1
-            git pull origin main || exit 1
+            git pull origin make_action || exit 1
             cd client || exit 1
             npm install || exit 1
             npm run build || exit 1
