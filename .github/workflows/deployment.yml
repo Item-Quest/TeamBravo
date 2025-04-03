@@ -36,9 +36,12 @@ jobs:
       - name: Deploy Code to Cassini
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no itemquest@cassini.cs.kent.edu << 'EOF'
+            node -v
             cd TeamBravo || exit 1
             git pull origin make_action || exit 1
             cd client || exit 1
+            delete node_modules
+            delete package_lock
             npm install || exit 1
             npm run build || exit 1
             cd ../server || exit 1
