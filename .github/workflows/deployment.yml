@@ -12,12 +12,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'  
+        uses: actions/checkout@v2 
 
       - name: Setup SSH
         run: |
@@ -37,11 +32,12 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no itemquest@cassini.cs.kent.edu << 'EOF'
             node -v
+            npm -v
             cd TeamBravo || exit 1
             git pull origin make_action || exit 1
             cd client || exit 1
-            delete node_modules
-            delete package_lock
+            rm -rf node_modules
+            rm -f package-lock.json
             npm install || exit 1
             npm run build || exit 1
             cd ../server || exit 1
