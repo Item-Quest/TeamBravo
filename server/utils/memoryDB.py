@@ -17,11 +17,11 @@ def db_init_game_db():
   cursor.executescript(schema)
   return connection, cursor
 
-def db_add_room(cursor, room_code, game_state, items, time_in_game):
+def db_add_room(cursor, room_code, game_state, items, time_in_game, game_mode):
   try:
-    sql = '''INSERT INTO rooms(room_code, game_state, items, time_in_game)
-            VALUES(?,?,?,?)'''
-    values = [room_code, game_state, json.dumps(items), time_in_game]
+    sql = '''INSERT INTO rooms(room_code, game_state, items, time_in_game, game_mode)
+            VALUES(?,?,?,?,?)'''
+    values = [room_code, game_state, json.dumps(items), time_in_game, game_mode]
     cursor.execute(sql, values)
   except sqlite3.Error as e:
     print(f"db_add_room error: {e}")
@@ -166,12 +166,13 @@ def db_get_game_state(cursor, room_code):
     room_data = cursor.fetchone()
     if not room_data:
       return None
-    _, roomCode, gameState, items, time = room_data
+    _, roomCode, gameState, items, time, game_mode, *_ = room_data
     game_data = {
       'room_code': roomCode,
       'game_state': gameState,
       'items': json.loads(items),
-      'time': time
+      'time': time,
+      'game_mode' : game_mode
     }
     for user in users:
       _, socket_id, username, score, roomCode = user
@@ -219,3 +220,18 @@ def db_get_users(cursor):
       userData = {'Id':socket_id, 'Name': username, 'Score': score}
       result.append(userData)
   return result
+
+def db_get_game_mode(cursor, room_code):
+  try:
+    sql = '''SELECT game_mode FROM rooms WHERE room_code = ?'''
+    cursor.execute(sql, [room_code])
+    return cursor.fetchone()
+  except sqlite3.Error as e:
+    print(f"db_get_game_mode error: {e}")
+
+def db_set_game_mode(cursor, room_code, game_mode):
+  try:
+    sql = '''UPDATE rooms SET game_mode = ? WHERE room_code = ?'''
+    cursor.execute(sql, [game_mode, room_code])
+  except sqlite3.Error as e:
+    print(f"db_set_game_mode error: {e}")
