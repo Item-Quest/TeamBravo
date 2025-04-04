@@ -58,8 +58,34 @@ def handle_username_change(data):
   #change username
   username = data['data']
   db_set_username(cursor, request.sid, username)
-  create_user(username)
 
+@socketio.on('register')
+def handle_register(data):
+  username = data['username']
+  password = data['password']
+  if(not find_user(username)):
+    #if user doesn't exist, register them
+    print(f"Registering new user: {username}")
+    create_user(username, password)
+    db_set_username(cursor, request.sid, username)  # Set the username for the new user
+    emit('register response', {'success': True, 'message': 'Registration successful!'})
+  else:
+    print(f"User {username} already exists. Registration failed.")
+    emit('register response', {'success': False, 'message': 'Username already exists. Please choose another one.'})
+
+@socketio.on('login')
+def handle_login(data):
+  username = data['username']
+  password = data['password']
+  user = find_user(username)[0]
+  print(f"Attempting to log in user: {username} with password: {password} should match {user[1] if user else 'None'}")
+  if (user and user[2] == password):
+    print(f"User {username} logged in successfully.")
+    db_set_username(cursor, request.sid, username)  # Set the username for the logged-in user
+    emit('login response', {'success': True, 'message': 'Login successful!'})
+  else:
+    print(f"Login failed for user {username}. Incorrect username or password.")
+    emit('login response', {'success': False, 'message': 'Incorrect username or password.'})
 #returns an array of all playing users
 @socketio.on('all users')
 def handle_get_all_users():
@@ -359,30 +385,29 @@ def handle_get_leaderboard_data(data):
     top_scores = get_top_scores()
     
     print("data from get_top_scores: ", top_scores)
-    formatted_scores = [{'Id': score[0], 'Pfp': '', 'Name': get_username(score[1]), 'Score': score[2]} for score in top_scores]
+    formatted_scores = [{'Id': score[0], 'Pfp': '', 'Name': get_username(score[1]), 'Score': score[2], 'GameMode': score[4], 'Time':score[3]} for score in top_scores]
     print("formatted data: ", formatted_scores)
     emit('leaderboard data', formatted_scores, room=request.sid)
 
 def save_scores(roomCode, finalTime):
   print("saving scores")
-  finalTime = f"{finalTime} seconds"  # clarify time unit
   gameMode = db_get_game_mode(roomCode)
   place = 1
   users = db_get_users_in_room_by_score(cursor, roomCode)
   if gameMode == "itemRace":
     # score == time
     for user in users:
-      save_score(user[2], finalTime, "itemRace", place)
+      save_score(user[2], f"{finalTime} seconds", "itemRace", place)
       place += 1
   elif gameMode == "itemBlitz":
   # score == time;
       for user in users:
-        save_score(user[2], user[3], "itemBlitz", place)
+        save_score(user[2], f"{user[3]} points", "itemBlitz", place)
         place += 1
   elif gameMode == "geoQuest":
   # TODO i think this is first to complete may need to change 
     for user in users:
-        save_score(user[2], finalTime, "itemBlitz", place)
+        save_score(user[2], f"{finalTime} seconds", "itemBlitz", place)
         place += 1
   else:
     print(f"Unknown game mode: {gameMode}")

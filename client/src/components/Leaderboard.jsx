@@ -138,7 +138,7 @@ const Leaderboard = (props) => {
                                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                                     <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
                                         <EmojiEventsIcon sx={{ mr: 1 }} color="primary" />
-                                        Top Players
+                                        Top Scores
                                     </Typography>
                                     <Button 
                                         variant="outlined" 
@@ -239,7 +239,7 @@ const Leaderboard = (props) => {
                                                                     {player.Name}
                                                                 </Typography>
                                                             }
-                                                            secondary={`Last played: ${new Date().toLocaleDateString()}`}
+                                                            secondary={`Achieved: ${player.Time}`}
                                                         />
                                                         <Box 
                                                             sx={{ 
@@ -252,7 +252,7 @@ const Leaderboard = (props) => {
                                                                 {player.Score}
                                                             </Typography>
                                                             <Typography variant="caption">
-                                                                Score
+                                                                {player.GameMode}
                                                             </Typography>
                                                         </Box>
                                                     </ListItem>
@@ -389,7 +389,9 @@ Leaderboard.propTypes = {
             Id: PropTypes.string.isRequired,
             Pfp: PropTypes.string.isRequired,
             Name: PropTypes.string.isRequired,
-            Score: PropTypes.string.isRequired
+            Score: PropTypes.string.isRequired,
+            GameMode: PropTypes.string.isRequired,
+            Time: PropTypes.string.isRequired
         })
     ).isRequired,
 };

@@ -100,9 +100,9 @@ const NavigationPanel = ({ onJoinClick }) => {
             height: { xs: 45, md: 50 },
             fontSize: { xs: "14px", md: "16px" }
           }} 
-          onClick={() => navigate("/TestHome")}
+          onClick={() => navigate("/Login")}
         >
-          BACKEND
+          Login
         </Button>
       </Box>
     </Box>
