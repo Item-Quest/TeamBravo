@@ -11,11 +11,15 @@ import {
   TextField,
 } from "@mui/material";
 import PropTypes from 'prop-types';
+import click from '../assets/SFX/click.wav';
+import backclick from '../assets/SFX/backclick.wav';
 
 const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
   //state for getting username and room code
   const [username, setUsername] = useState("Anonymous");
   const [roomCode, setRoomCode] = useState("");
+  const clickSound = new Audio(click);
+  const backClickSound = new Audio(backclick);
 
     return (
       <Dialog open={isOpen} onClose={onClose}>
@@ -43,11 +47,15 @@ const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="secondary">
+          <Button  onClick={() => {
+            backClickSound.play();
+            onClose();
+            }} color="secondary">
             Cancel
           </Button>
           <Button
             onClick={() => {
+              clickSound.play();
               // Handle join logic
               onJoin(username, roomCode);
               //onClose();

@@ -5,6 +5,7 @@ import { Box, Typography, Slider, FormControl, InputLabel, Select, MenuItem, Pap
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import VolumeDownIcon from '@mui/icons-material/VolumeDown';
 import HomeIcon from '@mui/icons-material/Home';
+import backclick from '../assets/SFX/backclick.wav';
 
 // Get the audio volume from localStorage or use default
 const getStoredVolume = () => {
@@ -24,6 +25,7 @@ const MenuSettings = () => {
   const [musicVolume, setMusicVolume] = useState(getStoredVolume() * 100);
   const [accessibility, setAccessibility] = useState('none');
   const { theme, setTheme } = useTheme();
+  const backClickSound = new Audio(backclick);
 
   // Update actual audio element when volume changes
   useEffect(() => {
@@ -47,6 +49,7 @@ const MenuSettings = () => {
   };
 
   const handleBackToHome = () => {
+    backClickSound.play();
     navigate('/');
   };
 

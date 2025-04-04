@@ -5,11 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { Button, Box, useMediaQuery, useTheme } from "@mui/material";
 import logo from "../assets/logo2.png";
 import PropTypes from 'prop-types';
+import click from '../assets/SFX/click.wav';
 
 const NavigationPanel = ({ onJoinClick }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const clickSound = new Audio(click);
 
   return (
     <Box
@@ -41,7 +43,10 @@ const NavigationPanel = ({ onJoinClick }) => {
           fontSize: { xs: "16px", md: "18px" }, 
           mb: { xs: 1.5, md: 2 } 
         }}
-        onClick={onJoinClick}
+        onClick={() => {
+          clickSound.play();
+          onJoinClick();
+        }}
       >
         JOIN GAME
       </Button>
@@ -54,7 +59,10 @@ const NavigationPanel = ({ onJoinClick }) => {
           fontSize: { xs: "14px", md: "16px" }, 
           mb: { xs: 1.5, md: 2 } 
         }}
-        onClick={() => navigate("/create")}
+        onClick={() =>{ 
+          clickSound.play();
+          navigate("/create");
+        }}
       >
         CREATE GAME
       </Button>
@@ -67,7 +75,10 @@ const NavigationPanel = ({ onJoinClick }) => {
           fontSize: { xs: "14px", md: "16px" }, 
           mb: { xs: 1.5, md: 2 } 
         }}
-        onClick={() => navigate("/leaderboard")}
+        onClick={() => {
+          clickSound.play();
+          navigate("/leaderboard");
+        }}
       >
         LEADER BOARD
       </Button>
@@ -88,7 +99,10 @@ const NavigationPanel = ({ onJoinClick }) => {
             fontSize: { xs: "14px", md: "16px" },
             mb: isMobile ? 1 : 0
           }} 
-          onClick={() => navigate("/MenuSettings")}
+          onClick={() => {
+            clickSound.play();
+            navigate("/MenuSettings");
+          }}
         >
           SETTINGS
         </Button>
@@ -100,7 +114,10 @@ const NavigationPanel = ({ onJoinClick }) => {
             height: { xs: 45, md: 50 },
             fontSize: { xs: "14px", md: "16px" }
           }} 
-          onClick={() => navigate("/TestHome")}
+          onClick={() => {
+            clickSound.play();
+            navigate("/TestHome");
+          }}
         >
           BACKEND
         </Button>

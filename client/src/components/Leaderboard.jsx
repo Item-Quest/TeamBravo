@@ -1,11 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Paper, List, ListItem, ListItemAvatar, Avatar, ListItemText, Button, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
+import backclick from '../assets/SFX/backclick.wav';
 
 const Leaderboard = (props) => {
     const navigate = useNavigate();
+    const backClickSound = new Audio(backclick);
 
     const BackClick = () => {
+        backClickSound.play();
         navigate("/home");
     }
 

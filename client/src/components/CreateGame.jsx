@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {createGame} from '../dataProvider.js';
+import click from '../assets/SFX/click.wav';
+import backclick from '../assets/SFX/backclick.wav';
 
 const CreateGame  = (props) => {
     const usernameRef = useRef(null);
     const navigate = useNavigate();
+      const clickSound = new Audio(click);
+      const backClickSound = new Audio(backclick);
 
     const backClick = () => {
+        backClickSound.play();
         navigate("/home");
     }
 
@@ -15,7 +20,7 @@ const CreateGame  = (props) => {
         var newGame = createGame(uName, (result) => {
             props.updateGame(uName, result.roomCode, result.sid);
         });
-        
+        clickSound.play();
         navigate("/play");
     }
 
