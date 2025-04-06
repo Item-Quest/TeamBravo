@@ -14,5 +14,7 @@ CREATE TABLE IF NOT EXISTS USERS(
   username TEXT,
   score INTEGER,
   room_code TEXT,
+  join_num INTEGER DEFAULT -1, --For tracking if user is in a room or not
+
   FOREIGN KEY (room_code) REFERENCES ROOMS(room_code)
 );

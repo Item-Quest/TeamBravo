@@ -82,6 +82,8 @@ def handle_join_attempt(data):
     print("room not found")
     emit('join response', {'success': False}, room=request.sid)
     return
+  #set user in host priority
+  db_set_user_join(cursor, request.sid, roomCode)
   #add user to room
   db_set_user_room(cursor, request.sid, roomCode)
   #set user score to 0
@@ -109,9 +111,11 @@ def handle_create_game():
   if(db_room_exists(cursor, roomCode) == False):
     print("room creation failed")
     return
-
+  #make user first in host priority
+  db_set_user_join(cursor, request.sid, roomCode)
   # set user room code to be roomCode
   db_set_user_room(cursor, request.sid, roomCode)
+  #set user score to 0
   db_set_user_score(cursor, request.sid, 0)
   #Create room with Room code
   join_room(roomCode)
@@ -244,7 +248,10 @@ def handle_start_game(data=None):
     #Get username
     username = db_get_username(cursor, request.sid)
     #Print that user requested to run game
-
+    
+    if not db_is_room_host(cursor, request.sid, roomCode):
+      return
+    
     #gets game mode
     game_mode = data.get('mode')
     if isinstance(game_mode, list):
@@ -255,6 +262,12 @@ def handle_start_game(data=None):
     #Set game mode
     db_set_game_mode(cursor, roomCode, game_mode)
 
+    #TODO: reimplement
+    ########################
+    # print(f"{request.sid}:{username} has requested to start the game in room:{roomCode} playing {mode_value}")
+    ########################
+    #Check if user a host that can start the game
+    
     #Set start time
     db_set_room_time(cursor, roomCode, time.time())
     #Update game state to running
@@ -313,6 +326,9 @@ def handle_end_game():
     gameState = db_get_game_state(cursor, roomCode)
     if gameState == None:
       #TODO: Error handling if there is no game that exists
+      return
+    
+    if not db_is_room_host(cursor, request.sid, roomCode):
       return
     #Get username
     username = db_get_username(cursor, request.sid)
@@ -380,4 +396,4 @@ if __name__ == '__main__':
   # Register the signal handler to close the database connection on termination
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
-  socketio.run(app, debug=True)
+  socketio.run(app, host='0.0.0.0', port=8050, debug=True)
