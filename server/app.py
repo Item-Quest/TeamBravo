@@ -21,8 +21,8 @@ app = Flask(__name__, template_folder='../client/dist', static_folder='../client
 app.config['SECRET_KEY'] = 'secret!'
 
 #Initialize SocketIO
-socketio = SocketIO(app, async_mode='eventlet')
-# socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
+# socketio = SocketIO(app, async_mode='eventlet')
+socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
 
 #variables for game control
 game_thread = None
@@ -77,7 +77,8 @@ def handle_register(data):
 def handle_login(data):
   username = data['username']
   password = data['password']
-  user = find_user(username)[0]
+  user= find_user(username)
+  if(user) : user = user[0] #get user data 
   print(f"Attempting to log in user: {username} with password: {password} should match {user[1] if user else 'None'}")
   if (user and user[2] == password):
     print(f"User {username} logged in successfully.")
