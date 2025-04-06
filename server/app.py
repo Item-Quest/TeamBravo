@@ -365,4 +365,4 @@ if __name__ == '__main__':
   # Register the signal handler to close the database connection on termination
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
-  socketio.run(app, debug=True)
+  socketio.run(app, host='0.0.0.0', port=8050, debug=True)
