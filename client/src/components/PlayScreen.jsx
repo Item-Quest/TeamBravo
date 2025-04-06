@@ -260,7 +260,7 @@ const PlayScreen = (props) => {
             </Grid>
             <Grid item xs={4} align="center">
               <Typography variant="h5">
-                {props.gameState === "waiting" ? "Waiting for game to start1" : "Game in progress"}
+                {props.gameState === "waiting" ? "Waiting for game to start" : "Game in progress"}
               </Typography>
             </Grid>
             <Grid item xs={4} align="right">
