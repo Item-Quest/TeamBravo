@@ -4,7 +4,7 @@ on:
   workflow_dispatch: {}  # Allows manual triggering
   push:
     branches:
-      - make_action  # Runs on push to make_action (change to your desired branch name)
+      - main  # Runs on push to make_action (change to your desired branch name)
 
 jobs:
   deploy:
@@ -44,7 +44,7 @@ jobs:
             cd TeamBravo || exit 1
             git reset --hard
             git clean -fd
-            git pull origin make_action || exit 1
+            git pull origin main || exit 1
             cd client || exit 1
             rm -rf node_modules
             rm -f package-lock.json
