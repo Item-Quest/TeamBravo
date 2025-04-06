@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS USERS(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   socket_id TEXT UNIQUE,
   username TEXT,
-  score INTEGER,
+  score INTEGER, -- score == amount of items correct
   room_code TEXT,
   join_num INTEGER DEFAULT -1, --For tracking if user is in a room or not
 

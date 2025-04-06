@@ -20,18 +20,18 @@ export function updateUsername(username) {
     socketCallWrapper('username change', {data: username});
 }
 
-export function createGame(username, callback) {
-    socket.emit('username change', {data: username});
+export function createGame(callback) {
+    // socket.emit('username change', {data: username});
     socketCallWrapper('create game', null, 'game created', (result) => {
         if (callback)
             callback(result);
     });
 }
 
-export function joinGame(username, roomCode, callback) {
+export function joinGame(roomCode, callback) {
     socketCallWrapper('join attempt', {roomcode: roomCode}, 'join response', (result) => {
-        if (result.success)
-            socket.emit('username change', {data: username});
+        // if (result.success)
+        //     socket.emit('username change', {data: username});
         if (callback)
             callback(result);
     });
@@ -47,6 +47,10 @@ export function connectGame(callback) {
         if (callback)
             callback(result);
     });
+}
+
+export function getTopScores(gameMode, callback) {
+    socketCallWrapper('get top scores', gameMode, 'top scores', callback);
 }
 
 export function getGameMode(callback) {
