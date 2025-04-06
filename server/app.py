@@ -74,6 +74,8 @@ def handle_join_attempt(data):
     print("room not found")
     emit('join response', {'success': False}, room=request.sid)
     return
+  #set user in host priority
+  db_set_user_join(cursor, request.sid, roomCode)
   #add user to room
   db_set_user_room(cursor, request.sid, roomCode)
   #set user score to 0
@@ -101,9 +103,11 @@ def handle_create_game():
   if(db_room_exists(cursor, roomCode) == False):
     print("room creation failed")
     return
-
+  #make user first in host priority
+  db_set_user_join(cursor, request.sid, roomCode)
   # set user room code to be roomCode
   db_set_user_room(cursor, request.sid, roomCode)
+  #set user score to 0
   db_set_user_score(cursor, request.sid, 0)
   #Create room with Room code
   join_room(roomCode)
@@ -243,7 +247,10 @@ def handle_start_game(data=None):
     ########################
     # print(f"{request.sid}:{username} has requested to start the game in room:{roomCode} playing {mode_value}")
     ########################
-
+    #Check if user a host that can start the game
+    if not db_is_room_host(cursor, request.sid, roomCode):
+      return
+    
     #Set start time
     db_set_room_time(cursor, roomCode, time.time())
     #Update game state to running
@@ -297,6 +304,9 @@ def handle_end_game():
     gameState = db_get_game_state(cursor, roomCode)
     if gameState == None:
       #TODO: Error handling if there is no game that exists
+      return
+    
+    if not db_is_room_host(cursor, request.sid, roomCode):
       return
     #Get username
     username = db_get_username(cursor, request.sid)

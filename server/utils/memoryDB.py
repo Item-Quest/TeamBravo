@@ -174,9 +174,10 @@ def db_get_game_state(cursor, room_code):
       'time': time
     }
     for user in users:
-      _, socket_id, username, score, roomCode = user
+      _, socket_id, username, score, roomCode, join_num = user
       game_data[f'user:{socket_id}:username'] = username
       game_data[f'user:{socket_id}:score'] = score
+      game_data[f'user:{socket_id}:join_num'] = join_num
     return game_data
   except sqlite3.Error as e:
     print(f"db_get_game_state error: {e}")
@@ -219,3 +220,41 @@ def db_get_users(cursor):
       userData = {'Id':socket_id, 'Name': username, 'Score': score}
       result.append(userData)
   return result
+
+def db_get_room_users(cursor, roomCode):
+  return ""
+
+def db_set_user_join(cursor, socket_id, room_code):
+  try:
+    sql = '''SELECT COALESCE(MAX(join_num), 0) + 1 FROM users WHERE room_code = ?'''
+    cursor.execute(sql, [room_code])
+    join_num = cursor.fetchone()[0]
+    sql = '''UPDATE users set join_num = ? WHERE socket_id = ?'''
+    cursor.execute(sql, [join_num, socket_id])
+  except sqlite3.Error as e:
+    print(f"db_set_user_join_error: {e}")
+
+def db_set_user_join_num(cursor, socket_id, num):
+  try:
+    sql = '''UPDATE users SET join_num = ? WHERE socket_id = ?'''
+    cursor.execute(sql, [num, socket_id])
+  except sqlite3.Error as e:
+    print(f"db_set_user_join_num error: {e}")
+
+def db_is_room_host(cursor, socket_id, room_code):
+  try:
+    #Get the smallest join number in the room
+    sql = '''SELECT MIN(join_num) FROM users WHERE room_code = ?'''
+    cursor.execute(sql, [room_code])
+    smallest_join = cursor.fetchone()[0]
+    #Get join order of the user
+    sql = '''SELECT join_num FROM users WHERE socket_id = ?'''
+    cursor.execute(sql, [socket_id])
+    user_join = cursor.fetchone()[0]
+    #check if user join number is the same as smallest one from the room
+    if user_join == smallest_join:
+      return True
+    return False
+  except sqlite3.Error as e:
+    print(f"db_set_user_join_error: {e}")
+    return False
