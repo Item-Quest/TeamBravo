@@ -8,18 +8,28 @@ import MessageIcon from '@mui/icons-material/Message';
 import NavigationPanel from "./NavigationPanel";
 import CameraPanel from "./CameraPanel";
 import JoinGameModal from "./JoinGameModal";
-import {joinGame} from "../dataProvider.js";
+import CreateGameModal from "./CreateGameModal"; 
+import { joinGame } from "../dataProvider.js";
 
-const Home = (updateGame) => {
+const Home = ({ updateGame }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  const JoinClick = () => {
+  const joinClick = () => {
     setIsModalOpen(true);
+  };
+
+  const createClick = () => {
+    setIsCreateModalOpen(true);
   };
 
   const handleClose = () => {
     setIsModalOpen(false);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false); 
   };
 
   const handleJoin = (username, roomCode) => {
@@ -59,8 +69,8 @@ const Home = (updateGame) => {
             </IconButton>
           </Tooltip>
           <Tooltip title="GitHub Repository">
-            <IconButton 
-              color="inherit" 
+            <IconButton
+              color="inherit"
               aria-label="github repository"
               href="https://github.com/Item-Quest/TeamBravo"
               target="_blank"
@@ -71,24 +81,24 @@ const Home = (updateGame) => {
           </Tooltip>
         </Toolbar>
       </AppBar>
-      
+
       <Box sx={{ width: '100%', mt: 4 }}>
         <Paper
           elevation={6}
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", md: "row" }, 
-            width: { xs: "95vw", sm: "90vw", md: "80vw" }, 
+            flexDirection: { xs: "column", md: "row" },
+            width: { xs: "95vw", sm: "90vw", md: "80vw" },
             maxWidth: "1200px",
-            minHeight: { xs: "auto", md: "500px" }, 
+            minHeight: { xs: "auto", md: "500px" },
             borderRadius: "12px",
             overflow: "hidden",
-            padding: { xs: 2, md: 3 }, 
+            padding: { xs: 2, md: 3 },
             backgroundColor: "rgba(255, 255, 255, 0.08)",
-            margin: "0 auto", 
+            margin: "0 auto",
           }}
         >
-          <NavigationPanel onJoinClick={JoinClick} />
+          <NavigationPanel onJoinClick={joinClick} onCreateClick={createClick} />
           <CameraPanel />
 
           <JoinGameModal
@@ -96,8 +106,16 @@ const Home = (updateGame) => {
             onClose={handleClose}
             onJoin={handleJoin}
           />
+
+          <CreateGameModal
+            isOpen={isCreateModalOpen}
+            onClose={handleCloseCreateModal}
+            updateGame={updateGame}
+            navigate={navigate}
+          />
         </Paper>
       </Box>
+
       <div style={{ textAlign: 'center', marginTop: '20px', width: '80vw', maxWidth: '1200px', margin: '0 auto' }}>
         &copy; 2025 Team Bravo. All rights reserved.
       </div>
