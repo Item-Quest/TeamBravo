@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS ROOMS (
   game_state TEXT,
   items TEXT, -- JSON encoded string
   time_in_game INTEGER DEFAULT 0,
-    game_mode TEXT -- "itemRace","itemBlitz" or "geoQuest"
+  game_mode TEXT
 );
 
 CREATE TABLE IF NOT EXISTS USERS(
@@ -14,5 +14,7 @@ CREATE TABLE IF NOT EXISTS USERS(
   username TEXT,
   score INTEGER, -- score == amount of items correct
   room_code TEXT,
+  join_num INTEGER DEFAULT -1, --For tracking if user is in a room or not
+
   FOREIGN KEY (room_code) REFERENCES ROOMS(room_code)
 );
