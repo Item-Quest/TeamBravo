@@ -48,3 +48,14 @@ export function connectGame(callback) {
             callback(result);
     });
 }
+
+export function getGameMode(callback) {
+    socketCallWrapper('get gamemode', null, 'game mode response', (response) => {
+        if (response && response.game_mode) {
+            callback(response.game_mode); // Pass the gameMode string to the callback
+        } else {
+            console.error("Game mode not found in response:", response);
+            callback(null); // Pass null if gameMode is not found
+        }
+    });
+}
