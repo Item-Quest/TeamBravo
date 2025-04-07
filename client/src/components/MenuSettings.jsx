@@ -5,12 +5,18 @@ import { Box, Typography, Slider, FormControl, InputLabel, Select, MenuItem, Pap
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import VolumeDownIcon from '@mui/icons-material/VolumeDown';
 import HomeIcon from '@mui/icons-material/Home';
+import click from '../assets/SFX/click.wav';
 import backclick from '../assets/SFX/backclick.wav';
 
 // Get the audio volume from localStorage or use default
 const getStoredVolume = () => {
   const storedVolume = localStorage.getItem('musicVolume');
   return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+};
+
+const getStoredUiVolume = () => {
+  const storedUiVolume = localStorage.getItem('uiVolume');
+  return storedUiVolume !== null ? parseFloat(storedUiVolume) : 0.5;
 };
 
 // Get the muted state from localStorage or use default
@@ -21,11 +27,12 @@ const getStoredMuted = () => {
 
 const MenuSettings = () => {
   const navigate = useNavigate();
-  const [uiVolume, setUiVolume] = useState(50);
+  const [uiVolume, setUiVolume] = useState(getStoredUiVolume()* 100);
   const [musicVolume, setMusicVolume] = useState(getStoredVolume() * 100);
   const [accessibility, setAccessibility] = useState('none');
   const { theme, setTheme } = useTheme();
-  const backClickSound = new Audio(backclick);
+  const clickSound = useRef(new Audio(click)).current;
+  const backClickSound = useRef(new Audio(backclick)).current;
 
   // Update actual audio element when volume changes
   useEffect(() => {
@@ -44,8 +51,21 @@ const MenuSettings = () => {
     }
   }, [musicVolume]);
 
+  // Handle UI/SFX volume change
+  useEffect(() => {
+    localStorage.setItem('uiVolume', (uiVolume/100).toString());
+  }, [uiVolume]);
+
   const handleMusicVolumeChange = (event, newValue) => {
     setMusicVolume(newValue);
+  };
+
+  
+  const handleUiVolumeChange = (event, newValue) => {
+    setUiVolume(newValue);
+    localStorage.setItem('uiVolume', (newValue / 100).toString()); 
+    clickSound.currentTime = 0;
+    clickSound.play(); // plays click sound when changed
   };
 
   const handleBackToHome = () => {
@@ -101,7 +121,7 @@ const MenuSettings = () => {
               </Typography>
               <Slider
                 value={uiVolume}
-                onChange={(e, val) => setUiVolume(val)}
+                onChange={handleUiVolumeChange}
                 aria-labelledby="ui-volume-slider"
                 valueLabelDisplay="auto"
                 step={1}

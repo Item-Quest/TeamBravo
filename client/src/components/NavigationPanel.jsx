@@ -5,13 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { Button, Box, useMediaQuery, useTheme } from "@mui/material";
 import logo from "../assets/logo2.png";
 import PropTypes from 'prop-types';
+import { playSFX } from '../utils/SFXHelper';
 import click from '../assets/SFX/click.wav';
 
 const NavigationPanel = ({ onJoinClick }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const clickSound = new Audio(click);
 
   return (
     <Box
@@ -44,7 +44,7 @@ const NavigationPanel = ({ onJoinClick }) => {
           mb: { xs: 1.5, md: 2 } 
         }}
         onClick={() => {
-          clickSound.play();
+          playSFX(click);
           onJoinClick();
         }}
       >
@@ -60,7 +60,7 @@ const NavigationPanel = ({ onJoinClick }) => {
           mb: { xs: 1.5, md: 2 } 
         }}
         onClick={() =>{ 
-          clickSound.play();
+          playSFX(click);
           navigate("/create");
         }}
       >
@@ -76,7 +76,7 @@ const NavigationPanel = ({ onJoinClick }) => {
           mb: { xs: 1.5, md: 2 } 
         }}
         onClick={() => {
-          clickSound.play();
+          playSFX(click);
           navigate("/leaderboard");
         }}
       >
@@ -100,7 +100,7 @@ const NavigationPanel = ({ onJoinClick }) => {
             mb: isMobile ? 1 : 0
           }} 
           onClick={() => {
-            clickSound.play();
+            playSFX(click);
             navigate("/MenuSettings");
           }}
         >
@@ -115,7 +115,7 @@ const NavigationPanel = ({ onJoinClick }) => {
             fontSize: { xs: "14px", md: "16px" }
           }} 
           onClick={() => {
-            clickSound.play();
+            playSFX(click);
             navigate("/TestHome");
           }}
         >

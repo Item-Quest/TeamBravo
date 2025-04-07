@@ -27,6 +27,7 @@ import SkipNextIcon from '@mui/icons-material/SkipNext';
 
 // Import logo
 import logo from '../assets/logo2.png';
+import { playSFX } from '../utils/SFXHelper';
 import click from '../assets/SFX/click.wav';
 import skipused from '../assets/SFX/skipused.wav';
 import skipcharged from '../assets/SFX/skipcharged.wav';
@@ -55,9 +56,6 @@ const PlayScreen = (props) => {
   const [skips, setSkips] = useState(3);
   const [isResetTimerActive, setIsResetTimerActive] = useState(false);
   const [formattedResetTime, setFormattedResetTime] = useState("00:00");
-  const skipUsedSound = new Audio(skipused);
-  const skipChargedSound = new Audio(skipcharged);
-  const clickSound = new Audio(click);
 
   useEffect(() => {
     connectGame((data) => {
@@ -174,7 +172,7 @@ const PlayScreen = (props) => {
   }, [props.AIOutput, item, yourScore]);
 
   function startGame(){
-    clickSound.play();
+    playSFX(click);
     socket.emit('start game', { mode: gameMode });
   }
 
@@ -213,7 +211,7 @@ const PlayScreen = (props) => {
   
   const handleSkip = () => {
     if (skips > 0 && props.gameState === "running") {
-      skipUsedSound.play();
+      playSFX(skipused);
       setSkips(prev => prev - 1);
       
       // Emit skip item event to server
@@ -236,7 +234,7 @@ const PlayScreen = (props) => {
         setFormattedResetTime(`${Math.floor(resetTime / 60)}:${(resetTime % 60).toString().padStart(2, '0')}`);
         
         if (resetTime <= 0) {
-          skipChargedSound.play();
+          playSFX(skipcharged);
           clearInterval(resetInterval);
           setIsResetTimerActive(false);
           setSkips(prev => prev + 1);
