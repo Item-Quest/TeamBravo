@@ -11,9 +11,12 @@ import JoinGameModal from "./JoinGameModal";
 import CreateGameModal from "./CreateGameModal"; 
 import { joinGame } from "../dataProvider.js";
 
-const Home = ({ updateGame }) => {
+import SupportModal from "./SupportModal"
+
+const Home = (updateGame) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const joinClick = () => {
@@ -23,13 +26,21 @@ const Home = ({ updateGame }) => {
   const createClick = () => {
     setIsCreateModalOpen(true);
   };
+  
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false); 
+  };
 
   const handleClose = () => {
     setIsModalOpen(false);
   };
 
-  const handleCloseCreateModal = () => {
-    setIsCreateModalOpen(false); 
+  const SupportClick = () => {
+    setIsSupportOpen(true);
+  };
+
+  const handleSupportClose = () => {
+    setIsSupportOpen(false);
   };
 
   const handleJoin = (username, roomCode) => {
@@ -64,7 +75,7 @@ const Home = ({ updateGame }) => {
             Item Quest
           </Typography>
           <Tooltip title="Help & Support">
-            <IconButton color="inherit" aria-label="help and support">
+            <IconButton onClick={SupportClick} color="inherit" aria-label="help and support">
               <MessageIcon />
             </IconButton>
           </Tooltip>
@@ -106,12 +117,17 @@ const Home = ({ updateGame }) => {
             onClose={handleClose}
             onJoin={handleJoin}
           />
-
+              
           <CreateGameModal
             isOpen={isCreateModalOpen}
             onClose={handleCloseCreateModal}
             updateGame={updateGame}
-            navigate={navigate}
+            navigate={navigate}  
+           />
+
+          <SupportModal
+            isOpen={isSupportOpen}
+            onClose={handleSupportClose}
           />
         </Paper>
       </Box>
