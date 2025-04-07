@@ -15,6 +15,7 @@ import { getAllPlayers } from './dataProvider.js';
 import ParticlesBackground from './components/ParticlesBackground.jsx'; // <-- import
 import { ThemeProvider, useTheme } from './ThemeContext'; // Import ThemeProvider
 import './themes.css';
+import CreateGameModal from './components/CreateGameModal.jsx';
 
 // Import audio assets
 import lobbyMusic from './assets/LobbyMusic1.mp3';
@@ -169,7 +170,7 @@ function AppContent({ game, updateGame }) {
           <Route path='/MenuSettings' element={<MenuSettings />} />
           <Route path='/Test' element={<Test />} />
           <Route path='/TestLogin' element={<Login />} />
-          <Route path='/create' element={<CreateGame game={game} />} />
+          <Route path='/create' element={<CreateGameModal game={game} />} />
         </Routes>
       </div>
     </main>
