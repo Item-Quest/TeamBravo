@@ -1,0 +1,36 @@
+name: Deploy to Cassini
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ID_RSA }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Verify SSH Connection
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no itemquest@cassini.cs.kent.edu "echo 'Connected to Cassini'"
+
+      - name: Deploy Code to Cassini
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no itemquest@cassini.cs.kent.edu << 'EOF'
+            cd TeamBravo
+            git pull origin main 
+            cd client
+            npm install
+            npm run build
+            cd ../server
+            screen -dmS itemquest_server bash -c "python app.py" 
+          EOF

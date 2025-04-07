@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import socket from '../socket';
-import { connectGame } from '../dataProvider.js';
+import { connectGame, getGameMode } from '../dataProvider.js';
+import { setModelMode } from "../utils/imagePredict.js";
 
 // Material-UI imports
 import {
@@ -59,9 +60,14 @@ const PlayScreen = (props) => {
       console.log(socket.id);
       // Extract current item
       if(data.items){
+        console.log("Game mode received from server:", data.gameMode);
         updateItem(data.items);
         console.log(data.items);
         //Grab client's score for the purposes of only displaying item associated with score
+      }
+      if(data.game_mode) {
+        setGameMode(data.game_mode);
+        setModelMode(data.game_mode);
       }
       // Extract game state
       if(data.game_state){
@@ -111,6 +117,17 @@ const PlayScreen = (props) => {
       // Reset skips when game starts
       setSkips(3);
       setIsResetTimerActive(false);
+
+      getGameMode((gameMode) => {
+        if (gameMode) {
+            console.log("Game mode received:", gameMode);
+            setModelMode(gameMode);
+            setGameMode(gameMode);
+        } else {
+            console.error("Failed to retrieve game mode.");
+        }
+    });
+
     });
 
     socket.on('winner', (data) => {
@@ -244,6 +261,15 @@ const PlayScreen = (props) => {
     socket.emit('leave game');
     navigate('/');
   };
+
+  function setModes(givenMode) {
+    console.log("game mode set to: ", givenMode);
+    setGameMode(givenMode); //for display purposes
+    setModelMode(givenMode); //for AI model
+
+    //for server
+    socket.emit('set gamemode', givenMode);
+  }
 
   return (
     <Container maxWidth="lg">
@@ -391,13 +417,16 @@ const PlayScreen = (props) => {
                     <Typography variant="subtitle1" gutterBottom>Game Mode</Typography>
                     <Select
                       value={gameMode}
-                      onChange={(e) => setGameMode(e.target.value)}
+                      onChange={(e) => {
+                        //handles display, Ai model, and server modes
+                        setModes(e.target.value);}}
                       fullWidth
                       size="small"
                       sx={{ mb: 1 }}
                     >
                       <MenuItem value="ItemRace">Item Race</MenuItem>
                       <MenuItem value="ItemBlitz">Item Blitz</MenuItem>
+                      <MenuItem value="GeoQuest">GeoQuest</MenuItem>
                     </Select>
                     <Button 
                       variant="contained" 

@@ -14,13 +14,13 @@ import PropTypes from 'prop-types';
 
 const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
   //state for getting username and room code
-  const [username, setUsername] = useState("Anonymous");
+  // const [username, setUsername] = useState("Anonymous");
   const [roomCode, setRoomCode] = useState("");
 
     return (
       <Dialog open={isOpen} onClose={onClose}>
         <DialogTitle>Join Game</DialogTitle>
-        <DialogContent>
+        {/* <DialogContent>
           <TextField
             autoFocus
             margin="dense"
@@ -30,7 +30,7 @@ const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
-        </DialogContent>
+        </DialogContent> */}
         <DialogContent>
           <TextField
             autoFocus
@@ -49,7 +49,7 @@ const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
           <Button
             onClick={() => {
               // Handle join logic
-              onJoin(username, roomCode);
+              onJoin(roomCode);
               //onClose();
             }}
             color="primary"
