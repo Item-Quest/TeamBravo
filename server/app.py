@@ -21,8 +21,8 @@ app = Flask(__name__, template_folder='../client/dist', static_folder='../client
 app.config['SECRET_KEY'] = 'secret!'
 
 #Initialize SocketIO
-# socketio = SocketIO(app, async_mode='eventlet')
-socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
+socketio = SocketIO(app, async_mode='eventlet')
+# socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
 
 #variables for game control
 game_thread = None
@@ -458,10 +458,11 @@ def set_gamemode(data):
   db_set_game_mode(cursor, db_get_user_room(cursor, request.sid), data)
 
 if __name__ == '__main__':
-  # Register the signal handler to close the database connection on termination
   initialize_db()
   _, DB_PATH, _ = get_DB_path()
   print("db location: ", DB_PATH)
+  # Register the signal handler to close the database connection on termination
+
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
   socketio.run(app, host='0.0.0.0', port=8050, debug=True)
