@@ -25,7 +25,6 @@ const Home = (updateGame) => {
     setIsModalOpen(false);
   };
 
-<<<<<<< HEAD
   const SupportClick = () => {
     setIsSupportOpen(true);
   };
@@ -34,10 +33,7 @@ const Home = (updateGame) => {
     setIsSupportOpen(false);
   };
 
-  const handleJoin = (username, roomCode) => {
-=======
   const handleJoin = (roomCode) => {
->>>>>>> main
     console.log("Join attempt");
     console.log(roomCode);
     joinGame(roomCode, (result) => {
