@@ -6,7 +6,7 @@ import { Button, Box, useMediaQuery, useTheme } from "@mui/material";
 import logo from "../assets/logo2.png";
 import PropTypes from 'prop-types';
 
-const NavigationPanel = ({ onJoinClick }) => {
+const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -54,7 +54,7 @@ const NavigationPanel = ({ onJoinClick }) => {
           fontSize: { xs: "14px", md: "16px" }, 
           mb: { xs: 1.5, md: 2 } 
         }}
-        onClick={() => navigate("/create")}
+        onClick={onCreateClick}
       >
         CREATE GAME
       </Button>

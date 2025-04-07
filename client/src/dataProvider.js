@@ -48,9 +48,3 @@ export function connectGame(callback) {
             callback(result);
     });
 }
-
-export function submitSupport(email, question, callback) {
-    //when backend is implemented, call through socketwrapper
-    if (callback) 
-        callback();
-}
