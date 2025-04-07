@@ -168,8 +168,8 @@ function AppContent({ game, updateGame }) {
           />
           <Route path='/MenuSettings' element={<MenuSettings />} />
           <Route path='/Test' element={<Test />} />
-          <Route path='/TestLogin' element={<Login />} />
-          <Route path='/create' element={<CreateGameModal game={game} />} />
+          <Route path='/Login' element={<Login />} />
+          <Route path='/create' element={<CreateGame game={game} />} />
         </Routes>
       </div>
     </main>
