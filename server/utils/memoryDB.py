@@ -17,11 +17,11 @@ def db_init_game_db():
   cursor.executescript(schema)
   return connection, cursor
 
-def db_add_room(cursor, room_code, game_state, items, time_in_game, game_mode):
+def db_add_room(cursor, room_code, game_state, items, time_in_game):
   try:
-    sql = '''INSERT INTO rooms(room_code, game_state, items, time_in_game, game_mode)
-            VALUES(?,?,?,?,?)'''
-    values = [room_code, game_state, json.dumps(items), time_in_game, game_mode]
+    sql = '''INSERT INTO rooms(room_code, game_state, items, time_in_game)
+            VALUES(?,?,?,?)'''
+    values = [room_code, game_state, json.dumps(items), time_in_game]
     cursor.execute(sql, values)
   except sqlite3.Error as e:
     print(f"db_add_room error: {e}")
@@ -166,19 +166,17 @@ def db_get_game_state(cursor, room_code):
     room_data = cursor.fetchone()
     if not room_data:
       return None
-    _, roomCode, gameState, items, time, game_mode, *_ = room_data
+    _, roomCode, gameState, items, time = room_data
     game_data = {
       'room_code': roomCode,
       'game_state': gameState,
       'items': json.loads(items),
-      'time': time,
-      'game_mode' : game_mode
+      'time': time
     }
     for user in users:
-      _, socket_id, username, score, roomCode, join_num = user
+      _, socket_id, username, score, roomCode = user
       game_data[f'user:{socket_id}:username'] = username
       game_data[f'user:{socket_id}:score'] = score
-      game_data[f'user:{socket_id}:join_num'] = join_num
     return game_data
   except sqlite3.Error as e:
     print(f"db_get_game_state error: {e}")
@@ -207,8 +205,6 @@ def db_set_room_user_scores(cursor, room_code, score):
   except sqlite3.Error as e:
     print(f"db_set_room_items error: {e}")
 
-def db_get_game_mode(room_code):
-  return "itemRace"
 
 def db_get_rooms(cursor):
   cursor.execute('SELECT * FROM rooms')
@@ -223,62 +219,3 @@ def db_get_users(cursor):
       userData = {'Id':socket_id, 'Name': username, 'Score': score}
       result.append(userData)
   return result
-
-def db_get_users_in_room_by_score(cursor, room_code):
-  try:
-    sql = '''SELECT * FROM users WHERE room_code = ? ORDER BY score DESC'''
-    cursor.execute(sql, [room_code])
-    return cursor.fetchall()  
-  except sqlite3.Error as e:
-    print(f"db_get_users_in_room error: {e}")
-    return None
-  
-def db_get_game_mode(cursor, room_code):
-  try:
-    sql = '''SELECT game_mode FROM rooms WHERE room_code = ?'''
-    cursor.execute(sql, [room_code])
-    return cursor.fetchone()
-  except sqlite3.Error as e:
-    print(f"db_get_game_mode error: {e}")
-
-def db_set_game_mode(cursor, room_code, game_mode):
-  try:
-    sql = '''UPDATE rooms SET game_mode = ? WHERE room_code = ?'''
-    cursor.execute(sql, [game_mode, room_code])
-  except sqlite3.Error as e:
-    print(f"db_set_game_mode error: {e}")
-
-def db_set_user_join(cursor, socket_id, room_code):
-  try:
-    sql = '''SELECT COALESCE(MAX(join_num), 0) + 1 FROM users WHERE room_code = ?'''
-    cursor.execute(sql, [room_code])
-    join_num = cursor.fetchone()[0]
-    sql = '''UPDATE users set join_num = ? WHERE socket_id = ?'''
-    cursor.execute(sql, [join_num, socket_id])
-  except sqlite3.Error as e:
-    print(f"db_set_user_join_error: {e}")
-
-def db_set_user_join_num(cursor, socket_id, num):
-  try:
-    sql = '''UPDATE users SET join_num = ? WHERE socket_id = ?'''
-    cursor.execute(sql, [num, socket_id])
-  except sqlite3.Error as e:
-    print(f"db_set_user_join_num error: {e}")
-
-def db_is_room_host(cursor, socket_id, room_code):
-  try:
-    #Get the smallest join number in the room
-    sql = '''SELECT MIN(join_num) FROM users WHERE room_code = ?'''
-    cursor.execute(sql, [room_code])
-    smallest_join = cursor.fetchone()[0]
-    #Get join order of the user
-    sql = '''SELECT join_num FROM users WHERE socket_id = ?'''
-    cursor.execute(sql, [socket_id])
-    user_join = cursor.fetchone()[0]
-    #check if user join number is the same as smallest one from the room
-    if user_join == smallest_join:
-      return True
-    return False
-  except sqlite3.Error as e:
-    print(f"db_set_user_join_error: {e}")
-    return False

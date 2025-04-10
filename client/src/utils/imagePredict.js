@@ -1,22 +1,32 @@
-import { indoorPredict } from "./indoorPredict";
-import { outdoorPredict } from "./outdoorPredict";
-import socket from '../socket';
-import { getGameMode } from '../dataProvider.js';
+import * as tf from '@tensorflow/tfjs';
 
-let mode;
+// Define the labels
+const labels = ['shoe','no_item','mug','notebook','phone','water_bottle']; // Add all your labels here
 
+// Function to load and predict
+let model;
 export async function loadModelAndPredict(imageData) {
-    console.log(mode);
-
-    if (mode === 'GeoQuest') {
-        return outdoorPredict(imageData);
-    } 
-    else {
-        return indoorPredict(imageData);
+    if(!model){
+        model = await tf.loadLayersModel('https://teachablemachine.withgoogle.com/models/j5Voge3Vq/model.json');
     }
 
-}
+    //trying tf.tidy for better memory management
+    //memory management wrapper
+    return tf.tidy(() => {
+    // Preprocess the image
+    const image = tf.browser.fromPixels(imageData);
+    const resizedImage = tf.image.resizeBilinear(image, [224, 224]);
+    const normalizedImage = resizedImage.div(127.5).sub(1);
+    const batchedImage = normalizedImage.expandDims(0);
 
-export async function setModelMode(newMode) {
-    mode = newMode;
+    // Predict
+    const predictions = model.predict(batchedImage);
+    const predictionArray = predictions.arraySync();
+
+    // Get the index of the highest confidence prediction
+    const maxIndex = predictionArray[0].indexOf(Math.max(...predictionArray[0]));
+
+    // Return the label corresponding to the highest confidence prediction
+    return labels[maxIndex];
+    });
 }

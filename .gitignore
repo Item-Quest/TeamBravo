@@ -27,6 +27,3 @@ server/utils/__pycache__
 *.njsproj
 *.sln
 *.sw?
-# database should not be committed for security reasons
-# holds passwords etc.
-*.db 

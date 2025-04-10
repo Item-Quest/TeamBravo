@@ -43,10 +43,10 @@ const Home = (updateGame) => {
     setIsSupportOpen(false);
   };
 
-  const handleJoin = (roomCode) => {
+  const handleJoin = (username, roomCode) => {
     console.log("Join attempt");
-    console.log(roomCode);
-    joinGame(roomCode, (result) => {
+    console.log(username, roomCode);
+    joinGame(username, roomCode, (result) => {
       if (result.success) {
         console.log("made it to result.success");
         setIsModalOpen(false);
