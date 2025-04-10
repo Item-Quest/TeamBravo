@@ -5,11 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { Button, Box, useMediaQuery, useTheme } from "@mui/material";
 import logo from "../assets/logo2.png";
 import PropTypes from 'prop-types';
+import { createGame } from "../dataProvider.js";
 
 const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+
 
   return (
     <Box
@@ -22,24 +25,24 @@ const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
         width: { xs: '100%', md: 'auto' },
       }}
     >
-      <img 
-        src={logo} 
-        alt="Logo" 
-        style={{ 
-          width: isMobile ? "80px" : "100px", 
-          marginBottom: isMobile ? 12 : 16 
-        }} 
+      <img
+        src={logo}
+        alt="Logo"
+        style={{
+          width: isMobile ? "80px" : "100px",
+          marginBottom: isMobile ? 12 : 16
+        }}
       />
 
       {/* Buttons */}
       <Button
         variant="contained"
         color="primary"
-        sx={{ 
-          width: "90%", 
-          height: { xs: 50, md: 60 }, 
-          fontSize: { xs: "16px", md: "18px" }, 
-          mb: { xs: 1.5, md: 2 } 
+        sx={{
+          width: "90%",
+          height: { xs: 50, md: 60 },
+          fontSize: { xs: "16px", md: "18px" },
+          mb: { xs: 1.5, md: 2 }
         }}
         onClick={onJoinClick}
       >
@@ -48,11 +51,11 @@ const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
 
       <Button
         variant="contained"
-        sx={{ 
-          width: "90%", 
-          height: { xs: 45, md: 50 }, 
-          fontSize: { xs: "14px", md: "16px" }, 
-          mb: { xs: 1.5, md: 2 } 
+        sx={{
+          width: "90%",
+          height: { xs: 45, md: 50 },
+          fontSize: { xs: "14px", md: "16px" },
+          mb: { xs: 1.5, md: 2 }
         }}
         onClick={onCreateClick}
       >
@@ -61,11 +64,11 @@ const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
 
       <Button
         variant="contained"
-        sx={{ 
-          width: "90%", 
-          height: { xs: 45, md: 50 }, 
-          fontSize: { xs: "14px", md: "16px" }, 
-          mb: { xs: 1.5, md: 2 } 
+        sx={{
+          width: "90%",
+          height: { xs: 45, md: 50 },
+          fontSize: { xs: "14px", md: "16px" },
+          mb: { xs: 1.5, md: 2 }
         }}
         onClick={() => navigate("/leaderboard")}
       >
@@ -73,36 +76,37 @@ const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
       </Button>
 
       {/* Settings & Backend Buttons */}
-      <Box sx={{ 
-        display: "flex", 
-        width: "90%", 
+      <Box sx={{
+        display: "flex",
+        width: "90%",
         justifyContent: "space-between",
         flexDirection: { xs: isMobile ? "column" : "row", md: "row" }
       }}>
-        <Button 
+        <Button
           variant="contained"
           color="primary"
-          sx={{ 
+          sx={{
             width: { xs: isMobile ? "100%" : "48%", md: "48%" },
             height: { xs: 45, md: 50 },
             fontSize: { xs: "14px", md: "16px" },
             mb: isMobile ? 1 : 0
-          }} 
+          }}
           onClick={() => navigate("/MenuSettings")}
         >
           SETTINGS
         </Button>
-        <Button 
+        <Button
           variant="contained"
           color="primary"
-          sx={{ 
+          sx={{
             width: { xs: isMobile ? "100%" : "48%", md: "48%" },
             height: { xs: 45, md: 50 },
             fontSize: { xs: "14px", md: "16px" }
-          }} 
-          onClick={() => navigate("/TestHome")}
+          }}
+          onClick={() => navigate("/Login")}
+
         >
-          BACKEND
+          Login
         </Button>
       </Box>
     </Box>
@@ -111,6 +115,7 @@ const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
 
 NavigationPanel.propTypes = {
   onJoinClick: PropTypes.func.isRequired,
+  onCreateClick: PropTypes.func.isRequired,
 };
 
 export default NavigationPanel;
