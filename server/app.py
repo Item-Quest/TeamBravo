@@ -21,8 +21,8 @@ app = Flask(__name__, template_folder='../client/dist', static_folder='../client
 app.config['SECRET_KEY'] = 'secret!'
 
 #Initialize SocketIO
-socketio = SocketIO(app, async_mode='eventlet')
-# socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
+# socketio = SocketIO(app, async_mode='eventlet')
+socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
 
 #variables for game control
 game_thread = None
@@ -424,24 +424,25 @@ def handle_get_leaderboard_data(data):
     emit('leaderboard data', formatted_scores, room=request.sid)
 
 def save_scores(roomCode, finalTime):
-  print("saving scores")
-  gameMode = db_get_game_mode(roomCode)
+  print(f"saving scores in room {roomCode}")
+
+  gameMode = db_get_game_mode(cursor, roomCode)
   place = 1
   users = db_get_users_in_room_by_score(cursor, roomCode)
-  if gameMode == "itemRace":
+  if gameMode == "ItemRace":
     # score == time
     for user in users:
-      save_score(user[2], f"{finalTime} seconds", "itemRace", place)
+      save_score(user[2], f"{finalTime} seconds", "ItemRace", place)
       place += 1
-  elif gameMode == "itemBlitz":
+  elif gameMode == "ItemBlitz":
   # score == time;
       for user in users:
-        save_score(user[2], f"{user[3]} points", "itemBlitz", place)
+        save_score(user[2], f"{user[3]} points", "ItemBlitz", place)
         place += 1
-  elif gameMode == "geoQuest":
+  elif gameMode == "GeoQuest":
   # TODO i think this is first to complete may need to change 
     for user in users:
-        save_score(user[2], f"{finalTime} seconds", "itemBlitz", place)
+        save_score(user[2], f"{finalTime} seconds", "GeoQuest", place)
         place += 1
   else:
     print(f"Unknown game mode: {gameMode}")

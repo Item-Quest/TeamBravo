@@ -120,6 +120,7 @@ def save_score(username, score, game_mode, place):
     user = find_user(username)
     if user:
         record = {"user_id": user[0][0], "score": score, "game_mode": game_mode, 'place': place}
+
         insert_record("scores", record)
         print('score saved')
     else:
