@@ -30,3 +30,7 @@ server/utils/__pycache__
 # database should not be committed for security reasons
 # holds passwords etc.
 *.db 
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
