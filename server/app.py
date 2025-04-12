@@ -21,8 +21,8 @@ app = Flask(__name__, template_folder='../client/dist', static_folder='../client
 app.config['SECRET_KEY'] = 'secret!'
 
 #Initialize SocketIO
-# socketio = SocketIO(app, async_mode='eventlet')
-socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
+socketio = SocketIO(app, async_mode='eventlet')
+#socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
 
 #variables for game control
 game_thread = None
@@ -466,4 +466,21 @@ if __name__ == '__main__':
 
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
-  socketio.run(app, host='0.0.0.0', port=8050, debug=True)
+  # 1) Create a normal eventlet listening socket
+  listener = eventlet.listen(('0.0.0.0', 8050))
+
+    # 2) Wrap it in SSL
+  ssl_listener = eventlet.wrap_ssl(
+        listener,
+        certfile='mycert.pem',    # Path to your certificate
+        keyfile='mykey.pem',      # Path to your private key
+        server_side=True
+    )
+
+    # 3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
+    #    We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
+  eventlet.wsgi.server(
+    ssl_listener,
+    app
+)
+
