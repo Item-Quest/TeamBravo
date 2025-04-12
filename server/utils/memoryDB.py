@@ -207,9 +207,6 @@ def db_set_room_user_scores(cursor, room_code, score):
   except sqlite3.Error as e:
     print(f"db_set_room_items error: {e}")
 
-def db_get_game_mode(room_code):
-  return "itemRace"
-
 def db_get_rooms(cursor):
   cursor.execute('SELECT * FROM rooms')
   return cursor.fetchall()
@@ -237,7 +234,9 @@ def db_get_game_mode(cursor, room_code):
   try:
     sql = '''SELECT game_mode FROM rooms WHERE room_code = ?'''
     cursor.execute(sql, [room_code])
-    return cursor.fetchone()
+    result = cursor.fetchall()[0][0]
+    print(result)
+    return result
   except sqlite3.Error as e:
     print(f"db_get_game_mode error: {e}")
 

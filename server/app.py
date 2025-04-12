@@ -424,24 +424,25 @@ def handle_get_leaderboard_data(data):
     emit('leaderboard data', formatted_scores, room=request.sid)
 
 def save_scores(roomCode, finalTime):
-  print("saving scores")
-  gameMode = db_get_game_mode(roomCode)
+  print(f"saving scores in room {roomCode}")
+
+  gameMode = db_get_game_mode(cursor, roomCode)
   place = 1
   users = db_get_users_in_room_by_score(cursor, roomCode)
-  if gameMode == "itemRace":
+  if gameMode == "ItemRace":
     # score == time
     for user in users:
-      save_score(user[2], f"{finalTime} seconds", "itemRace", place)
+      save_score(user[2], f"{finalTime} seconds", "ItemRace", place)
       place += 1
-  elif gameMode == "itemBlitz":
+  elif gameMode == "ItemBlitz":
   # score == time;
       for user in users:
-        save_score(user[2], f"{user[3]} points", "itemBlitz", place)
+        save_score(user[2], f"{user[3]} points", "ItemBlitz", place)
         place += 1
-  elif gameMode == "geoQuest":
+  elif gameMode == "GeoQuest":
   # TODO i think this is first to complete may need to change 
     for user in users:
-        save_score(user[2], f"{finalTime} seconds", "itemBlitz", place)
+        save_score(user[2], f"{finalTime} seconds", "GeoQuest", place)
         place += 1
   else:
     print(f"Unknown game mode: {gameMode}")
@@ -458,10 +459,11 @@ def set_gamemode(data):
   db_set_game_mode(cursor, db_get_user_room(cursor, request.sid), data)
 
 if __name__ == '__main__':
-  # Register the signal handler to close the database connection on termination
   initialize_db()
   _, DB_PATH, _ = get_DB_path()
   print("db location: ", DB_PATH)
+  # Register the signal handler to close the database connection on termination
+
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
   # 1) Create a normal eventlet listening socket
