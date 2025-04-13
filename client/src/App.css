@@ -517,6 +517,11 @@ display: block;
   text-align: center;
 }
 
+/*support modal*/
+.support-page-context {
+  padding-top: 0 important!;
+  margin-top: 0 important!;
+}
 
 /*create game settings page*/
 

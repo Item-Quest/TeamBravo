@@ -9,12 +9,12 @@ import Login from './components/login.jsx';
 import PlayScreen from './components/PlayScreen.jsx';
 import Game from './components/Game.jsx';
 import Test from './components/Test.jsx';
-import CreateGame from './components/CreateGame.jsx';
 import MenuSettings from './components/MenuSettings.jsx';
 import { getAllPlayers } from './dataProvider.js';
 import ParticlesBackground from './components/ParticlesBackground.jsx'; // <-- import
 import { ThemeProvider, useTheme } from './ThemeContext'; // Import ThemeProvider
 import './themes.css';
+import CreateGameModal from './components/CreateGameModal.jsx';
 
 // Import audio assets
 import lobbyMusic from './assets/LobbyMusic1.mp3';
@@ -169,7 +169,7 @@ function AppContent({ game, updateGame }) {
           <Route path='/MenuSettings' element={<MenuSettings />} />
           <Route path='/Test' element={<Test />} />
           <Route path='/Login' element={<Login />} />
-          <Route path='/create' element={<CreateGame game={game} />} />
+          <Route path='/create' element={<CreateGameModal game={game} />} />
         </Routes>
       </div>
     </main>
