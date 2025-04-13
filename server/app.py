@@ -480,25 +480,26 @@ def getDailyitem():
     random.seed(seed)
     return outDoorItems[random.randint(0, len(outDoorItems)-1)]
 
-@socketio.on('get daily item')
+@socketio.on('get geo item')
 def handle_get_daily_item():
   item = getDailyitem()
-  emit('daily item', item, room=request.sid)
+  emit('geo item', item, room=request.sid)
 
-@socketio.on('geoquest submit')
+@socketio.on('geosubmit')
 def handle_geoquest_submit(data):
   user = db_get_username(cursor, request.sid)
   geoComplete(user)
-  emit('geoquest response', {'success': True, 'message': 'Geoquest completed! Come Back Tomorrow'}, room=request.sid)
+  emit('geosubmit response', {'success': True, 'message': 'Geoquest completed! Come Back Tomorrow'}, room=request.sid)
 
 @socketio.on('geoquest get score')
 def handle_geoquest_get_score():
   score = geoGetScore(db_get_username(cursor, request.sid))
+  emit('geoquest get score', score, room=request.sid)
 
 @socketio.on('geoquest is complete')
 def handle_geoquest_is_complete():
   complete = geoIsComplete(db_get_username(cursor, request.sid))
-  emit('geoquest is complete', complete, room=request.sid)
+  emit('geoquest is complete response', complete, room=request.sid)
 
 
 if __name__ == '__main__':

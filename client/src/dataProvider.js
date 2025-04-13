@@ -63,3 +63,21 @@ export function getGameMode(callback) {
         }
     });
 }
+
+
+//geoquest functions
+export function getGeoItem(callback) {
+    socketCallWrapper('get geo item', null, 'geo item', callback);
+}
+
+export function submitGeoquest(answer, callback) {
+    socketCallWrapper('geosubmit', answer, 'geosubmit response', callback);
+}
+
+export function geoGetScore(callback) {
+    socketCallWrapper('geoquest get score', null, 'geoquest get response', callback);
+}
+
+export function geoIsComplete(callback) {
+    socketCallWrapper('geoquest is complete', null, 'geoquest is complete response', callback);
+}
