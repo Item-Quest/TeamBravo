@@ -29,7 +29,7 @@ buildC:
 buildS:
 	@-npm run build --prefix client
 	@-python3 -m venv server/environment
-	@-$(ENVIRONMENT_PATH)/pip install flask flask-socketio eventlet redis
+	@-$(ENVIRONMENT_PATH)/pip install flask flask-socketio eventlet APScheduler
 
 testdb:
 	@-python3 ./server/utils/memoryDB.py

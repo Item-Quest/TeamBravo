@@ -29,4 +29,6 @@ server/utils/__pycache__
 *.sw?
 # database should not be committed for security reasons
 # holds passwords etc.
-*.db 
+
+#test files
+test_persistent.db

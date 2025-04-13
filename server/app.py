@@ -5,9 +5,12 @@ import string
 import threading
 #Import Flask object
 from flask import Flask, render_template, request, g # type: ignore
+
+from apscheduler.schedulers.background import BackgroundScheduler
+
 #import socket.io
 from flask_socketio import SocketIO, join_room, leave_room, close_room, emit # type: ignore
-import random, string
+import random, string, datetime
 
 #import database functions
 from utils.memoryDB import *
@@ -22,7 +25,7 @@ app.config['SECRET_KEY'] = 'secret!'
 
 #Initialize SocketIO
 socketio = SocketIO(app, async_mode='eventlet')
-#socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
+# socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
 
 #variables for game control
 game_thread = None
@@ -458,11 +461,55 @@ def get_gamemode():
 def set_gamemode(data):
   db_set_game_mode(cursor, db_get_user_room(cursor, request.sid), data)
 
+#geoQuest functions
+
+def dailyReset(): #should only be run by scheduler
+  print("dailyReset")
+  geoNewDay()
+
+def getDailyitem():
+    # Get the current date
+    current_date = datetime.datetime.now()
+    # Get the current year, month, and day
+    year = current_date.year
+    month = current_date.month
+    day = current_date.day
+    day += 1
+    # Return the current date
+    seed = year*10000 + month*100 + day
+    random.seed(seed)
+    return outDoorItems[random.randint(0, len(outDoorItems)-1)]
+
+@socketio.on('get daily item')
+def handle_get_daily_item():
+  item = getDailyitem()
+  emit('daily item', item, room=request.sid)
+
+@socketio.on('geoquest submit')
+def handle_geoquest_submit(data):
+  user = db_get_username(cursor, request.sid)
+  geoComplete(user)
+  emit('geoquest response', {'success': True, 'message': 'Geoquest completed! Come Back Tomorrow'}, room=request.sid)
+
+@socketio.on('geoquest get score')
+def handle_geoquest_get_score():
+  score = geoGetScore(db_get_username(cursor, request.sid))
+
+@socketio.on('geoquest is complete')
+def handle_geoquest_is_complete():
+  complete = geoIsComplete(db_get_username(cursor, request.sid))
+  emit('geoquest is complete', complete, room=request.sid)
+
+
 if __name__ == '__main__':
-  initialize_db()
-  _, DB_PATH, _ = get_DB_path()
-  print("db location: ", DB_PATH)
+  initialize_db() #init db if not already initialized
   # Register the signal handler to close the database connection on termination
+  print("localhost link: https://localhost:8050 or Cassini link: https://cassini.cs.kent.edu:8050")
+
+  # executes dailyReset every day at midnight
+  scheduler = BackgroundScheduler()
+  scheduler.add_job(dailyReset, 'cron', hour=0, minute=0) 
+  scheduler.start()
 
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
@@ -482,5 +529,6 @@ if __name__ == '__main__':
   eventlet.wsgi.server(
     ssl_listener,
     app
-)
+  )
+  
 

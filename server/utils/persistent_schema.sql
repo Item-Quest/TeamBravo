@@ -12,3 +12,10 @@ CREATE TABLE if not EXISTS scores (
     place integer,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+CREATE TABLE if NOT EXISTS geoQuestData (
+    playerId INTEGER Primary Key,
+    score INTEGER,
+    completed BOOLEAN,
+    FOREIGN KEY (playerId) REFERENCES users(id)
+);
