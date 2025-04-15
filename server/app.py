@@ -307,12 +307,11 @@ def handle_start_game(data=None):
 
     # selects game items based on mode
     if game_mode == "GeoQuest":
-      for _ in range(5):
-        game_items.append(random.choice(outDoorItems))
-    else:
-      for _ in range(5):
-        game_items.append(random.choice(indoorItems))
-
+      game_items.extend(random.sample(outDoorItems, min(5, len(outDoorItems))))
+    elif game_mode == "ItemBlitz":
+      game_items.extend(random.sample(indoorItems, len(indoorItems)))
+    else: #ItemRace
+      game_items.extend(random.sample(indoorItems, 5))
 
     #TODO: reimplement
     # ################################################
@@ -398,8 +397,15 @@ def handle_submit(data):
     score += 1
     db_set_user_score(cursor, request.sid, score)
     print(score)
+
+    #gets game mode
+    game_mode = data.get('mode')
+    if isinstance(game_mode, list):
+      game_mode = game_mode[0]  # Extract the first element if it's a list
+    print(game_mode)
+
     #check if victory
-    if score == len(items):
+    if score == 5 and game_mode == "ItemRace":
       db_set_room_game_state(cursor,roomCode, "waiting")
       #TODO: emit win time
       username = db_get_username(cursor, request.sid)
@@ -464,6 +470,9 @@ if __name__ == '__main__':
   print("db location: ", DB_PATH)
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
+  socketio.run(app, debug=True)
+ 
+"""
   # 1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))
 
@@ -481,4 +490,4 @@ if __name__ == '__main__':
     ssl_listener,
     app
 )
-
+"""
