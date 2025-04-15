@@ -51,5 +51,9 @@ jobs:
             npm install || exit 1
             npm run build || exit 1
             cd ../server || exit 1
+             if screen -list | grep -q "itemquest_server"; then
+              screen -S itemquest_server -X quit
+            fi
+            # Create a new detached screen session
             screen -dmS itemquest_server bash -c "python app.py" 
           EOF
