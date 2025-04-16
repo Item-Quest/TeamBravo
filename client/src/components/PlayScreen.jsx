@@ -38,7 +38,7 @@ const PlayScreen = (props) => {
   const [yourScore, setYourScore] = useState(0);
   const intervalRef = useRef(null);
   const [roomCode, updateRoomCode] = useState("");
-  const [gameMode, setGameMode] = useState("ItemRace");
+  const [gameMode, updateGameMode] = useState("ItemRace");
   const navigate = useNavigate();
   const [firstTime, setFirstTime] = useState(true); //for count down timer
   const [showPopUp, updatePopUp] = useState(false);
@@ -55,6 +55,18 @@ const PlayScreen = (props) => {
   const [formattedResetTime, setFormattedResetTime] = useState("00:00");
 
   useEffect(() => {
+    getGameMode((fetchedGameMode) => {
+      if (fetchedGameMode) {
+        console.log("Fetched game mode from database:", fetchedGameMode);
+        updateGameMode(fetchedGameMode); // Update the gameMode state
+        setModelMode(fetchedGameMode); // Update the AI model mode
+      } else {
+        console.error("Failed to fetch game mode from the database.");
+      }
+    });
+  }, []);
+
+  useEffect(() => {
     connectGame((data) => {
       console.log("data received", data);
       console.log(socket.id);
@@ -66,7 +78,7 @@ const PlayScreen = (props) => {
         //Grab client's score for the purposes of only displaying item associated with score
       }
       if(data.game_mode) {
-        setGameMode(data.game_mode);
+        updateGameMode(data.game_mode);
         setModelMode(data.game_mode);
       }
       // Extract game state

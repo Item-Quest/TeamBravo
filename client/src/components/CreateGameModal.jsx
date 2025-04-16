@@ -11,21 +11,23 @@ import {
   FormControl,
   InputLabel
 } from '@mui/material';
-import { createGame } from '../dataProvider.js';
+import { createGame, updateUsername } from '../dataProvider.js';
 import PropTypes from 'prop-types';
 
 const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
   const [username, setUsername] = useState("");
-  const [gameMode, setGameMode] = useState("Item Race");
+  const [gameMode, setGameMode] = useState("ItemRace");
 
   const playClick = () => {
     if (!username.trim()) return;
 
     console.log("Creating game with mode:", gameMode);
-    createGame(username, (result) => {
-      updateGame(username, result.roomCode, result.sid);
+    let roomCode;
+    createGame(gameMode, (result) => {
+      roomCode = result.roomCode;
       navigate("/play");
     });
+    updateUsername(username);
     navigate("/play");
   };
 
@@ -51,9 +53,9 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
             label="Game Mode"
             onChange={(e) => setGameMode(e.target.value)}
           >
-            <MenuItem value="Item Race">Item Race</MenuItem>
-            <MenuItem value="Item Blitz">Item Blitz</MenuItem>
-            <MenuItem value="Geo">Geo</MenuItem>
+            <MenuItem value="ItemRace">Item Race</MenuItem>
+            <MenuItem value="ItemBlitz">Item Blitz</MenuItem>
+            <MenuItem value="GeoQuest">Geo</MenuItem>
           </Select>
         </FormControl>
 
