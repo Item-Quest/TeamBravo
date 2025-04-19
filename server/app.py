@@ -33,16 +33,15 @@ game_lock = threading.Lock()
 connection, cursor = db_init_game_db()
 
 #Game items
-# indoorItems = ['shoe','mug','notebook','phone','water bottle', 'plant'] (old indoor items (using teachable Model))
-indoorItems = ['mug', 'phone', 'water bottle', 'plant', 'backpack', 'baseball bat', 'banana', 'apple', 'orange', 'carrot', 'sandwich']
+# indoorItems = ['shoe','mug'] (old indoor items (using teachable Model))
+indoorItems = ['mug', 'phone', 'water bottle', 'plant', 'book bag', 'tv', 'laptop', 'frisbee', 
+               'baseball bat', 'banana', 'apple', 'orange', 'carrot', 'sandwich', 'tie', 'wine glass',
+               'fork', 'knife', 'spoon', 'bowl', 'scissors', 'toothbrush' , 'football', 'book']
 
 outDoorItems = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
     'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
-    'bird', 'cat', 'dog', 'backpack', 'umbrella', 'handbag', 'suitcase', 'frisbee',
-    'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove',
-    'skateboard', 'surfboard', 'tennis racket',
-    'banana', 'apple', 'sandwich', 'orange',
-    'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'potted plant']
+    'bird', 'cat', 'dog', 'book bag', 'umbrella', 'frisbee', 'football', 'baseball bat',
+    'baseball glove', 'skateboard', 'tennis racket', 'pizza', 'donut', 'cake', 'plant', ]
 
 #ensures connection is closed and database is freed
 def close_db(signal, frame):

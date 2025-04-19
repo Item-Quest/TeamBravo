@@ -4,24 +4,12 @@
 import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 
-/*
-// Possible prediction labels
-const cocoLabels = [
-  "person", "bicycle", "car", "motorcycle", "bus", "train", "truck",
-  "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
-  "bird", "cat", "dog", "backpack", "umbrella", "handbag", "suitcase", "frisbee",
-  "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove",
-  "skateboard", "surfboard", "tennis racket",
-  "banana", "apple", "sandwich", "orange",
-  "carrot", "hot dog", "pizza", "donut", "cake", "potted plant"
-];
-
-*/
-
 // Items for the indoor Game Mode (filtered from cocoLabels)
 const validIndoorItems = [
   "backpack", "baseball bat", "banana", "apple", "orange", "carrot", "sandwich",
-  "cell phone", "cup", "bottle", "potted plant"
+  "cell phone", "cup", "bottle", "potted plant", "tv", "laptop", "frisbee", "tv",
+  "wine glass", "fork", "knife", "spoon", "bowl", "scissors", "toothbrush", "sports ball", 
+  "tie", "book"
 ];
 
 // Renaming Items for the indoor Game Mode
@@ -29,13 +17,15 @@ const labelMap = {
   'cell phone': 'phone',
   'bottle': 'water bottle',
   'potted plant': 'plant',
-  'cup': 'mug'
+  'cup': 'mug', 
+  'backpack': 'book bag',
+  'sports ball': 'football'
 };
 
 // Function to load and predict
 // Note: The Teachable Machine model is loaded only when needed to save resources
-// let tmModel;
 let cocoModel;
+let tmModel;
 
 export async function indoorPredict(imageData) {
   if (!cocoModel) {
@@ -53,29 +43,34 @@ export async function indoorPredict(imageData) {
     }))
     .sort((a, b) => b.score - a.score); // Sort predictions by confidence in descending order
 
+    // Returns COCO predictions first 
+    if(filtered.length === 0) {
     return filtered;
   }
 
-//   // fallback only if COCO fails
-//   if (!tmModel) {
-//     tmModel = await tf.loadLayersModel('https://teachablemachine.withgoogle.com/models/j5Voge3Vq/model.json');
-//   }
+  // Fallback" Teachable Machine prediction (no bbox)
+  if (!tmModel) {
+    tmModel = await tf.loadLayersModel('https://teachablemachine.withgoogle.com/models/j5Voge3Vq/model.json');
+  }
 
-//   return tf.tidy(() => {
-//     const image = tf.browser.fromPixels(imageData);
-//     const resized = tf.image.resizeBilinear(image, [224, 224]);
-//     const normalized = resized.div(127.5).sub(1);
-//     const batched = normalized.expandDims(0);
+  const prediction = tf.tidy(() => {
+    const image = tf.browser.fromPixels(imageData);
+    const resized = tf.image.resizeBilinear(image, [224, 224]);
+    const normalized = resized.div(127.5).sub(1);
+    const batched = normalized.expandDims(0);
+    const predictions = tmModel.predict(batched).arraySync()[0];
 
-//     const predictions = tmModel.predict(batched).arraySync()[0];
-//     const fallbackLabels = ['shoe','no_item','mug','notebook','phone','water_bottle','plant'];
-//     const maxIndex = predictions.indexOf(Math.max(...predictions));
-//     const label = fallbackLabels[maxIndex];
+    const fallbackLabels = ['shoe','notebook',];  // More labels will be added here when model gains the classes (e.g. airpods, headphones, marker, pen, pencil, soccer ball, guitar, etc.)
+    const maxIndex = predictions.indexOf(Math.max(...predictions));
+    const label = fallbackLabels[maxIndex];
 
-//     // Avoid returning "no_item" unless there's no choice
-//     if (label === "no_item") {
-//       return [];
-//     }
+    // Avoid returning "no_item" unless there's no choice
+    if (label === "no_item") {
+      return [];
+    }
 
-//     return [{ label }];
-//   });
+    return [{ label }];
+  });
+  
+  return prediction;
+}

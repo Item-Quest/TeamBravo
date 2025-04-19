@@ -1,24 +1,22 @@
 import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 
-// Possible prediction labels
-const cocoLabels = [
-    "person", "bicycle", "car", "motorcycle", "bus", "train", "truck",
-    "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
-    "bird", "cat", "dog", "backpack", "umbrella", "handbag", "suitcase", "frisbee",
-    "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove",
-    "skateboard", "surfboard", "tennis racket",
-    "banana", "apple", "sandwich", "orange",
-    "carrot", "hot dog", "pizza", "donut", "cake", "potted plant"
-];
-
 // Items for the outdoor Game Mode
 const validOutdoorItems = [
-    "bicycle", "car", "motorcycle", "bus", "train", "truck",
+    "person", "bicycle", "car", "motorcycle", "bus", "train", "truck",
     "boat", "traffic light", "fire hydrant", "stop sign", "parking meter",
     "bench", "bird", "cat", "dog", "backpack", "umbrella", "sports ball",
-    "skateboard"
+    "skateboard", "frisbee", "baseball bat", "baseball glove", "tennis racket",
+    "pizza", "potted plant", "donut", "cake"
 ];
+
+// Renaming Items for the indoor Game Mode
+const labelMap = {
+    'potted plant': 'plant',
+    'backpack': 'book bag',
+    'sports ball': 'football'
+  };
+  
 
 // Function to load and predict (solely using coco-ssd)
 let model;

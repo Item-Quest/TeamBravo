@@ -2,11 +2,12 @@ import React, { useRef, useEffect } from 'react';
 import { loadModelAndPredict } from '../utils/imagePredict';
 
 function PlayCamera(props) {
-  console.log("component mounted");
+  console.log("component mounted"); // For debugging purposes
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const animationFrameId = useRef(null);
   const timeoutId = useRef(null);
+  const prevLabelRef = useRef(null); // Ref to store the previous label
 
   useEffect(() => {
     const getCameraStream = async () => {
@@ -20,7 +21,7 @@ function PlayCamera(props) {
 
     const processFrame = async () => {
         if (!videoRef.current || videoRef.current.readyState !== 4) {
-          requestAnimationFrame(processFrame);
+          timeoutId.current = setTimeout(processFrame, 300);
           return;
         }
   
@@ -45,44 +46,53 @@ function PlayCamera(props) {
           if (pred?.bbox) {
             // COCO-SSD prediction with bounding box (bbox and label)
             const [x, y, width, height] = pred.bbox;
-            context.strokeStyle = 'green';
+            context.strokeStyle = 'black';
+            context.lineWidth = 4;
+            context.strokeRect(x, y, width, height);
+            context.strokeStyle = 'lime';
             context.lineWidth = 2;
             context.strokeRect(x, y, width, height);
 
-            context.fillStyle = 'green';
-            context.font = '16px Arial';
+            // Label
+            context.fillStyle = 'lime';
+            context.font = '28px Arial';
             context.textAlign = 'center';
-            context.fillText(pred.label, x, y > 20 ? y - 5 : y + 15);
+            context.strokeText(pred.label, x + width / 2, y > 20 ? y - 5 : y + 20);
+            context.fillText(pred.label, x + width / 2, y > 20 ? y - 5 : y + 20);
 
           }
-          /*
              else {
             // Teachable Machine fallback (no bbox)
             context.fillStyle = 'blue';
-            context.font = '24px Arial';
+            context.font = '28px Arial';
             context.textAlign = 'center';
             context.fillText(pred.label, canvas.width / 2, canvas.height - 10);
+          }  
+
+          const currentLabel = pred.label || 'no_item'; // Default to 'no_item' if no label is found
+          // Check if the label has changed from the previous one
+          if(currentLabel !== prevLabelRef.current) {
+            props.getAIOutput(currentLabel); // Call the function with the new label
+            prevLabelRef.current = currentLabel; // Update the previous label
           }
-
-          */   // Uncomment this if you want to draw the bounding box for Teachable Machine predictions as well
-
-          props.getAIOutput(pred.label || 'no_item');
         } else {
-          console.warn("No predictions available");
-          props.getAIOutput("no_item");
+          if('no_item' !== prevLabelRef.current) {
+            props.getAIOutput("no_item");
+            prevLabelRef.current = "no_item"; 
+          }
         }
-      } catch (error) {
+    } catch (error) {
         console.error('Prediction error:', error);
       }
 
-      // Every 500ms, clear the canvas and redraw the video frame
-      timeoutId.current = setTimeout(processFrame, 500);
+      // Every 300ms, clear the canvas and redraw the video frame
+      timeoutId.current = setTimeout(processFrame, 300);
       };
 
     getCameraStream();
 
     if (props.gameState === "running") {
-      timeoutId.current = setTimeout(processFrame, 500);
+      timeoutId.current = setTimeout(processFrame, 300); // (Runs the frames around 3-4 times per second)
     }
 
     return () => {
