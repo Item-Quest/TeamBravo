@@ -1,7 +1,7 @@
 import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 
-//possible prediction labels
+// Possible prediction labels
 const cocoLabels = [
     "person", "bicycle", "car", "motorcycle", "bus", "train", "truck",
     "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
@@ -12,8 +12,15 @@ const cocoLabels = [
     "carrot", "hot dog", "pizza", "donut", "cake", "potted plant"
 ];
 
-// Function to load and predict
+// Items for the outdoor Game Mode
+const validOutdoorItems = [
+    "bicycle", "car", "motorcycle", "bus", "train", "truck",
+    "boat", "traffic light", "fire hydrant", "stop sign", "parking meter",
+    "bench", "bird", "cat", "dog", "backpack", "umbrella", "sports ball",
+    "skateboard"
+];
 
+// Function to load and predict (solely using coco-ssd)
 let model;
 
 export async function outdoorPredict(imageData) {
@@ -21,24 +28,30 @@ export async function outdoorPredict(imageData) {
         model = await cocoSsd.load();
     }
 
-    // Unable to use model with tf.tidy as it is not a tensor
-    // and will throw an error if used with tf.tidy
+    // Note: (Unable to use model with tf.tidy as it is not a tensor)
 
     // Run Detection
     const predictions = await model.detect(imageData);
 
     // Filter predictions to only include those from cocoLabels and with a confidence greater than 0.5
-    const filteredPredictions = predictions.filter(prediction => cocoLabels.includes(prediction.class) && prediction.score > 0.5);
-    
-    // Sort predictions by confidence in descending order
-    filteredPredictions.sort((a, b) => b.score - a.score);
+    const filteredPredictions = predictions
+    .filter(pred => validOutdoorItems.includes(pred.class) && pred.score > 0.5)
+    .sort((a, b) => b.score - a.score); // Sort predictions by confidence in descending order
 
-    // Get the labels of the filtered predictions
-    const labels = filteredPredictions.map(prediction => prediction.class);
+    if (filteredPredictions.length === 0) {
+        console.warn("No valid COCO predictions found. ");
+    }
 
+    /*
     // Get the confidence scores of the filtered predictions
     const scores = filteredPredictions.map(prediction => prediction.score);
+    */
+   // Useful for debugging purposes
 
     // Return the top prediction label and confidence score
-    return filteredPredictions.length > 0 ? filteredPredictions[0].class: 'no_item';  // Custom fallback value if no predictions are found
+    return filteredPredictions.map(pred => ({
+        label: pred.class,
+        bbox: pred.bbox, // [x, y, width, height] of the bounding box
+        score: pred.score  // [x, y, width, height] of the bounding box
+    }));
 }

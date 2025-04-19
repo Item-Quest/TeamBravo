@@ -187,7 +187,7 @@ const TestGame = () => {
 export function submitLabel(label) {
   if (gameCurrent) {
     if (label == "shoe") { //shoe now for test purposes. will have to read label data later
-      console.log("got here");
+      console.log("got here"); //********************** Will refer back to this as this is the first thing that will be called when the camera detects something *********************
       console.log(label);
       socket.emit(label);
     }

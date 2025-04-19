@@ -33,35 +33,74 @@ function PlayCamera(props) {
   
         try {
           // Predict the label using imageProcess.js
-          const label = await loadModelAndPredict(imageData);
-          // const label = "asdf"
-          //console.log(`Predicted Label: ${label}`);
-          props.getAIOutput(label)
-        } catch (error) {
-          console.error('Prediction error:', error);
+          const predictions = await loadModelAndPredict(imageData);
+
+          context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing the new frame
+          context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height); // Redraw the video frame
+
+        if(Array.isArray(predictions) && predictions.length > 0) {
+          // Check if the first prediction has a bounding box
+          const pred = predictions[0];
+
+          if (pred?.bbox) {
+            // COCO-SSD prediction with bounding box (bbox and label)
+            const [x, y, width, height] = pred.bbox;
+            context.strokeStyle = 'green';
+            context.lineWidth = 2;
+            context.strokeRect(x, y, width, height);
+
+            context.fillStyle = 'green';
+            context.font = '16px Arial';
+            context.textAlign = 'center';
+            context.fillText(pred.label, x, y > 20 ? y - 5 : y + 15);
+
+          }
+          /*
+             else {
+            // Teachable Machine fallback (no bbox)
+            context.fillStyle = 'blue';
+            context.font = '24px Arial';
+            context.textAlign = 'center';
+            context.fillText(pred.label, canvas.width / 2, canvas.height - 10);
+          }
+
+          */   // Uncomment this if you want to draw the bounding box for Teachable Machine predictions as well
+
+          props.getAIOutput(pred.label || 'no_item');
+        } else {
+          console.warn("No predictions available");
+          props.getAIOutput("no_item");
         }
-  
-        // Schedule the next frame processing after 1 second
-        timeoutId.current = setTimeout(() => {
-          animationFrameId.current = requestAnimationFrame(processFrame);
-        }, 1000);
-      };
-      getCameraStream()
-      if (props.gameState === "running") {
-        animationFrameId.current = requestAnimationFrame(processFrame);
+      } catch (error) {
+        console.error('Prediction error:', error);
       }
-  
-      return () => {
-        if (animationFrameId.current) {
-          cancelAnimationFrame(animationFrameId.current);
-        }
+
+      // Every 500ms, clear the canvas and redraw the video frame
+      timeoutId.current = setTimeout(processFrame, 500);
       };
+
+    getCameraStream();
+
+    if (props.gameState === "running") {
+      timeoutId.current = setTimeout(processFrame, 500);
+    }
+
+    return () => {
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+      }
+    };
   }, [props.getAIOutput, props.gameState]);
 
   return (
-    <div className="camera-container">
-      <video ref={videoRef} autoPlay />
-      <canvas ref={canvasRef} width={640} height={480} style={{ display: 'none' }} />
+    <div className="camera-container" style={{ position: 'relative' }}>
+      <video ref={videoRef} autoPlay width={640} height={480} />
+      <canvas
+        ref={canvasRef}
+        width={640}
+        height={480}
+        style={{ position: 'absolute', top: 0, left: 0 }}
+      />
     </div>
   );
 }

@@ -35,9 +35,9 @@ function Camera() {
       try {
         // Predict the label using imageProcess.js
         const label = await loadModelAndPredict(imageData);
-        // const label = "asdf"
-        console.log(`Predicted Label: ${label}`);
-        submitLabel(label); // should send to testGame which will send to server if game on
+        // console predictions (for debugging)
+        console.log("Predicted Label: ", label[0].label);
+        submitLabel(label[0]?.label); // should send to testGame which will send to server if game on
 
       } catch (error) {
         console.error('Prediction error:', error);

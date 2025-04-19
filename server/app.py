@@ -33,7 +33,8 @@ game_lock = threading.Lock()
 connection, cursor = db_init_game_db()
 
 #Game items
-indoorItems = ['shoe','mug','notebook','phone','water_bottle', 'plant']
+# indoorItems = ['shoe','mug','notebook','phone','water bottle', 'plant'] (old indoor items (using teachable Model))
+indoorItems = ['mug', 'phone', 'water bottle', 'plant', 'backpack', 'baseball bat', 'banana', 'apple', 'orange', 'carrot', 'sandwich']
 
 outDoorItems = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
     'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
@@ -307,8 +308,10 @@ def handle_start_game(data=None):
 
     # selects game items based on mode
     if game_mode == "GeoQuest":
-      for _ in range(5):
-        game_items.append(random.choice(outDoorItems))
+      # for _ in range(5): (Commented out for testing)
+        # (same as above) game_items.append(random.choice(outDoorItems))
+        game_items = outDoorItems[:] # Testing version where the full list is included
+        random.shuffle(game_items) # Randomize the order of the items (same as above)
     else:
       for _ in range(5):
         game_items.append(random.choice(indoorItems))
