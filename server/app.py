@@ -470,9 +470,8 @@ if __name__ == '__main__':
   print("db location: ", DB_PATH)
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
-  socketio.run(app, debug=True)
+ # socketio.run(app, debug=True)
  
-"""
   # 1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))
 
@@ -490,4 +489,3 @@ if __name__ == '__main__':
     ssl_listener,
     app
 )
-"""
