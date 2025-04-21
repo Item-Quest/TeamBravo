@@ -58,6 +58,8 @@ const PlayScreen = (props) => {
   const [skips, setSkips] = useState(3);
   const [isResetTimerActive, setIsResetTimerActive] = useState(false);
   const [formattedResetTime, setFormattedResetTime] = useState("00:00");
+  const [showCorrectBanner, setShowCorrectBanner] = useState(false);
+
   
   // Item selection state
   const [indoorItems, setIndoorItems] = useState([
@@ -436,7 +438,7 @@ const PlayScreen = (props) => {
         boxSizing: 'border-box',
         maxWidth: '100%'
       }}>
-        <Grid container spacing={2} sx={{ 
+        <Grid container spacing={0} sx={{ 
           p: 2, 
           flexGrow: 0,
           justifyContent: 'center',
@@ -445,7 +447,7 @@ const PlayScreen = (props) => {
           boxSizing: 'border-box',
           width: '100%'
         }}>
-          <Grid item xs={12} sx={{ boxSizing: 'border-box', maxWidth: '100%', padding: { xs: '8px', md: '16px' } }}>
+          <Grid item xs={12} sx={{ boxSizing: 'border-box', maxWidth: '100%' }}>
             <Grid container spacing={2} alignItems="center" sx={{ boxSizing: 'border-box', maxWidth: '100%' }}>
               <Grid item xs={4}>
                 <img
@@ -485,7 +487,7 @@ const PlayScreen = (props) => {
               maxWidth: '1200px', 
               width: '100%',
               boxSizing: 'border-box',
-              maxWidth: '100%'
+              //maxWidth: '100%'
             }}>
               <Grid container spacing={2} sx={{ 
                 maxWidth: '1200px', 
@@ -509,7 +511,7 @@ const PlayScreen = (props) => {
                     {/* Camera Container */}
                     <Box
                       sx={{
-                        width: "100%",
+                        width: "90%",
                         flex: 1,
                         backgroundColor: "rgba(0, 0, 0, 0.5)",
                         display: "flex",
@@ -519,7 +521,8 @@ const PlayScreen = (props) => {
                         padding: 0,
                         overflow: "hidden",
                         position: "relative",
-                        border: "3px solid var(--text-color)",
+                        border: "12px solid var(--text-color)",
+                        borderColor: showCorrectBanner ? 'green' : 'black',
                         boxShadow: "0 4px 0 rgba(0, 0, 0, 0.2)",
                         zIndex: 1,
                         mb: { xs: 1, sm: 1 },
