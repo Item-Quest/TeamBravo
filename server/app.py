@@ -307,12 +307,11 @@ def handle_start_game(data=None):
 
     # selects game items based on mode
     if game_mode == "GeoQuest":
-      for _ in range(5):
-        game_items.append(random.choice(outDoorItems))
-    else:
-      for _ in range(5):
-        game_items.append(random.choice(indoorItems))
-
+      game_items.extend(random.sample(outDoorItems, min(5, len(outDoorItems))))
+    elif game_mode == "ItemBlitz":
+      game_items.extend(random.sample(indoorItems, len(indoorItems)))
+    else: #ItemRace
+      game_items.extend(random.sample(indoorItems, 5))
 
     #TODO: reimplement
     # ################################################
@@ -396,10 +395,17 @@ def handle_submit(data):
   if submitItem == items[score%len(items)]:
     #update the score
     score += 1
+    emit('point')
     db_set_user_score(cursor, request.sid, score)
     print(score)
+
+    #gets game mode
+    game_mode = data.get('mode')
+    if isinstance(game_mode, list):
+      game_mode = game_mode[0]  # Extract the first element if it's a list
+
     #check if victory
-    if score == len(items):
+    if score == 5 and game_mode == "ItemRace":
       db_set_room_game_state(cursor,roomCode, "waiting")
       #TODO: emit win time
       username = db_get_username(cursor, request.sid)
@@ -407,7 +413,7 @@ def handle_submit(data):
       startTime = db_get_room_time(cursor, roomCode)[0]
       endTime = time.time()
       finalTime = round(endTime - startTime, 4)
-      save_scores(roomCode, finalTime)
+      save_scores(roomCode, finalTime, game_mode)
       emit('winner', {'message': f"{username}", 'time': f"{finalTime}"}, room=roomCode)
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
@@ -423,25 +429,25 @@ def handle_get_leaderboard_data(data):
     print("formatted data: ", formatted_scores)
     emit('leaderboard data', formatted_scores, room=request.sid)
 
-def save_scores(roomCode, finalTime):
+def save_scores(roomCode, finalTime, gameMode):
   print("saving scores")
-  gameMode = db_get_game_mode(roomCode)
+  #gameMode = db_get_game_mode(roomCode)
   place = 1
   users = db_get_users_in_room_by_score(cursor, roomCode)
-  if gameMode == "itemRace":
+  if gameMode == "ItemRace":
     # score == time
     for user in users:
-      save_score(user[2], f"{finalTime} seconds", "itemRace", place)
+      save_score(user[2], f"{finalTime} seconds", "ItemRace", place)
       place += 1
-  elif gameMode == "itemBlitz":
+  elif gameMode == "ItemBlitz":
   # score == time;
       for user in users:
-        save_score(user[2], f"{user[3]} points", "itemBlitz", place)
+        save_score(user[2], f"{user[3]} points", "ItemBlitz", place)
         place += 1
-  elif gameMode == "geoQuest":
+  elif gameMode == "GeoQuest":
   # TODO i think this is first to complete may need to change 
     for user in users:
-        save_score(user[2], f"{finalTime} seconds", "itemBlitz", place)
+        save_score(user[2], f"{finalTime} seconds", "ItemBlitz", place)
         place += 1
   else:
     print(f"Unknown game mode: {gameMode}")
@@ -464,6 +470,8 @@ if __name__ == '__main__':
   print("db location: ", DB_PATH)
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
+ # socketio.run(app, debug=True)
+ 
   # 1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))
 
@@ -481,4 +489,3 @@ if __name__ == '__main__':
     ssl_listener,
     app
 )
-

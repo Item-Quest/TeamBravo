@@ -54,6 +54,9 @@ const PlayScreen = (props) => {
   const [isResetTimerActive, setIsResetTimerActive] = useState(false);
   const [formattedResetTime, setFormattedResetTime] = useState("00:00");
 
+  //for feedback
+  const [showCorrectBanner, setShowCorrectBanner] = useState(false);
+
   useEffect(() => {
     connectGame((data) => {
       console.log("data received", data);
@@ -130,6 +133,11 @@ const PlayScreen = (props) => {
 
     });
 
+    socket.on('point', () => {
+      setShowCorrectBanner(true);
+      setTimeout(() => setShowCorrectBanner(false), 2000);
+    });
+
     socket.on('winner', (data) => {
       updatePopUp(true);
       updateWinner(data.message);
@@ -199,12 +207,18 @@ const PlayScreen = (props) => {
   function submit(){
     console.log("submit attempt: ", input, " ", item[yourScore%item.length]);
     if(input === item[yourScore%item.length]){
-      socket.emit('submit', {submit:input});
+      socket.emit('submit', {submit:input, mode: gameMode});
+      setShowCorrectBanner(true);
+      setTimeout(() => setShowCorrectBanner(false), 2000);
     } else if(props.AIOutput === item[yourScore%item.length]){
       socket.emit('submit',{submit:props.AIOutput});
     }
     updateInput("");
   }
+  //debug
+  useEffect(() => {
+    console.log("showCorrectBanner changed to:", showCorrectBanner);
+  }, [showCorrectBanner]);
   
   // Handle Enter key press for item submission
   const handleKeyPress = (event) => {
@@ -300,16 +314,18 @@ const PlayScreen = (props) => {
         </Grid>
 
         <Grid item xs={12}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={8}>
+          <Grid container spacing={2} sx={{ mt: 0 }}>
+            <Grid item xs={12} md={8} sx={{ ml: 0 }}>
               <Box 
                 sx={{ 
-                  width: '100%', 
+                  width: '85%', 
                   height: 'auto', 
                   maxHeight: '480px', 
                   overflow: 'hidden',
-                  borderRadius: '8px',
-                  backgroundColor: '#000'
+                  backgroundColor: showCorrectBanner ? 'green' : 'black',
+                  border: '16px solid',
+                  borderRadius: '16px',
+                  borderColor: showCorrectBanner ? 'green' : 'black',
                 }}
               >
                 {props.camera ? props.camera : <div>Camera not available</div>}
@@ -336,6 +352,15 @@ const PlayScreen = (props) => {
                   >
                     Submit
                   </Button>
+                  <Box
+                    sx={{ 
+                    p: 1, // Padding
+                    mb: 2, // Margin-bottom
+                    backgroundColor: showCorrectBanner ? 'green' : 'red', // Background color
+                    borderRadius: '8px', // Rounded corners
+                    boxShadow: 3 // Shadow for depth
+                    }}>
+                  </Box>
                 </Box>
               </Box>
             </Grid>
