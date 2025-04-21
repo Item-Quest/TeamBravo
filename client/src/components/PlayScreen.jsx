@@ -501,7 +501,7 @@ const PlayScreen = (props) => {
                       width: '100%', 
                       height: 'auto', 
                       maxHeight: '480px', 
-                      overflow: 'hidden',
+                      overflow: 'auto',
                       position: 'relative',
                       display: 'flex',
                       flexDirection: 'column',
