@@ -33,15 +33,15 @@ game_lock = threading.Lock()
 connection, cursor = db_init_game_db()
 
 #Game items
-indoorItems = ['shoe','mug','notebook','phone','water_bottle', 'plant']
+# indoorItems = ['shoe','mug'] (old indoor items (using teachable Model))
+indoorItems = ['mug', 'phone', 'water bottle', 'plant', 'book bag', 'tv', 'laptop', 'frisbee', 
+               'baseball bat', 'banana', 'apple', 'orange', 'carrot', 'sandwich', 'tie', 'wine glass',
+              'knife', 'bowl', 'scissors', 'toothbrush' , 'football', 'book']
 
 outDoorItems = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
     'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
-    'bird', 'cat', 'dog', 'backpack', 'umbrella', 'handbag', 'suitcase', 'frisbee',
-    'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove',
-    'skateboard', 'surfboard', 'tennis racket',
-    'banana', 'apple', 'sandwich', 'orange',
-    'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'potted plant']
+    'bird', 'cat', 'dog', 'book bag', 'umbrella', 'frisbee', 'football', 'baseball bat',
+    'baseball glove', 'skateboard', 'tennis racket', 'pizza', 'donut', 'cake', 'plant', ]
 
 #ensures connection is closed and database is freed
 def close_db(signal, frame):
@@ -307,11 +307,14 @@ def handle_start_game(data=None):
 
     # selects game items based on mode
     if game_mode == "GeoQuest":
-      game_items.extend(random.sample(outDoorItems, min(5, len(outDoorItems))))
-    elif game_mode == "ItemBlitz":
-      game_items.extend(random.sample(indoorItems, len(indoorItems)))
-    else: #ItemRace
-      game_items.extend(random.sample(indoorItems, 5))
+      # for _ in range(5): (Commented out for testing)
+        # (same as above) game_items.append(random.choice(outDoorItems))
+        game_items = outDoorItems[:] # Testing version where the full list is included
+        random.shuffle(game_items) # Randomize the order of the items (same as above)
+    else:
+      for _ in range(5):
+        game_items.append(random.choice(indoorItems))
+
 
     #TODO: reimplement
     # ################################################
@@ -395,17 +398,10 @@ def handle_submit(data):
   if submitItem == items[score%len(items)]:
     #update the score
     score += 1
-    emit('point')
     db_set_user_score(cursor, request.sid, score)
     print(score)
-
-    #gets game mode
-    game_mode = data.get('mode')
-    if isinstance(game_mode, list):
-      game_mode = game_mode[0]  # Extract the first element if it's a list
-
     #check if victory
-    if score == 5 and game_mode == "ItemRace":
+    if score == len(items):
       db_set_room_game_state(cursor,roomCode, "waiting")
       #TODO: emit win time
       username = db_get_username(cursor, request.sid)
@@ -413,7 +409,7 @@ def handle_submit(data):
       startTime = db_get_room_time(cursor, roomCode)[0]
       endTime = time.time()
       finalTime = round(endTime - startTime, 4)
-      save_scores(roomCode, finalTime, game_mode)
+      save_scores(roomCode, finalTime)
       emit('winner', {'message': f"{username}", 'time': f"{finalTime}"}, room=roomCode)
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
@@ -429,25 +425,25 @@ def handle_get_leaderboard_data(data):
     print("formatted data: ", formatted_scores)
     emit('leaderboard data', formatted_scores, room=request.sid)
 
-def save_scores(roomCode, finalTime, gameMode):
+def save_scores(roomCode, finalTime):
   print("saving scores")
-  #gameMode = db_get_game_mode(roomCode)
+  gameMode = db_get_game_mode(roomCode)
   place = 1
   users = db_get_users_in_room_by_score(cursor, roomCode)
-  if gameMode == "ItemRace":
+  if gameMode == "itemRace":
     # score == time
     for user in users:
-      save_score(user[2], f"{finalTime} seconds", "ItemRace", place)
+      save_score(user[2], f"{finalTime} seconds", "itemRace", place)
       place += 1
-  elif gameMode == "ItemBlitz":
+  elif gameMode == "itemBlitz":
   # score == time;
       for user in users:
-        save_score(user[2], f"{user[3]} points", "ItemBlitz", place)
+        save_score(user[2], f"{user[3]} points", "itemBlitz", place)
         place += 1
-  elif gameMode == "GeoQuest":
+  elif gameMode == "geoQuest":
   # TODO i think this is first to complete may need to change 
     for user in users:
-        save_score(user[2], f"{finalTime} seconds", "ItemBlitz", place)
+        save_score(user[2], f"{finalTime} seconds", "itemBlitz", place)
         place += 1
   else:
     print(f"Unknown game mode: {gameMode}")
@@ -470,8 +466,6 @@ if __name__ == '__main__':
   print("db location: ", DB_PATH)
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
- # socketio.run(app, debug=True)
- 
   # 1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))
 

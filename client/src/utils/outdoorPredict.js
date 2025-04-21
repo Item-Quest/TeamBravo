@@ -1,44 +1,80 @@
+// This module uses TensorFlow.js and COCO-SSD to detect indoor items in images.
+// It first attempts to use COCO-SSD for detection, and if that fails, it falls back to a Teachable Machine model.
+
 import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 
-//possible prediction labels
-const cocoLabels = [
-    "person", "bicycle", "car", "motorcycle", "bus", "train", "truck",
-    "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
-    "bird", "cat", "dog", "backpack", "umbrella", "handbag", "suitcase", "frisbee",
-    "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove",
-    "skateboard", "surfboard", "tennis racket",
-    "banana", "apple", "sandwich", "orange",
-    "carrot", "hot dog", "pizza", "donut", "cake", "potted plant"
+// Items for the indoor Game Mode (filtered from cocoLabels)
+const validIndoorItems = [
+  "backpack", "baseball bat", "banana", "apple", "orange", "carrot", "sandwich",
+  "cell phone", "cup", "bottle", "potted plant", "tv", "laptop", "frisbee", "tv",
+  "wine glass", "knife", "bowl", "scissors", "toothbrush", "sports ball", 
+  "tie", "book"
 ];
 
+// Renaming Items for the indoor Game Mode
+const labelMap = {
+  'cell phone': 'phone',
+  'bottle': 'water bottle',
+  'potted plant': 'plant',
+  'cup': 'mug', 
+  'backpack': 'book bag',
+  'sports ball': 'football'
+};
+
 // Function to load and predict
+// Note: The Teachable Machine model is loaded only when needed to save resources
+let cocoModel;
+let tmModel;
 
-let model;
+export async function indoorPredict(imageData) {
+  if (!cocoModel) {
+    cocoModel = await cocoSsd.load();
+  }
 
-export async function outdoorPredict(imageData) {
-    if(!model){
-        model = await cocoSsd.load();
-    }
+  const cocoPredictions = await cocoModel.detect(imageData);
+  
+  // Filter predictions to only include those from cocoLabels and with a confidence greater than 0.5
+  const filtered = cocoPredictions
+    .filter(pred => validIndoorItems.includes(pred.class) && pred.score > 0.5)
+    .map(pred => ({
+      label: labelMap[pred.class] || pred.class, // map the label if it exists, otherwise use the original class name
+      bbox: pred.bbox,
+    }))
+    .sort((a, b) => b.score - a.score); // Sort predictions by confidence in descending order
 
-    // Unable to use model with tf.tidy as it is not a tensor
-    // and will throw an error if used with tf.tidy
+    // Returns COCO predictions first 
+    if(filtered.length > 0) {
+    return filtered;
+  }
 
-    // Run Detection
-    const predictions = await model.detect(imageData);
+  // When testing TM still supersucceeds COCO predictions (comment out for now)
+  // // Fallback" Teachable Machine prediction (no bbox)
+  // if (!tmModel) {
+  //   tmModel = await tf.loadLayersModel('https://teachablemachine.withgoogle.com/models/5lclnELKT/model.json');  // https://teachablemachine.withgoogle.com/models/5lclnELKT/model.json (in case updated one doesn't work)
+  // }
+  //                                                                                                               // https://teachablemachine.withgoogle.com/models/j5Voge3Vq/model.json
+//   const prediction = tf.tidy(() => {
+//     const image = tf.browser.fromPixels(imageData);
+//     const resized = tf.image.resizeBilinear(image, [224, 224]);
+//     const normalized = resized.div(127.5).sub(1);
+//     const batched = normalized.expandDims(0);
+//     const predictions = tmModel.predict(batched).arraySync()[0];
 
-    // Filter predictions to only include those from cocoLabels and with a confidence greater than 0.5
-    const filteredPredictions = predictions.filter(prediction => cocoLabels.includes(prediction.class) && prediction.score > 0.5);
-    
-    // Sort predictions by confidence in descending order
-    filteredPredictions.sort((a, b) => b.score - a.score);
+//     const fallbackLabels = ['shoe','notebook',];  // More labels will be added here when model gains the classes (e.g. airpods, headphones, marker, pen, pencil, soccer ball, guitar, etc.)
+//     const maxIndex = predictions.indexOf(Math.max(...predictions));
+//     const label = fallbackLabels[maxIndex];
 
-    // Get the labels of the filtered predictions
-    const labels = filteredPredictions.map(prediction => prediction.class);
+//     // Avoid returning "no_item" unless there's no choice
+//     if (label === "no_item") {
+//       return [];
+//     }
 
-    // Get the confidence scores of the filtered predictions
-    const scores = filteredPredictions.map(prediction => prediction.score);
+//     return [{ label }];
+//   });
+  
+//   return prediction;
+// }
 
-    // Return the top prediction label and confidence score
-    return filteredPredictions.length > 0 ? filteredPredictions[0].class: 'no_item';  // Custom fallback value if no predictions are found
+return []; // Return an empty array if no valid predictions are found
 }
