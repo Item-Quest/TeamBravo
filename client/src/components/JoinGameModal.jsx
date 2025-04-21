@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Typography
 } from "@mui/material";
 import PropTypes from 'prop-types';
 
@@ -17,54 +18,86 @@ const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
   // const [username, setUsername] = useState("Anonymous");
   const [roomCode, setRoomCode] = useState("");
 
-    return (
-      <Dialog open={isOpen} onClose={onClose}>
-        <DialogTitle>Join Game</DialogTitle>
-        {/* <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Enter Username"
-            type="text"
-            fullWidth
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </DialogContent> */}
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Enter Room Code"
-            type="text"
-            fullWidth
-            value={roomCode}
-            onChange={(e) => setRoomCode(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose} color="secondary">
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              // Handle join logic
-              onJoin(roomCode);
-              //onClose();
-            }}
-            color="primary"
-          >
-            Join
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
+  // Common text field styling
+  const textFieldStyle = {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: 'rgba(0, 0, 0, 0.23)',
+        borderWidth: '1px'
+      },
+      '&:hover fieldset': {
+        borderColor: 'rgba(0, 0, 0, 0.23)'
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'var(--primary-color)'
+      }
+    }
+  };
+
+  return (
+    <Dialog 
+      open={isOpen} 
+      onClose={onClose}
+      PaperProps={{
+        style: {
+          backgroundColor: 'white',
+          color: '#333',
+          borderRadius: '8px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+        }
+      }}
+      maxWidth="xs"
+      fullWidth
+    >
+      <DialogTitle style={{ color: '#333' }}>Join Game</DialogTitle>
+      <DialogContent>
+        <TextField
+          autoFocus
+          margin="dense"
+          label="Enter Room Code"
+          type="text"
+          fullWidth
+          value={roomCode}
+          onChange={(e) => setRoomCode(e.target.value)}
+          sx={textFieldStyle}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button 
+          onClick={onClose} 
+          sx={{ 
+            color: '#666',
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+            }
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={() => {
+            // Handle join logic
+            onJoin(roomCode);
+          }}
+          variant="contained"
+          sx={{ 
+            backgroundColor: 'var(--primary-color)',
+            '&:hover': {
+              backgroundColor: 'var(--button-hover-color)'
+            }
+          }}
+        >
+          Join
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 };
 
 JoinGameModal.propTypes = {
     isOpen: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     onJoin: PropTypes.func.isRequired
-}
+};
 
 export default JoinGameModal;
