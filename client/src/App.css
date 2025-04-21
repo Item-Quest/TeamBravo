@@ -43,7 +43,7 @@ body {
   width:100vw;
   height: 100vh; 
   z-index: 1;
-  overflow: hidden; /* Prevent scrolling */
+  overflow: auto; /* Allow scrolling when content overflows */
 }
 
  /*Home css */
@@ -202,7 +202,7 @@ display: block;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .settings-button:hover {
@@ -275,7 +275,7 @@ display: block;
   height: 100%;
   min-height: 300px;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .camera-container video {
@@ -818,8 +818,8 @@ input, select, textarea {
   color: var(--text-color);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  overflow: hidden;
-}
+  overflow: auto;
+}    
 
 /* Add a subtle gradient overlay to panels */
 .home-content::before,
@@ -877,7 +877,7 @@ input, select, textarea {
   padding: 20px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   border: 3px solid var(--text-color);
   height: 100%;
   display: flex;
@@ -1056,7 +1056,40 @@ input, select, textarea {
     min-width: auto;
     flex-direction: column;
     width: 95%;
+    max-height: none; /* Remove any max-height restriction */
   }
+  
+  /* Ensure proper scrolling on mobile */
+  html, body, #root, .main {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  
+  /* Adjust camera panel for mobile */
+  .camera-panel-container {
+    height: auto;
+    min-height: 300px;
+  }
+}
+
+/* Remove blue borders from PlayScreen and Leaderboard */
+.MuiBox-root[style*="height: 100vh"] {
+  border-top: none;
+  border-bottom: none;
+  overflow: auto; /* Allow scrolling when content overflows */
+}
+
+/* Ensure content fits within container without scrolling */
+.MuiPaper-root {
+  max-height: 100%;
+  overflow: auto;
+}
+
+/* Ensure PlayScreen and Leaderboard fill the entire viewport */
+.MuiBox-root[style*="height: 100vh"] .MuiGrid-container {
+  height: 100%;
 }
 
 /* Camera panel styling to match navigation panel */
@@ -1071,6 +1104,7 @@ input, select, textarea {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: auto;
 }
 
 /* Add a gradient effect for the camera panel to match nav panel */
@@ -1202,27 +1236,5 @@ input, select, textarea {
   width:100vw;
   height: 100vh; 
   z-index: 1;
-  overflow: hidden; /* Prevent scrolling */
-}
-
-/* Remove blue borders from PlayScreen and Leaderboard */
-.MuiBox-root[style*="height: 100vh"] {
-  border-top: none !important;
-  border-bottom: none !important;
-  overflow: hidden !important;
-}
-
-.MuiGrid-root .MuiGrid-item {
-  max-height: 100%;
-}
-
-/* Ensure content fits within container without scrolling */
-.MuiPaper-root {
-  max-height: 100%;
-  overflow: auto;
-}
-
-/* Ensure PlayScreen and Leaderboard fill the entire viewport */
-.MuiBox-root[style*="height: 100vh"] .MuiGrid-container {
-  height: 100%;
+  overflow: auto; /* Allow scrolling when content overflows */
 }
