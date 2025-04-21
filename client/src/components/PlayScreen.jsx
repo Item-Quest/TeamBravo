@@ -322,8 +322,9 @@ const PlayScreen = (props) => {
                   height: 'auto', 
                   maxHeight: '480px', 
                   overflow: 'hidden',
-                  backgroundColor: '#000',
-                  border: '20px solid',
+                  backgroundColor: showCorrectBanner ? 'green' : 'black',
+                  border: '16px solid',
+                  borderRadius: '16px',
                   borderColor: showCorrectBanner ? 'green' : 'black',
                 }}
               >
