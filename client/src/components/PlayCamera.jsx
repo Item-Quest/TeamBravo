@@ -20,30 +20,30 @@ function PlayCamera(props) {
     };
 
     const processFrame = async () => {
-        if (!videoRef.current || videoRef.current.readyState !== 4) {
-          timeoutId.current = setTimeout(processFrame, 300);
-          return;
-        }
-  
-        const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
-  
-        // Draw the current video frame onto the canvas
-        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-  
-        try {
-          // Predict the label using imageProcess.js
-          const predictions = await loadModelAndPredict(imageData);
+      if (!videoRef.current || videoRef.current.readyState !== 4) {
+        timeoutId.current = setTimeout(processFrame, 300);
+        return;
+      }
 
-          context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing the new frame
-          context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height); // Redraw the video frame
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
 
-        if(Array.isArray(predictions) && predictions.length > 0) {
+      // Draw the current video frame onto the canvas
+      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+      try {
+        // Predict the label using imageProcess.js
+        const predictions = await loadModelAndPredict(imageData);
+
+        context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing the new frame
+        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height); // Redraw the video frame
+
+        if (Array.isArray(predictions) && predictions.length > 0) {
           // Check if the first prediction has a bounding box
           const pred = predictions[0];
 
-          if (pred?.bbox) {
+          if (pred?.bbox && pred?.label) {
             // COCO-SSD prediction with bounding box (bbox and label)
             const [x, y, width, height] = pred.bbox;
             context.strokeStyle = 'black';
@@ -59,40 +59,46 @@ function PlayCamera(props) {
             context.textAlign = 'center';
             context.strokeText(pred.label, x + width / 2, y > 20 ? y - 5 : y + 20);
             context.fillText(pred.label, x + width / 2, y > 20 ? y - 5 : y + 20);
-
           }
-             else {
-            // Teachable Machine fallback (no bbox)
-            context.fillStyle = 'blue';
-            context.font = '28px Arial';
-            context.textAlign = 'center';
-            context.fillText(pred.label, canvas.width / 2, canvas.height - 10);
-          }  
 
-          const currentLabel = pred.label || 'no_item'; // Default to 'no_item' if no label is found
-          // Check if the label has changed from the previous one
-          if(currentLabel !== prevLabelRef.current) {
-            props.getAIOutput(currentLabel); // Call the function with the new label
-            prevLabelRef.current = currentLabel; // Update the previous label
-          }
-        } else {
-          if('no_item' !== prevLabelRef.current) {
-            props.getAIOutput("no_item");
-            prevLabelRef.current = "no_item"; 
+          // Teachable Machine fallback (no bbox)
+          // Commented out for now
+          // else {
+          //   context.fillStyle = 'blue';
+          //   context.font = '28px Arial';
+          //   context.textAlign = 'center';
+          //   context.fillText(pred.label, canvas.width / 2, canvas.height - 10);
+          // }
+
+          // Only call getAIOutput when the label changes
+          if (pred && pred.label) {
+            const currentLabel = pred.label;
+            if (currentLabel !== prevLabelRef.current) {
+              props.getAIOutput(currentLabel);
+              prevLabelRef.current = currentLabel;
+            }
           }
         }
-    } catch (error) {
+
+        // Fallback if no predictions available
+        else {
+          if ('no_item' !== prevLabelRef.current) {
+            props.getAIOutput("no_item");
+            prevLabelRef.current = "no_item";
+          }
+        }
+      } catch (error) {
         console.error('Prediction error:', error);
       }
 
-      // Every 300ms, clear the canvas and redraw the video frame
-      timeoutId.current = setTimeout(processFrame, 300);
-      };
+      // Every 50ms, clear the canvas and redraw the video frame
+      timeoutId.current = setTimeout(processFrame, 50);
+    };
 
     getCameraStream();
 
     if (props.gameState === "running") {
-      timeoutId.current = setTimeout(processFrame, 300); // (Runs the frames around 3-4 times per second)
+      timeoutId.current = setTimeout(processFrame, 50); // (Runs the frames around 3-4 times per second)
     }
 
     return () => {

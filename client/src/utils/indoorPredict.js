@@ -8,7 +8,7 @@ import * as cocoSsd from '@tensorflow-models/coco-ssd';
 const validIndoorItems = [
   "backpack", "baseball bat", "banana", "apple", "orange", "carrot", "sandwich",
   "cell phone", "cup", "bottle", "potted plant", "tv", "laptop", "frisbee", "tv",
-  "wine glass", "fork", "knife", "spoon", "bowl", "scissors", "toothbrush", "sports ball", 
+  "wine glass", "knife", "bowl", "scissors", "toothbrush", "sports ball", 
   "tie", "book"
 ];
 
@@ -44,33 +44,37 @@ export async function indoorPredict(imageData) {
     .sort((a, b) => b.score - a.score); // Sort predictions by confidence in descending order
 
     // Returns COCO predictions first 
-    if(filtered.length === 0) {
+    if(filtered.length > 0) {
     return filtered;
   }
 
-  // Fallback" Teachable Machine prediction (no bbox)
-  if (!tmModel) {
-    tmModel = await tf.loadLayersModel('https://teachablemachine.withgoogle.com/models/j5Voge3Vq/model.json');
-  }
+  // When testing TM still supersucceeds COCO predictions (comment out for now)
+  // // Fallback" Teachable Machine prediction (no bbox)
+  // if (!tmModel) {
+  //   tmModel = await tf.loadLayersModel('https://teachablemachine.withgoogle.com/models/5lclnELKT/model.json');  // https://teachablemachine.withgoogle.com/models/5lclnELKT/model.json (in case updated one doesn't work)
+  // }
+  //                                                                                                               // https://teachablemachine.withgoogle.com/models/j5Voge3Vq/model.json
+//   const prediction = tf.tidy(() => {
+//     const image = tf.browser.fromPixels(imageData);
+//     const resized = tf.image.resizeBilinear(image, [224, 224]);
+//     const normalized = resized.div(127.5).sub(1);
+//     const batched = normalized.expandDims(0);
+//     const predictions = tmModel.predict(batched).arraySync()[0];
 
-  const prediction = tf.tidy(() => {
-    const image = tf.browser.fromPixels(imageData);
-    const resized = tf.image.resizeBilinear(image, [224, 224]);
-    const normalized = resized.div(127.5).sub(1);
-    const batched = normalized.expandDims(0);
-    const predictions = tmModel.predict(batched).arraySync()[0];
+//     const fallbackLabels = ['shoe','notebook',];  // More labels will be added here when model gains the classes (e.g. airpods, headphones, marker, pen, pencil, soccer ball, guitar, etc.)
+//     const maxIndex = predictions.indexOf(Math.max(...predictions));
+//     const label = fallbackLabels[maxIndex];
 
-    const fallbackLabels = ['shoe','notebook',];  // More labels will be added here when model gains the classes (e.g. airpods, headphones, marker, pen, pencil, soccer ball, guitar, etc.)
-    const maxIndex = predictions.indexOf(Math.max(...predictions));
-    const label = fallbackLabels[maxIndex];
+//     // Avoid returning "no_item" unless there's no choice
+//     if (label === "no_item") {
+//       return [];
+//     }
 
-    // Avoid returning "no_item" unless there's no choice
-    if (label === "no_item") {
-      return [];
-    }
-
-    return [{ label }];
-  });
+//     return [{ label }];
+//   });
   
-  return prediction;
+//   return prediction;
+// }
+
+return []; // Return an empty array if no valid predictions are found
 }

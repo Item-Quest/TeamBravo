@@ -36,7 +36,7 @@ connection, cursor = db_init_game_db()
 # indoorItems = ['shoe','mug'] (old indoor items (using teachable Model))
 indoorItems = ['mug', 'phone', 'water bottle', 'plant', 'book bag', 'tv', 'laptop', 'frisbee', 
                'baseball bat', 'banana', 'apple', 'orange', 'carrot', 'sandwich', 'tie', 'wine glass',
-               'fork', 'knife', 'spoon', 'bowl', 'scissors', 'toothbrush' , 'football', 'book']
+              'knife', 'bowl', 'scissors', 'toothbrush' , 'football', 'book']
 
 outDoorItems = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
     'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
