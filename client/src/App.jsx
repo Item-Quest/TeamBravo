@@ -15,6 +15,7 @@ import ParticlesBackground from './components/ParticlesBackground.jsx'; // <-- i
 import { ThemeProvider, useTheme } from './ThemeContext'; // Import ThemeProvider
 import './themes.css';
 import CreateGameModal from './components/CreateGameModal.jsx';
+import GeoQuestPage from './components/GeoQuestPage';
 
 // Import audio assets
 import lobbyMusic from './assets/LobbyMusic1.mp3';
@@ -169,7 +170,8 @@ function AppContent({ game, updateGame }) {
           <Route path='/MenuSettings' element={<MenuSettings />} />
           <Route path='/Test' element={<Test />} />
           <Route path='/Login' element={<Login />} />
-          <Route path='/create' element={<CreateGameModal game={game} />} />
+          {/* <Route path='/create' element={<CreateGameModal game={game} />} /> */}
+          <Route path='/geoquest' element={<GeoQuestPage />} />
         </Routes>
       </div>
     </main>

@@ -15,6 +15,9 @@ html {
   --light-blue: #7593af;
   --double-light-blue: #A3B7CA;
   --l-l-l-blue: #D1DBE4;
+  --primary-color: #2A9d8F;
+  --button-hover-color: #0f5a51;
+  --button-active-color: #2A9d8F;
 }
 .login-container {
   display: grid;
@@ -42,7 +45,7 @@ html {
 
 .login-button {
   height: auto;
-  background-color: #2A9d8F;
+  background-color: var(--primary-color);
   border: none;
   color: white;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
@@ -52,21 +55,22 @@ html {
   padding: 5px;
 }
 
-.login-button-play:hover {
-  background-color: #0f5a51;
+.login-button:hover {
+  background-color: var(--button-hover-color);
   color: lightgray;
 }
 
-.login-button-play:active {
-  background-color: #2A9d8F;
+.login-button:active {
+  background-color: var(--button-active-color);
   color: rgb(197, 157, 27);
+}
+
+.login-button{
+  width: 48%;
 }
 
 .error-message {
   color: red;
   font-weight: bold;
   text-align: center;
-}
-.login-button{
-  width: 48%;
 }

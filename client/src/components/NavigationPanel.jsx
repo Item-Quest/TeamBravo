@@ -2,7 +2,7 @@
 // eslint-disable-next-line no-unused-vars
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Box, useMediaQuery, useTheme } from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 import logo from "../assets/logo2.png";
 import PropTypes from 'prop-types';
 import { createGame } from "../dataProvider.js";
@@ -12,102 +12,148 @@ const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-
-
   return (
     <Box
+      className="nav-panel-container"      
       sx={{
-        flex: { xs: 'auto', md: 1 },
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: { xs: 1, sm: 2 },
-        width: { xs: '100%', md: 'auto' },
+        padding: { xs: 1, sm: 2 }, 
+        width: "100%",
+        height: "100%",
+        justifyContent: "space-between",
+        overflow: "hidden", 
+        maxHeight: { xs: "100%", sm: "none" },
+        boxSizing: "border-box", 
+        maxWidth: "100%" 
       }}
     >
-      <img
-        src={logo}
-        alt="Logo"
-        style={{
-          width: isMobile ? "80px" : "100px",
-          marginBottom: isMobile ? 12 : 16
-        }}
-      />
-
-      {/* Buttons */}
-      <Button
-        variant="contained"
-        color="primary"
-        sx={{
-          width: "90%",
-          height: { xs: 50, md: 60 },
-          fontSize: { xs: "16px", md: "18px" },
-          mb: { xs: 1.5, md: 2 }
-        }}
-        onClick={onJoinClick}
-      >
-        JOIN GAME
-      </Button>
-
-      <Button
-        variant="contained"
-        sx={{
-          width: "90%",
-          height: { xs: 45, md: 50 },
-          fontSize: { xs: "14px", md: "16px" },
-          mb: { xs: 1.5, md: 2 }
-        }}
-        onClick={onCreateClick}
-      >
-        CREATE GAME
-      </Button>
-
-      <Button
-        variant="contained"
-        sx={{
-          width: "90%",
-          height: { xs: 45, md: 50 },
-          fontSize: { xs: "14px", md: "16px" },
-          mb: { xs: 1.5, md: 2 }
-        }}
-        onClick={() => navigate("/leaderboard")}
-      >
-        LEADER BOARD
-      </Button>
-
-      {/* Settings & Backend Buttons */}
-      <Box sx={{
-        display: "flex",
-        width: "90%",
-        justifyContent: "space-between",
-        flexDirection: { xs: isMobile ? "column" : "row", md: "row" }
+      {/* Decorative elements */}
+      <div className="nav-decoration nav-decoration-1"></div>
+      <div className="nav-decoration nav-decoration-2"></div>
+      <div className="nav-decoration nav-decoration-3"></div>
+      
+      {/* Top section with logo */}
+      <Box sx={{ 
+        width: "100%", 
+        mb: { xs: 0, sm: 1 }, 
+        boxSizing: "border-box", 
+        maxWidth: "100%" 
       }}>
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{
-            width: { xs: isMobile ? "100%" : "48%", md: "48%" },
-            height: { xs: 45, md: 50 },
-            fontSize: { xs: "14px", md: "16px" },
-            mb: isMobile ? 1 : 0
+        <img
+          src={logo}
+          alt="Logo"
+          className="nav-logo"
+          style={{
+            width: isMobile ? "120px" : "200px", 
+            marginBottom: isMobile ? 0 : 8, 
+            position: "relative",
+            zIndex: 1,
+            display: "block",
+            margin: "0 auto"
           }}
-          onClick={() => navigate("/MenuSettings")}
-        >
-          SETTINGS
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{
-            width: { xs: isMobile ? "100%" : "48%", md: "48%" },
-            height: { xs: 45, md: 50 },
-            fontSize: { xs: "14px", md: "16px" }
-          }}
-          onClick={() => navigate("/Login")}
+        />
+      </Box>
 
+      {/* Middle section with main buttons */}
+      <Box sx={{ 
+        width: "100%", 
+        flex: { xs: 1, md: "0 1 auto" }, 
+        display: "flex", 
+        flexDirection: "column", 
+        justifyContent: "flex-start", 
+        paddingTop: { xs: 1, sm: 2 }, 
+        minHeight: { xs: "auto", sm: "auto" }, 
+        overflowY: "auto",
+        boxSizing: "border-box", 
+        maxWidth: "100%",
+        mb: { xs: 0, md: 'auto' } 
+      }}>
+        <button
+          className="fun-button fun-button-join"
+          onClick={onJoinClick}
+          style={{ 
+            width: '100%', 
+            marginBottom: isMobile ? 8 : 18,
+            fontSize: isMobile ? "1.1rem" : "1.4rem", 
+            padding: isMobile ? "10px 15px" : "15px 20px" 
+          }}
         >
-          Login
-        </Button>
+          JOIN GAME
+        </button>
+
+        <button
+          className="fun-button fun-button-create"
+          onClick={onCreateClick}
+          style={{ 
+            width: '100%', 
+            marginBottom: isMobile ? 8 : 18,
+            fontSize: isMobile ? "1.1rem" : "1.2rem", 
+            padding: isMobile ? "8px 15px" : "12px 20px" 
+          }}
+        >
+          CREATE GAME
+        </button>
+
+        <button
+          className="fun-button fun-button-geo"
+          onClick={() => navigate("/geoquest")}
+          style={{ 
+            width: '100%', 
+            marginBottom: isMobile ? 8 : 18,
+            fontSize: isMobile ? "1.1rem" : "1.2rem", 
+            padding: isMobile ? "8px 15px" : "12px 20px" 
+          }}
+        >
+          GEO QUEST
+        </button>
+
+        <button
+          className="fun-button fun-button-leaderboard"
+          onClick={() => navigate("/leaderboard")}
+          style={{ 
+            width: '100%', 
+            marginBottom: isMobile ? 8 : 18,
+            fontSize: isMobile ? "1.1rem" : "1.2rem", 
+            padding: isMobile ? "8px 15px" : "12px 20px" 
+          }}
+        >
+          LEADER BOARD
+        </button>
+      </Box>
+
+      {/* Bottom section with settings & login */}
+      <Box sx={{ 
+        width: "100%", 
+        boxSizing: "border-box", 
+        maxWidth: "100%",
+        marginTop: { xs: "auto", md: 4 } 
+      }}>
+        <div className="button-container">
+          <button
+            className="fun-button fun-button-settings"
+            onClick={() => navigate("/MenuSettings")}
+            style={{ 
+              width: '48%',
+              fontSize: isMobile ? "0.9rem" : "1.1rem", 
+              padding: isMobile ? "6px 10px" : "10px 15px" 
+            }}
+          >
+            SETTINGS
+          </button>
+          <button
+            className="fun-button fun-button-login"
+            onClick={() => navigate("/Login")}
+            style={{ 
+              width: '48%',
+              fontSize: isMobile ? "0.9rem" : "1.1rem", 
+              padding: isMobile ? "6px 10px" : "10px 15px" 
+            }}
+          >
+            LOGIN
+          </button>
+        </div>
       </Box>
     </Box>
   );

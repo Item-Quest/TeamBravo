@@ -33,15 +33,15 @@ game_lock = threading.Lock()
 connection, cursor = db_init_game_db()
 
 #Game items
-indoorItems = ['shoe','mug','notebook','phone','water_bottle', 'plant']
+# indoorItems = ['shoe','mug'] (old indoor items (using teachable Model))
+indoorItems = ['mug', 'phone', 'water bottle', 'plant', 'book bag', 'tv', 'laptop', 'frisbee', 
+               'baseball bat', 'banana', 'apple', 'orange', 'carrot', 'sandwich', 'tie', 'wine glass',
+              'knife', 'bowl', 'scissors', 'toothbrush' , 'football', 'book']
 
 outDoorItems = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
     'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
-    'bird', 'cat', 'dog', 'backpack', 'umbrella', 'handbag', 'suitcase', 'frisbee',
-    'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove',
-    'skateboard', 'surfboard', 'tennis racket',
-    'banana', 'apple', 'sandwich', 'orange',
-    'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'potted plant']
+    'bird', 'cat', 'dog', 'book bag', 'umbrella', 'frisbee', 'football', 'baseball bat',
+    'baseball glove', 'skateboard', 'tennis racket', 'pizza', 'donut', 'cake', 'plant', ]
 
 #ensures connection is closed and database is freed
 def close_db(signal, frame):
@@ -307,8 +307,10 @@ def handle_start_game(data=None):
 
     # selects game items based on mode
     if game_mode == "GeoQuest":
-      for _ in range(5):
-        game_items.append(random.choice(outDoorItems))
+      # for _ in range(5): (Commented out for testing)
+        # (same as above) game_items.append(random.choice(outDoorItems))
+        game_items = outDoorItems[:] # Testing version where the full list is included
+        random.shuffle(game_items) # Randomize the order of the items (same as above)
     else:
       for _ in range(5):
         game_items.append(random.choice(indoorItems))
@@ -483,4 +485,3 @@ if __name__ == '__main__':
     ssl_listener,
     app
 )
-

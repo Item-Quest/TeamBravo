@@ -6,17 +6,17 @@ import { getGameMode } from '../dataProvider.js';
 let mode;
 
 export async function loadModelAndPredict(imageData) {
-    console.log(mode);
 
     if (mode === 'GeoQuest') {
-        return outdoorPredict(imageData);
-    } 
-    else {
-        return indoorPredict(imageData);
+        return await outdoorPredict(imageData); // returns [{ label, bbox }]
+    } else {
+        return await indoorPredict(imageData);  
     }
-
 }
 
 export async function setModelMode(newMode) {
+    if(mode !== newMode) {
+        console.log("Model mode set to: ", newMode);
+    }
     mode = newMode;
 }
