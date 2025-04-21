@@ -56,7 +56,7 @@ const SupportModal = ({ isOpen, onClose}) => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="secondary">
+          <Button onClick={onClose} color="primary">
             Cancel
           </Button>
           <Button

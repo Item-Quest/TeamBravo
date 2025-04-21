@@ -67,21 +67,22 @@ const Home = (updateGame) => {
         justifyContent: "space-between",
         alignItems: "center",
         color: "text.primary",
+        minHeight: "100vh",
       }}
     >
       <AppBar position="static" sx={{ width: '100%', backgroundColor: 'rgba(0,0,0,0.1)' }}>
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'var(--text-color)' }}>
             Item Quest
           </Typography>
           <Tooltip title="Help & Support">
-            <IconButton onClick={SupportClick} color="inherit" aria-label="help and support">
+            <IconButton onClick={SupportClick} sx={{ color: 'var(--text-color)' }} aria-label="help and support">
               <MessageIcon />
             </IconButton>
           </Tooltip>
           <Tooltip title="GitHub Repository">
             <IconButton
-              color="inherit"
+              sx={{ color: 'var(--text-color)' }}
               aria-label="github repository"
               href="https://github.com/Item-Quest/TeamBravo"
               target="_blank"
@@ -93,7 +94,14 @@ const Home = (updateGame) => {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ width: '100%', mt: 4 }}>
+      <Box sx={{ 
+        width: '100%', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        flex: 1,
+        padding: { xs: '20px 0', md: '40px 0' }
+      }}>
         <Paper
           elevation={6}
           sx={{
@@ -101,16 +109,67 @@ const Home = (updateGame) => {
             flexDirection: { xs: "column", md: "row" },
             width: { xs: "95vw", sm: "90vw", md: "80vw" },
             maxWidth: "1200px",
-            minHeight: { xs: "auto", md: "500px" },
-            borderRadius: "12px",
+            minHeight: { xs: "auto", md: "600px" },
+            borderRadius: "16px",
             overflow: "hidden",
-            padding: { xs: 2, md: 3 },
-            backgroundColor: "rgba(255, 255, 255, 0.08)",
+            backgroundColor: "transparent",
             margin: "0 auto",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+            position: "relative",
           }}
         >
-          <NavigationPanel onJoinClick={joinClick} onCreateClick={createClick} />
-          <CameraPanel />
+          {/* Background gradient overlay */}
+          <Box sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "transparent",
+            borderRadius: "16px",
+            zIndex: 0,
+          }} />
+
+          {/* Content container with proper padding and spacing */}
+          <Box sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            width: "100%",
+            height: "100%",
+            position: "relative",
+            zIndex: 1,
+            padding: { xs: 2, md: 3 },
+            gap: { xs: 3, md: 4 },
+            boxSizing: "border-box"
+          }}>
+            <Box sx={{ 
+              flex: { xs: '1', md: '0 0 300px' },
+              display: 'flex',
+              flexDirection: 'column',
+              height: { xs: 'auto', md: '100%' },
+              backgroundColor: "transparent",
+              padding: 0,
+              width: "100%",
+              maxWidth: "100%",
+              boxSizing: "border-box"
+            }}>
+              <NavigationPanel onJoinClick={joinClick} onCreateClick={createClick} />
+            </Box>
+            <Box sx={{ 
+              flex: '1', 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              height: { xs: 'auto', md: '100%' },
+              backgroundColor: "transparent",
+              padding: 0,
+              width: "100%",
+              maxWidth: "100%",
+              boxSizing: "border-box"
+            }}>
+              <CameraPanel />
+            </Box>
+          </Box>
 
           <JoinGameModal
             isOpen={isModalOpen}
@@ -132,7 +191,15 @@ const Home = (updateGame) => {
         </Paper>
       </Box>
 
-      <div style={{ textAlign: 'center', marginTop: '20px', width: '80vw', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ 
+        textAlign: 'center', 
+        marginTop: '20px', 
+        width: '80vw', 
+        maxWidth: '1200px', 
+        margin: '20px auto',
+        padding: '10px',
+        color: 'var(--text-color)'
+      }}>
         &copy; 2025 Team Bravo. All rights reserved.
       </div>
     </Box>
