@@ -151,7 +151,7 @@ const MenuSettings = () => {
         borderRadius: '20px',
         border: '3px solid var(--text-color)',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'auto'
       }}>
         {/* Decorative elements */}
         <div className="nav-decoration nav-decoration-1"></div>
