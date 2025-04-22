@@ -289,7 +289,7 @@ def handle_start_game(data=None):
     print(f"{request.sid}:{username} has requested to start the game in room:{roomCode} playing {game_mode}")
 
     #Set game mode
-    db_set_game_mode(cursor, roomCode, game_mode)
+    #db_set_game_mode(cursor, roomCode, game_mode)
 
     #TODO: reimplement
     ########################
@@ -304,16 +304,13 @@ def handle_start_game(data=None):
     #Generate items for players to guess
     
     game_items = []
-
+    print(game_mode)
     # selects game items based on mode
-    if game_mode == "GeoQuest":
-      # for _ in range(5): (Commented out for testing)
-        # (same as above) game_items.append(random.choice(outDoorItems))
-        game_items = outDoorItems[:] # Testing version where the full list is included
-        random.shuffle(game_items) # Randomize the order of the items (same as above)
-    else:
-      for _ in range(5):
-        game_items.append(random.choice(indoorItems))
+    if game_mode == "ItemBlitz":
+      game_items.extend(random.sample(indoorItems, len(indoorItems)))
+    else: #ItemRace
+      game_items.extend(random.sample(indoorItems, 5))
+
 
 
     #TODO: reimplement
@@ -400,8 +397,9 @@ def handle_submit(data):
     score += 1
     db_set_user_score(cursor, request.sid, score)
     print(score)
+    game_mode = data.get('mode')
     #check if victory
-    if score == len(items):
+    if score == 5 and game_mode == "ItemRace":
       db_set_room_game_state(cursor,roomCode, "waiting")
       #TODO: emit win time
       username = db_get_username(cursor, request.sid)
@@ -409,7 +407,7 @@ def handle_submit(data):
       startTime = db_get_room_time(cursor, roomCode)[0]
       endTime = time.time()
       finalTime = round(endTime - startTime, 4)
-      save_scores(roomCode, finalTime)
+      save_scores(roomCode, finalTime, game_mode)
       emit('winner', {'message': f"{username}", 'time': f"{finalTime}"}, room=roomCode)
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
@@ -425,25 +423,25 @@ def handle_get_leaderboard_data(data):
     print("formatted data: ", formatted_scores)
     emit('leaderboard data', formatted_scores, room=request.sid)
 
-def save_scores(roomCode, finalTime):
+def save_scores(roomCode, finalTime, gameMode):
   print("saving scores")
-  gameMode = db_get_game_mode(roomCode)
+  #gameMode = db_get_game_mode(roomCode)
   place = 1
   users = db_get_users_in_room_by_score(cursor, roomCode)
-  if gameMode == "itemRace":
+  if gameMode == "ItemRace":
     # score == time
     for user in users:
-      save_score(user[2], f"{finalTime} seconds", "itemRace", place)
+      save_score(user[2], f"{finalTime} seconds", "ItemRace", place)
       place += 1
-  elif gameMode == "itemBlitz":
+  elif gameMode == "ItemBlitz":
   # score == time;
       for user in users:
-        save_score(user[2], f"{user[3]} points", "itemBlitz", place)
+        save_score(user[2], f"{user[3]} points", "ItemBlitz", place)
         place += 1
-  elif gameMode == "geoQuest":
+  elif gameMode == "GeoQuest":
   # TODO i think this is first to complete may need to change 
     for user in users:
-        save_score(user[2], f"{finalTime} seconds", "itemBlitz", place)
+        save_score(user[2], f"{finalTime} seconds", "ItemBlitz", place)
         place += 1
   else:
     print(f"Unknown game mode: {gameMode}")
