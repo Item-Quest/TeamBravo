@@ -68,7 +68,9 @@ def insert_record(table_name, record, db_path=DB_PATH):
         # Commit the changes and close the connection
         conn.commit()
     except sqlite3.Error as e:
-        print(f"SQLite error during insert_record: {e}")
+        print(f"table_name: {table_name}")
+        print(f"Record: {record}")
+        print(f"aSQLite error during insert_record: {e}")
     finally:
         conn.close()
 
@@ -107,12 +109,15 @@ def get_records(table_name, conditions=None, order_by=None, db_path=DB_PATH):
 
         # Fetch all the records
         records = cursor.fetchall()
+        
+        return records
     except sqlite3.Error as e:
-        print(f"SQLite error during insert_record: {e}")
+        print(f"SQLite error during get_records: {e}")
     finally: # Close the connection
         conn.close()
+    return None
 
-    return records
+    
 
 
 def save_score(username, score, game_mode, place):
@@ -162,7 +167,9 @@ def get_username(id):
 
 
 def find_user(username):
-    return get_records("users", {"username": username})
+    user = get_records("users", {"username": username})
+    if user:
+        return user
 
 
 def matchPassword(username, password):
@@ -194,6 +201,17 @@ def construct_leaderboard_entry(record):
     score = record[2]
     return [user, score, game_mode]
 
+def get_user_scores(username, game_mode=-1):
+    print(username)
+    if username == "Anonymous" or not userExists(username) :
+        return None
+    userid = find_user(username)[0][0]
+    if game_mode == -1:
+        return get_records("scores", {"user_id": userid})
+    else:
+        return get_records(
+            "scores", construct_condition("user_id", userid, "game_mode", game_mode)
+        )
 
 if __name__ == "__main__":
     initialize_db()

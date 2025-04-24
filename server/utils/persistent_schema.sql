@@ -6,7 +6,7 @@ CREATE TABLE if not EXISTS users (
 CREATE TABLE if not EXISTS scores (
     id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
     user_id INTEGER,
-    score TEXT NOT NULL,
+    score FLOAT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     game_mode INTEGER,
     place integer,
