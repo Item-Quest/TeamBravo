@@ -249,7 +249,7 @@ def get_username(id):
 
 
 def find_user(username):
-    user = get_records("users", {"username": username})
+    user = _get_records("users", {"username": username})
     if user:
         return user
 
@@ -302,8 +302,6 @@ def geoNewDay():
         usage: GeoNewDay()
     '''
     _altar_records("geoquestdata", {"completed": False}, {})
-    insert_record("users", {"username": username, "password": password})
-
 
 def construct_leaderboard_entry(record):
     """
@@ -324,9 +322,9 @@ def get_user_scores(username, game_mode=-1):
         return None
     userid = find_user(username)[0][0]
     if game_mode == -1:
-        return get_records("scores", {"user_id": userid})
+        return _get_records("scores", {"user_id": userid})
     else:
-        return get_records(
+        return _get_records(
             "scores", construct_condition("user_id", userid, "game_mode", game_mode)
         )
 

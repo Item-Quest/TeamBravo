@@ -24,8 +24,8 @@ app = Flask(__name__, template_folder='../client/dist', static_folder='../client
 app.config['SECRET_KEY'] = 'secret!'
 
 #Initialize SocketIO
-socketio = SocketIO(app, async_mode='eventlet')
-# socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
+# socketio = SocketIO(app, async_mode='eventlet')
+socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
 
 #variables for game control
 game_thread = None
@@ -347,28 +347,34 @@ def handle_start_game(data=None):
 @socketio.on('end game')
 def handle_end_game():
   global game_running
+  print("end game")
   with game_lock:
-    #get room code of user
+    username = db_get_username(cursor, request.sid)
     roomCode = db_get_user_room(cursor,request.sid)
+    gameState = db_get_game_state(cursor, roomCode)
+
+    print(f"{request.sid}:{username} has requested to end the game in room:{roomCode}")
+    #get room code of user
     if roomCode == None or roomCode == "None":
+      print("room doesn't exist")
       #TODO: Error handling if user is not in room
       return
     # #Get game state
-    gameState = db_get_game_state(cursor, roomCode)
     if gameState == None:
+      print("game state is none")
       #TODO: Error handling if there is no game that exists
       return
     
     if not db_is_room_host(cursor, request.sid, roomCode):
+      print("user is not host, doesn not have permission to end game")
       return
     #Get username
-    username = db_get_username(cursor, request.sid)
-    print(f"game mode: {db_get_game_mode(cursor, roomCode)[0]}")
-    if db_get_game_mode(cursor, roomCode)[0] == "ItemBlitz":
+    gameMode = db_get_game_mode(cursor, roomCode)[0]
+    print(f"game mode: {gameMode}")
+    if gameMode == "ItemBlitz":
       save_scores(roomCode, "ItemBlitz")
       
     #Print that user requested to run game
-    print(f"{request.sid}:{username} has requested to end the game in room:{roomCode}")
     #Update game state to running
     db_set_room_game_state(cursor, roomCode, "waiting")
     #Update the game state
@@ -414,7 +420,7 @@ def handle_submit(data):
       startTime = db_get_room_time(cursor, roomCode)[0]
       endTime = time.time()
       finalTime = round(endTime - startTime, 4)
-      save_scores(roomCode, finalTime, game_mode)
+      save_scores(roomCode, game_mode, finalTime)
       emit('winner', {'message': f"{username}", 'time': f"{finalTime}"}, room=roomCode)
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
@@ -525,20 +531,24 @@ if __name__ == '__main__':
   signal.signal(signal.SIGTERM, close_db)
   # 1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))
+  
+  #listener for http instead of https
+  eventlet.wsgi.server(listener, app, debug=True)
 
-    # 2) Wrap it in SSL
-  ssl_listener = eventlet.wrap_ssl(
-        listener,
-        certfile='mycert.pem',    # Path to your certificate
-        keyfile='mykey.pem',      # Path to your private key
-        server_side=True
-    )
 
-    # 3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
-    #    We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
-  eventlet.wsgi.server(
-    ssl_listener,
-    app
-  )
+  #   # 2) Wrap it in SSL
+  # ssl_listener = eventlet.wrap_ssl(
+  #       listener,
+  #       certfile='mycert.pem',    # Path to your certificate
+  #       keyfile='mykey.pem',      # Path to your private key
+  #       server_side=True
+  #   )
+
+  #   # 3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
+  #   #    We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
+  # eventlet.wsgi.server(
+  #   ssl_listener,
+  #   app
+  # )
   
 

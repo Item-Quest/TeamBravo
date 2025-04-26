@@ -234,8 +234,7 @@ def db_get_game_mode(cursor, room_code):
   try:
     sql = '''SELECT game_mode FROM rooms WHERE room_code = ?'''
     cursor.execute(sql, [room_code])
-    result = cursor.fetchall()[0][0]
-    print(result)
+    result = cursor.fetchall()[0]
     return result
   except sqlite3.Error as e:
     print(f"db_get_game_mode error: {e}")

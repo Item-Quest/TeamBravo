@@ -149,6 +149,7 @@ const Leaderboard = (props) => {
                 height: '100vh',
                 width: '100%',
                 overflow: 'hidden',
+                overflowY: 'auto', //hopefully this is ok added because scrolling was not working
                 position: 'relative',
                 boxSizing: 'border-box',
                 maxWidth: '100%'
