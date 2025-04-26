@@ -26,7 +26,7 @@ body {
   z-index: 0;  /* behind main content if main content has a higher z-index */
 }
 
-/* @keyframes gradient {
+ @keyframes gradient {
   0% {
       background-position: 0% 50%;
   }
@@ -36,13 +36,14 @@ body {
   100% {
       background-position: 0% 50%;
   }
-} */
+}
 
 .component-container {
   position: relative;
   width:100vw;
   height: 100vh; 
   z-index: 1;
+  overflow: auto; /* Allow scrolling when content overflows */
 }
 
  /*Home css */
@@ -58,11 +59,13 @@ body {
 
 .home-content {
   display: flex;
-  min-width: 600px; /* Minimum width */
-  min-height: 400px; /* Minimum height */
-  border: 2px solid var(--border-color); /* Example border */
+  min-width: 600px;
+  min-height: 400px;
+  border: 3px solid var(--border-color);
   background-color: var(--home-content-background-color);
   border-radius: 15px;
+  padding: 20px;
+  gap: 20px;
 }
 
 .home-panel-title {
@@ -112,22 +115,50 @@ display: block;
 }
 
 .home-menu-button {
-  width: 80%;
-  margin-bottom: 5px;
-  height: 80px;
-  border-radius: 15px;
-  background-color: var(--secondary-color);
-  font-size: 20px;
-  font-family:sans-serif;
-  font-weight: bold;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.02857em;
+  text-transform: uppercase;
+  padding: 8px 22px;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 
+              0px 2px 2px 0px rgba(0,0,0,0.14), 
+              0px 1px 5px 0px rgba(0,0,0,0.12);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-menu-button:hover {
+  background-color: var(--button-hover-color);
+  box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 
+              0px 4px 5px 0px rgba(0,0,0,0.14), 
+              0px 1px 10px 0px rgba(0,0,0,0.12);
+}
+
+.home-menu-button:active {
+  background-color: var(--button-active-color);
+  box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.2), 
+              0px 8px 10px 1px rgba(0,0,0,0.14), 
+              0px 3px 14px 2px rgba(0,0,0,0.12);
+}
+
+.home-menu-button:disabled {
+  background-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.26);
+  box-shadow: none;
+  cursor: default;
 }
 
 .home-menu-button:nth-child(1) { /* Target the "JOIN GAME" button */
   height: 150px; /* Increase height */
   font-size: 30px; /* Increase font size */
   width: 90%; /* Increase width */
-  background-color: var(--primary-color);
 }
 
 .home-menu-button:hover{
@@ -155,20 +186,49 @@ display: block;
 }
 
 .settings-button {
-  width: 100%;
-  height: 50px;
-  border-radius: 8px;
-  background-color: var(--secondary-color);
-  font-size: 20px;
-  font-family: sans-serif;
-  font-weight: bold;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.02857em;
+  text-transform: uppercase;
+  padding: 8px 22px;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 
+              0px 2px 2px 0px rgba(0,0,0,0.14), 
+              0px 1px 5px 0px rgba(0,0,0,0.12);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  position: relative;
+  overflow: auto;
+}
+
+.settings-button:hover {
+  background-color: var(--button-hover-color);
+  box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 
+              0px 4px 5px 0px rgba(0,0,0,0.14), 
+              0px 1px 10px 0px rgba(0,0,0,0.12);
+}
+
+.settings-button:active {
+  background-color: var(--button-active-color);
+  box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.2), 
+              0px 8px 10px 1px rgba(0,0,0,0.14), 
+              0px 3px 14px 2px rgba(0,0,0,0.12);
+}
+
+.settings-button:disabled {
+  background-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.26);
+  box-shadow: none;
+  cursor: default;
 }
 
 .settings-button:hover {
   background-color: var(--button-hover-color);
 }
-
 
 .settings-button:active {
   background-color: var(--button-active-color);
@@ -209,9 +269,13 @@ display: block;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 5px solid var(--text-color);
-  background-color: var(--secondary-color);
+  border: 3px solid var(--text-color);
+  background-color: var(--primary-color);
   border-radius: 15px;
+  height: 100%;
+  min-height: 300px;
+  position: relative;
+  overflow: auto;
 }
 
 .camera-container video {
@@ -338,21 +402,29 @@ display: block;
 }
 
 .skip-button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.02857em;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 
+              0px 2px 2px 0px rgba(0,0,0,0.14), 
+              0px 1px 5px 0px rgba(0,0,0,0.12);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
   width: 100%; 
   padding: 30px;
   font-size: 25px;
-  background-color: var(--primary-color);
-  color: var(--text-color);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
   margin-top: 20px;
 }
 
 .skip-button:hover {
   background-color: var(--button-hover-color);
+  box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 
+              0px 4px 5px 0px rgba(0,0,0,0.14), 
+              0px 1px 10px 0px rgba(0,0,0,0.12);
 }
 
 .timer {
@@ -476,20 +548,29 @@ display: block;
 
 
 .join-button-play {
-  background-color: #F02D3A; 
-  cursor: pointer;
-  font-size: 1.5rem;
-  padding: 1rem 2rem;
-  margin: 1rem 0.5rem 0 0;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.02857em;
   border: none;
-  border-radius: 2.5px;
-  color: #EFF6EE;
+  border-radius: 4px;
+  box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 
+              0px 2px 2px 0px rgba(0,0,0,0.14), 
+              0px 1px 5px 0px rgba(0,0,0,0.12);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  margin: 1rem 0.5rem 0 0;
 }
 
 .join-button-play:hover {
-  background-color: #C50122;
+  background-color: var(--button-hover-color);
+  box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 
+              0px 4px 5px 0px rgba(0,0,0,0.14), 
+              0px 1px 10px 0px rgba(0,0,0,0.12);
 }
-
 
 .join-close-modal {
   position: absolute;
@@ -517,6 +598,11 @@ display: block;
   text-align: center;
 }
 
+/*support modal*/
+.support-page-context {
+  padding-top: 0 important!;
+  margin-top: 0 important!;
+}
 
 /*create game settings page*/
 
@@ -563,22 +649,38 @@ display: block;
 }
 
 .create-button-container button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.02857em;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 
+              0px 2px 2px 0px rgba(0,0,0,0.14), 
+              0px 1px 5px 0px rgba(0,0,0,0.12);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
   width: 15%;
   height: 60px;
-  border-radius: 15px;
-  background-color: #e3eff6;
   font-size: 20px;
   font-family:sans-serif;
   font-weight: bold;
-  cursor: pointer;
+  margin: 0;
 }
 
-.create-button-container button:hover{
-  background-color: #f6eee3;
+.create-button-container button:hover {
+  background-color: var(--button-hover-color);
+  box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 
+              0px 4px 5px 0px rgba(0,0,0,0.14), 
+              0px 1px 10px 0px rgba(0,0,0,0.12);
 }
 
-.create-button-container button:active{
-  background-color: #e4b36f;
+.create-button-container button:active {
+  background-color: var(--button-active-color);
+  box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.2), 
+              0px 8px 10px 1px rgba(0,0,0,0.14), 
+              0px 3px 14px 2px rgba(0,0,0,0.12);
 }
 
 .settings-container {
@@ -586,7 +688,7 @@ display: block;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #38dfdc;
+  background-color: var(--background-color);
 }
 
 .settings-card {
@@ -595,7 +697,7 @@ display: block;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
   border: 1px solid #ddd;
   border-radius: 8px;
-  background-color: white;
+  background-color: var(--secondary-color);
 }
 
 .settings-item {
@@ -633,3 +735,506 @@ display: block;
   accent-color: #e42424;
 }
 
+/* Button styles: use theme variables */
+.create-button-container button,
+.skip-button,
+.join-button-play {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.02857em;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 
+              0px 2px 2px 0px rgba(0,0,0,0.14), 
+              0px 1px 5px 0px rgba(0,0,0,0.12);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+/* Add a semi-transparent background to text containers for better readability */
+.settings-card, 
+.home-content,
+.settings-item,
+.login-container {
+  background-color: var(--secondary-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Improve text readability with subtle text shadow */
+h1, h2, h3, h4, h5, h6, 
+.settings-item label,
+.home-menu-button,
+.settings-button {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* For dark themes, add stronger text shadow */
+.dark-theme h1, 
+.dark-theme h2, 
+.dark-theme h3, 
+.dark-theme h4,
+.dark-theme h5,
+.dark-theme h6,
+.dark-theme .settings-item label,
+.dark-theme .home-menu-button,
+.dark-theme .settings-button,
+.high-contrast-theme h1,
+.high-contrast-theme h2,
+.high-contrast-theme h3,
+.high-contrast-theme h4,
+.high-contrast-theme h5,
+.high-contrast-theme h6,
+.high-contrast-theme .settings-item label,
+.high-contrast-theme .home-menu-button,
+.high-contrast-theme .settings-button {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Ensure inputs have solid backgrounds for readability */
+input, select, textarea {
+  background-color: var(--background-color) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Consistent panel styling across the app */
+.home-content,
+.settings-card,
+.leaderboard-players-container,
+.top-box,
+.score-box,
+.camera-container,
+.login-container,
+.home-menu-panel,
+.home-camera-panel {
+  background-color: var(--primary-color);
+  border: 2px solid var(--text-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  color: var(--text-color);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: auto;
+}    
+
+/* Add a subtle gradient overlay to panels */
+.home-content::before,
+.settings-card::before,
+.leaderboard-players-container::before,
+.top-box::before,
+.score-box::before,
+.camera-container::before,
+.login-container::before,
+.home-menu-panel::before,
+.home-camera-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+/* Ensure content appears above the gradient overlay */
+.home-content > *,
+.settings-card > *,
+.leaderboard-players-container > *,
+.top-box > *,
+.score-box > *,
+.camera-container > *,
+.login-container > *,
+.home-menu-panel > *,
+.home-camera-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Add relative positioning to containers for absolute positioning of pseudo-elements */
+.home-content,
+.settings-card,
+.leaderboard-players-container,
+.top-box,
+.score-box,
+.camera-container,
+.login-container,
+.home-menu-panel,
+.home-camera-panel {
+  position: relative;
+}
+
+/* Fix for navigation panel layout */
+.nav-panel-container {
+  background-color: var(--primary-color);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: auto;
+  border: 3px solid var(--text-color);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Restore the gradient effect for the nav panel */
+.nav-panel-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.2), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure the navigation panel doesn't overflow or cause layout issues */
+@media (max-width: 768px) {
+  .nav-panel-container {
+    max-width: 100%;
+    margin-right: 0;
+    margin-bottom: 20px;
+    height: auto;
+  }
+}
+
+.nav-logo {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.nav-logo:hover {
+  transform: scale(1.05) rotate(3deg);
+}
+
+.fun-button {
+  background-color: var(--accent-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 12px;
+  font-family: 'Fredoka One', 'Comic Sans MS', cursive, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 12px 20px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+  transform: translateY(0);
+}
+
+.fun-button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 80%);
+  pointer-events: none;
+}
+
+.fun-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 0 rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+}
+
+.fun-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.fun-button-primary {
+  background-color: var(--accent-color);
+}
+
+.fun-button-secondary {
+  background-color: var(--secondary-color);
+}
+
+.fun-button-join {
+  background: linear-gradient(135deg, #FF9800, #FF5722);
+  font-size: 1.4rem;
+  padding: 15px 20px;
+}
+
+.fun-button-create {
+  background: linear-gradient(135deg, #4CAF50, #8BC34A);
+}
+
+.fun-button-geo {
+  background: linear-gradient(135deg, #2196F3, #03A9F4);
+}
+
+.fun-button-leaderboard {
+  background: linear-gradient(135deg, #9C27B0, #E91E63);
+}
+
+.fun-button-settings {
+  background: linear-gradient(135deg, #607D8B, #a7c3d1);
+}
+
+.fun-button-login {
+  background: linear-gradient(135deg, #FFC107, #a09211);
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 15px;
+  z-index: 1;
+}
+
+/* Add some playful decorative elements */
+.nav-decoration {
+  position: absolute;
+  background-color: var(--accent-color);
+  border-radius: 50%;
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.nav-decoration-1 {
+  width: 30px;
+  height: 30px;
+  top: 10%;
+  left: 10%;
+  background-color: #f55220;
+}
+
+.nav-decoration-2 {
+  width: 20px;
+  height: 20px;
+  bottom: 15%;
+  right: 15%;
+  background-color: #4CAF50;
+}
+
+.nav-decoration-3 {
+  width: 15px;
+  height: 15px;
+  top: 20%;
+  right: 20%;
+  background-color: #2196F3;
+}
+
+/* Fix button layout in navigation panel */
+.fun-button {
+  width: 100%;
+  margin-bottom: 12px;
+  z-index: 1;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 15px;
+  z-index: 1;
+}
+
+/* Ensure the content area has proper spacing */
+@media (max-width: 768px) {
+  .home-content {
+    min-width: auto;
+    flex-direction: column;
+    width: 95%;
+    max-height: none; /* Remove any max-height restriction */
+  }
+  
+  /* Ensure proper scrolling on mobile */
+  html, body, #root, .main {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  
+  /* Adjust camera panel for mobile */
+  .camera-panel-container {
+    height: auto;
+    min-height: 300px;
+  }
+}
+
+/* Remove blue borders from PlayScreen and Leaderboard */
+.MuiBox-root[style*="height: 100vh"] {
+  border-top: none;
+  border-bottom: none;
+  overflow: auto; /* Allow scrolling when content overflows */
+}
+
+/* Ensure content fits within container without scrolling */
+.MuiPaper-root {
+  max-height: 100%;
+  overflow: auto;
+}
+
+/* Ensure PlayScreen and Leaderboard fill the entire viewport */
+.MuiBox-root[style*="height: 100vh"] .MuiGrid-container {
+  height: 100%;
+}
+
+/* Camera panel styling to match navigation panel */
+.camera-panel-container {
+  background-color: var(--primary-color);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  border: 3px solid var(--text-color);
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: auto;
+}
+
+/* Add a gradient effect for the camera panel to match nav panel */
+.camera-panel-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at top left, rgba(var(--accent-color-rgb), 0.2), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Add some playful decorative elements to the camera panel */
+.camera-panel-container .nav-decoration-1 {
+  width: 30px;
+  height: 30px;
+  top: 15%;
+  right: 10%;
+  background-color: var(--accent-color);
+}
+
+.camera-panel-container .nav-decoration-2 {
+  width: 20px;
+  height: 20px;
+  bottom: 20%;
+  left: 12%;
+  background-color: var(--accent-color);
+}
+
+.camera-panel-container .nav-decoration-3 {
+  width: 25px;
+  height: 25px;
+  top: 30%;
+  left: 15%;
+  background-color: var(--accent-color);
+}
+
+/* Add a fun animation to the camera container */
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(var(--accent-color-rgb), 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(var(--accent-color-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--accent-color-rgb), 0); }
+}
+
+.camera-panel-container .MuiBox-root:nth-child(5) {
+  animation: pulse-border 2s infinite;
+}
+
+/* Fun button styles for Settings page */
+.fun-button-home {
+  background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+  border: 3px solid var(--text-color);
+  color: var(--text-color);
+  font-family: 'Fredoka One', 'Comic Sans MS', cursive, sans-serif;
+  text-transform: uppercase;
+  font-weight: bold;
+  border-radius: 12px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.fun-button-home:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 0 rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+}
+
+.fun-button-home:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Settings panel styling */
+.settings-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--accent-color);
+  position: relative;
+  z-index: 1;
+}
+
+.settings-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.settings-section-title {
+  font-family: 'Fredoka One', 'Comic Sans MS', cursive, sans-serif;
+  color: var(--text-color);
+  text-transform: uppercase;
+  margin-left: 8px;
+}
+
+/* Custom styling for Material UI components in settings */
+.custom-slider .MuiSlider-thumb {
+  height: 24px;
+  width: 24px;
+  background-color: var(--accent-color);
+  border: 2px solid var(--text-color);
+}
+
+.custom-slider .MuiSlider-track {
+  background-color: var(--accent-color);
+}
+
+.custom-select .MuiOutlinedInput-notchedOutline {
+  border-color: var(--text-color);
+}
+
+.custom-select:hover .MuiOutlinedInput-notchedOutline {
+  border-color: var(--accent-color);
+}
+
+.custom-select.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--accent-color);
+}
+
+/* Full screen component styles */
+.component-container {
+  position: relative;
+  width:100vw;
+  height: 100vh; 
+  z-index: 1;
+  overflow: auto; /* Allow scrolling when content overflows */
+}

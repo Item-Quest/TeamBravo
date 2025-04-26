@@ -36,15 +36,15 @@ game_lock = threading.Lock()
 connection, cursor = db_init_game_db()
 
 #Game items
-indoorItems = ['shoe','mug','notebook','phone','water_bottle', 'plant']
+# indoorItems = ['shoe','mug'] (old indoor items (using teachable Model))
+indoorItems = ['mug', 'phone', 'water bottle', 'plant', 'book bag', 'tv', 'laptop', 'frisbee', 
+               'baseball bat', 'banana', 'apple', 'orange', 'carrot', 'sandwich', 'tie', 'wine glass',
+              'knife', 'bowl', 'scissors', 'toothbrush' , 'football', 'book']
 
 outDoorItems = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
     'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
-    'bird', 'cat', 'dog', 'backpack', 'umbrella', 'handbag', 'suitcase', 'frisbee',
-    'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove',
-    'skateboard', 'surfboard', 'tennis racket',
-    'banana', 'apple', 'sandwich', 'orange',
-    'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'potted plant']
+    'bird', 'cat', 'dog', 'book bag', 'umbrella', 'frisbee', 'football', 'baseball bat',
+    'baseball glove', 'skateboard', 'tennis racket', 'pizza', 'donut', 'cake', 'plant', ]
 
 #ensures connection is closed and database is freed
 def close_db(signal, frame):
@@ -292,7 +292,7 @@ def handle_start_game(data=None):
     print(f"{request.sid}:{username} has requested to start the game in room:{roomCode} playing {game_mode}")
 
     #Set game mode
-    db_set_game_mode(cursor, roomCode, game_mode)
+    #db_set_game_mode(cursor, roomCode, game_mode)
 
     #TODO: reimplement
     ########################
@@ -307,14 +307,13 @@ def handle_start_game(data=None):
     #Generate items for players to guess
     
     game_items = []
-
+    print(game_mode)
     # selects game items based on mode
-    if game_mode == "GeoQuest":
-      for _ in range(5):
-        game_items.append(random.choice(outDoorItems))
-    else:
-      for _ in range(5):
-        game_items.append(random.choice(indoorItems))
+    if game_mode == "ItemBlitz":
+      game_items.extend(random.sample(indoorItems, len(indoorItems)))
+    else: #ItemRace
+      game_items.extend(random.sample(indoorItems, 5))
+
 
 
     #TODO: reimplement
@@ -401,8 +400,9 @@ def handle_submit(data):
     score += 1
     db_set_user_score(cursor, request.sid, score)
     print(score)
+    game_mode = data.get('mode')
     #check if victory
-    if score == len(items):
+    if score == 5 and game_mode == "ItemRace":
       db_set_room_game_state(cursor,roomCode, "waiting")
       #TODO: emit win time
       username = db_get_username(cursor, request.sid)
@@ -410,7 +410,7 @@ def handle_submit(data):
       startTime = db_get_room_time(cursor, roomCode)[0]
       endTime = time.time()
       finalTime = round(endTime - startTime, 4)
-      save_scores(roomCode, finalTime)
+      save_scores(roomCode, finalTime, game_mode)
       emit('winner', {'message': f"{username}", 'time': f"{finalTime}"}, room=roomCode)
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
