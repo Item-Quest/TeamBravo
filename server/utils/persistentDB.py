@@ -84,7 +84,10 @@ def _insert_record(table_name, record, db_path=None):
         conn.commit()
         conn.close()
     except sqlite3.Error as e:
-        print(f"SQLite error during insert_record: {e}")
+        print(f"table_name: {table_name}")
+        print(f"Record: {record}")
+        print(f"aSQLite error during insert_record: {e}")
+    finally:
         conn.close()
         
 
@@ -121,6 +124,8 @@ def _get_records(table_name, conditions=None, order_by=None, db_path=None):
 
         # Fetch all the records
         records = cursor.fetchall()
+        
+        return records
         conn.close()
     except sqlite3.Error as e:
         print(f"SQLite error during _get_records: {e}")
@@ -244,7 +249,9 @@ def get_username(id):
 
 
 def find_user(username):
-    return _get_records("users", {"username": username})
+    user = get_records("users", {"username": username})
+    if user:
+        return user
 
 
 def matchPassword(username, password):
@@ -295,6 +302,33 @@ def geoNewDay():
         usage: GeoNewDay()
     '''
     _altar_records("geoquestdata", {"completed": False}, {})
+    insert_record("users", {"username": username, "password": password})
+
+
+def construct_leaderboard_entry(record):
+    """
+    create a readable scoreboard entry directly from a record from the score table in the memroy db
+    usage construct_leaderboard_entry(record)
+    """
+    user = get_username(record[1])
+    if record[4] == 0:
+        game_mode = "Classic"
+    else:
+        game_mode = "noGameError"
+    score = record[2]
+    return [user, score, game_mode]
+
+def get_user_scores(username, game_mode=-1):
+    print(username)
+    if username == "Anonymous" or not userExists(username) :
+        return None
+    userid = find_user(username)[0][0]
+    if game_mode == -1:
+        return get_records("scores", {"user_id": userid})
+    else:
+        return get_records(
+            "scores", construct_condition("user_id", userid, "game_mode", game_mode)
+        )
 
 if __name__ == "__main__":
     initialize_db()

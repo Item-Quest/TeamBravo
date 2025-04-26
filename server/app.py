@@ -363,6 +363,10 @@ def handle_end_game():
       return
     #Get username
     username = db_get_username(cursor, request.sid)
+    print(f"game mode: {db_get_game_mode(cursor, roomCode)[0]}")
+    if db_get_game_mode(cursor, roomCode)[0] == "ItemBlitz":
+      save_scores(roomCode, "ItemBlitz")
+      
     #Print that user requested to run game
     print(f"{request.sid}:{username} has requested to end the game in room:{roomCode}")
     #Update game state to running
@@ -421,32 +425,26 @@ def handle_submit(data):
 def handle_get_leaderboard_data(data):
     top_scores = get_top_scores()
     
-    print("data from get_top_scores: ", top_scores)
     formatted_scores = [{'Id': score[0], 'Pfp': '', 'Name': get_username(score[1]), 'Score': score[2], 'GameMode': score[4], 'Time':score[3]} for score in top_scores]
-    print("formatted data: ", formatted_scores)
     emit('leaderboard data', formatted_scores, room=request.sid)
 
-def save_scores(roomCode, finalTime):
-  print(f"saving scores in room {roomCode}")
-
-  gameMode = db_get_game_mode(cursor, roomCode)
+def save_scores(roomCode, gameMode, finalTime=None):
+  print("saving scores")
+  #gameMode = db_get_game_mode(roomCode)
   place = 1
   users = db_get_users_in_room_by_score(cursor, roomCode)
   if gameMode == "ItemRace":
     # score == time
     for user in users:
-      save_score(user[2], f"{finalTime} seconds", "ItemRace", place)
+      save_score(user[2], finalTime, "ItemRace", place)
       place += 1
   elif gameMode == "ItemBlitz":
   # score == time;
       for user in users:
-        save_score(user[2], f"{user[3]} points", "ItemBlitz", place)
+        save_score(user[2], user[3], "ItemBlitz", place)
         place += 1
   elif gameMode == "GeoQuest":
-  # TODO i think this is first to complete may need to change 
-    for user in users:
-        save_score(user[2], f"{finalTime} seconds", "GeoQuest", place)
-        place += 1
+    print("GeoQuest should be calling a different function to save score")
   else:
     print(f"Unknown game mode: {gameMode}")
     return
@@ -460,6 +458,17 @@ def get_gamemode():
 @socketio.on('set gamemode')
 def set_gamemode(data):
   db_set_game_mode(cursor, db_get_user_room(cursor, request.sid), data)
+
+@socketio.on('who am i')
+def handle_who_am_i():
+  username = db_get_username(cursor, request.sid)
+  emit('who am i response', {'username': username}, room=request.sid)
+
+@socketio.on('get userinfo')
+def handle_get_userinfo():
+  username = db_get_username(cursor, request.sid)
+  scores = get_user_scores(username)
+  emit('userinfo response', {'username': username, 'scores': scores}, room=request.sid)
 
 #geoQuest functions
 

@@ -64,6 +64,15 @@ export function getGameMode(callback) {
     });
 }
 
+export function whoAmI(callback) {
+    socketCallWrapper('who am i', null, 'who am i response', callback);
+}
+
+export function getUserinfo(callback) {
+    console.log("getUserinfo called");
+    socketCallWrapper('get userinfo', null, 'userinfo response', callback);
+}
+
 
 //geoquest functions
 export function getGeoItem(callback) {

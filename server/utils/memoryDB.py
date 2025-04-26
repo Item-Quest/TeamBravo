@@ -281,3 +281,5 @@ def db_is_room_host(cursor, socket_id, room_code):
   except sqlite3.Error as e:
     print(f"db_set_user_join_error: {e}")
     return False
+  
+
