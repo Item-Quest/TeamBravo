@@ -22,11 +22,23 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { createGame } from '../dataProvider.js';
 import PropTypes from 'prop-types';
 import defaultpfp from '../assets/defaultpfp.png';
+import click from "../assets/SFX/click.wav"
+import backClick from "../assets/SFX/backclick.wav"
+
 
 const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
   const [username, setUsername] = useState("");
   const [gameMode, setGameMode] = useState("Item Race");
   const [expanded, setExpanded] = useState(false);
+  const [uiVolume] = useState(() => {
+  const storedVolume = localStorage.getItem('uiVolume');
+  return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+});
+
+  const clickSound = new Audio(click);
+  clickSound.volume = uiVolume
+  const backClickSound = new Audio(backClick);
+  backClickSound.volume = uiVolume
   
   // Item selection state
   const [indoorItems, setIndoorItems] = useState([
@@ -92,7 +104,7 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
       alert("Please select at least one item to start the game.");
       return;
     }
-
+    clickSound.play();
     console.log("Creating game with mode:", gameMode, "and items:", selectedItems);
     createGame(gameMode, (result) => {
       updateGame(username, result.roomCode, result.sid, selectedItems);
@@ -103,6 +115,7 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
 
   // Toggle individual item selection
   const toggleItem = (itemName, isIndoor) => {
+    clickSound.play();
     if (isIndoor) {
       setIndoorItems(prevItems => 
         prevItems.map(item => 
@@ -120,6 +133,7 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
 
   // Toggle all items in a category
   const toggleAllItems = (isIndoor, selectAll) => {
+    clickSound.play();
     if (isIndoor) {
       setIndoorItems(prevItems => 
         prevItems.map(item => ({ ...item, selected: selectAll }))
@@ -219,7 +233,10 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
             id="game-mode-select"
             value={gameMode}
             label="Game Mode"
-            onChange={(e) => setGameMode(e.target.value)}
+            onChange={(e) => { 
+              clickSound.play();
+              setGameMode(e.target.value);
+            }}
             MenuProps={{
               PaperProps: {
                 sx: {
@@ -290,10 +307,12 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
                 <Button 
                   size="small" 
                   variant="outlined" 
-                  onClick={() => toggleAllItems(
+                  onClick={() =>{ 
+                    backClickSound.play();
+                    toggleAllItems(
                     gameMode === "Item Race" || gameMode === "Item Blitz", 
                     false
-                  )}
+                  );}}
                 >
                   Deselect All
                 </Button>
@@ -375,7 +394,10 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
       </DialogContent>
       <DialogActions>
         <Button 
-          onClick={onClose}
+          onClick={() => {
+            backClickSound.play();
+            onClose();
+          }}
           sx={{ 
             color: '#666',
             '&:hover': {

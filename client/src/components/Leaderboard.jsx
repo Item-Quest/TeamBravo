@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import socket from '../socket';
 import { getUserinfo } from '../dataProvider';
+import click from "../assets/SFX/click.wav"
+import backClick from "../assets/SFX/backclick.wav"
+
 
 // Material-UI imports
 import {
@@ -43,7 +46,16 @@ const Leaderboard = (props) => {
     const [error, setError] = useState(null);
     const [username, setUsername] = useState('');
     const [userScores, setUserScores] = useState([]);
-
+    const [uiVolume] = useState(() => {
+      const storedVolume = localStorage.getItem('uiVolume');
+      return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+    });
+    
+      const clickSound = new Audio(click);
+      clickSound.volume = uiVolume
+      const backClickSound = new Audio(backClick);
+      backClickSound.volume = uiVolume
+      
 
     // Fetch leaderboard data using socket
     useEffect(() => {
@@ -100,6 +112,7 @@ const Leaderboard = (props) => {
     }, [loading, props.players]);
 
     const handleBackClick = () => {
+        backClickSound.play();
         navigate("/home");
     };
 
@@ -220,6 +233,7 @@ const Leaderboard = (props) => {
 
                                     {showFilters && (
                                         <Box mb={2}>
+
                                             <Typography variant="subtitle2" gutterBottom>Filters</Typography>
                                             <Box display="flex" gap={2} flexWrap="wrap">
                                                 {/* Time Frame Filter */}
@@ -229,19 +243,28 @@ const Leaderboard = (props) => {
                                                         <Chip
                                                             label="All Time"
                                                             color={timeFrame === 'all' ? 'primary' : 'default'}
-                                                            onClick={() => setTimeFrame('all')}
+                                                            onClick={() => {
+                                                              clickSound.play();
+                                                              setTimeFrame('all');
+                                                            }}
                                                             clickable
                                                         />
                                                         <Chip
                                                             label="This Week"
                                                             color={timeFrame === 'week' ? 'primary' : 'default'}
-                                                            onClick={() => setTimeFrame('week')}
+                                                            onClick={() =>{
+                                                              clickSound.play();
+                                                              setTimeFrame('week');
+                                                            }}
                                                             clickable
                                                         />
                                                         <Chip
                                                             label="Today"
                                                             color={timeFrame === 'today' ? 'primary' : 'default'}
-                                                            onClick={() => setTimeFrame('today')}
+                                                            onClick={() =>{
+                                                              clickSound.play();
+                                                              setTimeFrame('today');
+                                                            }}
                                                             clickable
                                                         />
                                                     </Box>
@@ -254,13 +277,19 @@ const Leaderboard = (props) => {
                                                         <Chip
                                                             label="Item Race"
                                                             color={gameMode === 'Item Race' ? 'primary' : 'default'}
-                                                            onClick={() => setGameMode('Item Race')}
+                                                            onClick={() =>{
+                                                              clickSound.play();
+                                                              setGameMode('Item Race');
+                                                            }}
                                                             clickable
                                                         />
                                                         <Chip
                                                             label="Item Blitz"
                                                             color={gameMode === 'Item Blitz' ? 'primary' : 'default'}
-                                                            onClick={() => setGameMode('Item Blitz')}
+                                                            onClick={() =>{
+                                                              clickSound.play();
+                                                              setGameMode('Item Blitz');
+                                                            }}
                                                             clickable
                                                         />
                                                     </Box>

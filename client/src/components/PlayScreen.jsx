@@ -34,6 +34,11 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import logo from '../assets/logo2.png';
 import defaultpfp from '../assets/defaultpfp.png';
 
+import click from "../assets/SFX/click.wav"
+import pointGained from "../assets/SFX/pointgained.wav"
+import skipUsed from "../assets/SFX/skipused.wav"
+import skipCharged from "../assets/SFX/skipcharged.wav"
+
 const PlayScreen = (props) => {
   console.log(props.gameState, "Gamestate");
   const [usersInRoom, updateUsersInRoom] = useState([]);
@@ -60,6 +65,18 @@ const PlayScreen = (props) => {
   const [formattedResetTime, setFormattedResetTime] = useState("00:00");
   const [showCorrectBanner, setShowCorrectBanner] = useState(false);
 
+    const [uiVolume] = useState(() => {
+      const storedVolume = localStorage.getItem('uiVolume');
+      return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+    });
+    const clickSound = new Audio(click);
+    clickSound.volume = uiVolume
+    const pointSound = new Audio(pointGained);
+    pointSound.volume = uiVolume
+    const skipUsedSound = new Audio(skipUsed);
+    skipUsedSound.volume = uiVolume
+    const skipChargedSound = new Audio(skipCharged);
+    skipChargedSound.volume = uiVolume
   
   // Item selection state
   const [indoorItems, setIndoorItems] = useState([
@@ -252,6 +269,7 @@ const PlayScreen = (props) => {
   }, [props.AIOutput, item, yourScore]);
 
   function startGame(){
+    clickSound.play();
     // Get the selected items based on game mode
     const selectedItems = getSelectedItems();
     
@@ -309,6 +327,7 @@ const PlayScreen = (props) => {
   
   const handleSkip = () => {
     if (skips > 0 && props.gameState === "running") {
+      skipUsedSound.play();
       setSkips(prev => prev - 1);
       
       // Emit skip item event to server
@@ -331,6 +350,7 @@ const PlayScreen = (props) => {
         setFormattedResetTime(`${Math.floor(resetTime / 60)}:${(resetTime % 60).toString().padStart(2, '0')}`);
         
         if (resetTime <= 0) {
+          skipChargedSound.play();
           clearInterval(resetInterval);
           setIsResetTimerActive(false);
           setSkips(prev => prev + 1);

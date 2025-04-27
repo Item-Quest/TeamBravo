@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeContext';
 import { Box, Typography, Slider, FormControl, InputLabel, Select, MenuItem, Paper, Button } from '@mui/material';
@@ -10,11 +10,18 @@ import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import InfoIcon from '@mui/icons-material/Info';
 import PaletteIcon from '@mui/icons-material/Palette';
+import click from "../assets/SFX/click.wav"
+import backClick from "../assets/SFX/backclick.wav"
 
 // Get the audio volume from localStorage or use default
 const getStoredVolume = () => {
   const storedVolume = localStorage.getItem('musicVolume');
   return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+};
+
+const getStoredUiVolume = () => {
+  const storedUiVolume = localStorage.getItem('uiVolume');
+  return storedUiVolume !== null ? parseFloat(storedUiVolume) : 0.5;
 };
 
 // Get the muted state from localStorage or use default
@@ -37,13 +44,23 @@ const getStoredBackgroundColor = () => {
 
 const MenuSettings = () => {
   const navigate = useNavigate();
-  const [uiVolume, setUiVolume] = useState(50);
+  const [uiVolume, setUiVolume] = useState(getStoredUiVolume() * 100);
   const [musicVolume, setMusicVolume] = useState(getStoredVolume() * 100);
   const [accessibility, setAccessibility] = useState('none');
   const [backgroundConfig, setBackgroundConfig] = useState(getStoredBackgroundConfig());
   const [backgroundColor, setBackgroundColor] = useState(getStoredBackgroundColor());
   const { theme, setTheme, themes } = useTheme();
   const isMobile = window.innerWidth < 600;
+
+  const clickSoundRef = useRef(new Audio(click));
+  const backClickSoundRef = useRef(new Audio(backClick));
+
+  // Initial volume setting
+useEffect(() => {
+  clickSoundRef.current.volume = uiVolume / 100;
+  backClickSoundRef.current.volume = uiVolume / 100;
+}, [uiVolume]);
+
 
   // Update actual audio element when volume changes
   useEffect(() => {
@@ -62,6 +79,12 @@ const MenuSettings = () => {
     }
   }, [musicVolume]);
 
+  useEffect(() => {
+    const uiVolumeDecimal = uiVolume / 100;
+    localStorage.setItem('uiVolume', uiVolumeDecimal.toString());
+  }, [uiVolume]);
+  
+
   // Save background config to localStorage when it changes
   useEffect(() => {
     localStorage.setItem('backgroundConfig', backgroundConfig);
@@ -71,11 +94,18 @@ const MenuSettings = () => {
     setMusicVolume(newValue);
   };
 
+  const handleUicVolumeChange = (event, newValue) => {
+    setUiVolume(newValue);
+    clickSoundRef.current.play();
+  };
+
   const handleBackgroundConfigChange = (event) => {
+    clickSoundRef.current.play();
     setBackgroundConfig(event.target.value);
   };
 
   const handleBackgroundColorChange = (event) => {
+    clickSoundRef.current.play();
     const newValue = event.target.value;
     console.log("Background color change - selected value:", newValue);
     setBackgroundColor(newValue); // Update local state for the dropdown
@@ -114,6 +144,7 @@ const MenuSettings = () => {
   };
 
   const handleBackToHome = () => {
+    backClickSoundRef.current.play();
     navigate('/');
   };
 
@@ -255,7 +286,7 @@ const MenuSettings = () => {
               </Typography>
               <Slider
                 value={uiVolume}
-                onChange={(e, val) => setUiVolume(val)}
+                onChange={handleUicVolumeChange}
                 aria-labelledby="ui-volume-slider"
                 valueLabelDisplay="auto"
                 step={1}
@@ -322,6 +353,7 @@ const MenuSettings = () => {
               value={theme}
               label="Theme"
               onChange={(e) => {
+                clickSoundRef.current.play();
                 setTheme(e.target.value);
                 // Reset custom background color when theme changes
                 setBackgroundColor('');
@@ -587,7 +619,10 @@ const MenuSettings = () => {
               labelId="accessibility-select-label"
               value={accessibility}
               label="Accessibility Options"
-              onChange={(e) => setAccessibility(e.target.value)}
+              onChange={(e) =>{
+                clickSoundRef.current.play();
+               setAccessibility(e.target.value);
+              }}
               sx={{
                 '.MuiOutlinedInput-notchedOutline': {
                   borderColor: 'var(--accent-color)',
@@ -660,8 +695,8 @@ const MenuSettings = () => {
                 textTransform: 'uppercase'
               }}
             >
-              Credits
             </Typography>
+              Credits
           </Box>
           
           <Typography 

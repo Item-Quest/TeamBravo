@@ -10,6 +10,8 @@ import socket from "../socket";
 import { loadModelAndPredict, setModelMode } from "../utils/imagePredict";
 import PlayCamera from "./PlayCamera";
 import { geoGetInfo, getGeoItem, submitGeoquest } from "../dataProvider";
+import click from "../assets/SFX/click.wav"
+import backClick from "../assets/SFX/backclick.wav"
 
 // Import logo
 // import logo from "../assets/logo2.png";
@@ -33,6 +35,15 @@ const GeoQuestPage = () => {
   const [showBorder, setShowBorder] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [uiVolume] = useState(() => {
+    const storedVolume = localStorage.getItem('uiVolume');
+    return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+  });
+  
+    const clickSound = new Audio(click);
+    clickSound.volume = uiVolume
+    const backClickSound = new Audio(backClick);
+    backClickSound.volume = uiVolume
 
   const outDoorItems = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
     'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
@@ -186,6 +197,7 @@ const GeoQuestPage = () => {
 
   // Handle navigation back to home
   const handleBackClick = () => {
+    backClickSound.play();
     navigate("/home");
   };
 
@@ -319,19 +331,27 @@ const GeoQuestPage = () => {
                   <Chip 
                     label="All Time" 
                     color={timeFrame === 'all' ? 'primary' : 'default'} 
-                    onClick={() => setTimeFrame('all')}
+                    onClick={() => {
+                      clickSound.play();
+                      setTimeFrame('all');
+                    }}
                     clickable
                   />
                   <Chip 
                     label="This Week" 
                     color={timeFrame === 'week' ? 'primary' : 'default'} 
-                    onClick={() => setTimeFrame('week')}
+                    onClick={() => { 
+                      clickSound.play();
+                      setTimeFrame('week');}}
                     clickable
                   />
                   <Chip 
                     label="Today" 
                     color={timeFrame === 'today' ? 'primary' : 'default'} 
-                    onClick={() => setTimeFrame('today')}
+                    onClick={() => {
+                      clickSound.play();
+                      setTimeFrame('today');
+                    }}
                     clickable
                   />
                 </Box> */}
