@@ -441,7 +441,7 @@ def save_scores(roomCode, gameMode, finalTime=None):
   if gameMode == "Item Race":
     # score == time
     for user in users:
-      save_score(user[2], f"{finalTime} seconds", "ItemRace", place)
+      save_score(user[2], finalTime, "Item Race", place)
       place += 1
   elif gameMode == "Item Blitz":
   # score == time;
@@ -449,10 +449,7 @@ def save_scores(roomCode, gameMode, finalTime=None):
         save_score(user[2], user[3], "Item Blitz", place)
         place += 1
   elif gameMode == "GeoQuest":
-  # TODO i think this is first to complete may need to change 
-    for user in users:
-        save_score(user[2], f"{finalTime} seconds", "ItemBlitz", place)
-        place += 1
+    print("GeoQuest should be calling a different function to save score")
   else:
     print(f"Unknown game mode: {gameMode}")
     return
@@ -564,17 +561,18 @@ if __name__ == '__main__':
   #1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))
 
-    # 2) Wrap it in SSL
-  ssl_listener = eventlet.wrap_ssl(
-        listener,
-        certfile='mycert.pem',    # Path to your certificate
-        keyfile='mykey.pem',      # Path to your private key
-        server_side=True
-    )
 
-    # 3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
-    #    We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
+  #2) Wrap it in SSL
+  ssl_listener = eventlet.wrap_ssl(
+      listener,
+      certfile='mycert.pem',    # Path to your certificate
+      keyfile='mykey.pem',      # Path to your private key
+      server_side=True
+  )
+
+  #3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
+  # We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
   eventlet.wsgi.server(
     ssl_listener,
     app
-)
+  )
