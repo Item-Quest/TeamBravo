@@ -74,7 +74,7 @@ def handle_username_change(data):
 def handle_register(data):
   username = data['username']
   password = data['password']
-  if(not find_user(username)):
+  if(not userExists(username)):
     #if user doesn't exist, register them
     print(f"Registering new user: {username}")
     create_user(username, password)
@@ -89,7 +89,6 @@ def handle_login(data):
   username = data['username']
   password = data['password']
   user= find_user(username)
-  if(user) : user = user[0] #get user data 
   print(f"Attempting to log in user: {username} with password: {password} should match {user[1] if user else 'None'}")
   if (user and user[2] == password):
     print(f"User {username} logged in successfully.")
@@ -492,7 +491,7 @@ def getDailyitem():
     day += 1
     # Return the current date
     seed = year*10000 + month*100 + day
-    random.seed(seed)
+    random.seed(seed +1)
     return outDoorItems[random.randint(0, len(outDoorItems)-1)]
 
 @socketio.on('get geo item')
@@ -501,10 +500,10 @@ def handle_get_daily_item():
   emit('geo item', item, room=request.sid)
 
 @socketio.on('geosubmit')
-def handle_geoquest_submit(data):
+def handle_geoquest_submit():
   user = db_get_username(cursor, request.sid)
+  print(f"{user} has submitted todays geoquest item")
   geoComplete(user)
-  emit('geosubmit response', {'success': True, 'message': 'Geoquest completed! Come Back Tomorrow'}, room=request.sid)
 
 @socketio.on('geoquest get score')
 def handle_geoquest_get_score():
@@ -516,6 +515,33 @@ def handle_geoquest_is_complete():
   complete = geoIsComplete(db_get_username(cursor, request.sid))
   emit('geoquest is complete response', complete, room=request.sid)
 
+@socketio.on('geoquest get top scores')
+def handle_geoquest_get_top_scores(data):
+  scores = geoTopScores(5)
+  result = []
+  for score in scores:
+      last_incomplete_date = score[3]
+      if last_incomplete_date:
+            last_incomplete_date = datetime.datetime.strptime(last_incomplete_date, '%Y-%m-%d %H:%M:%S')
+            last_incomplete_date = last_incomplete_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            current_date = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            days_since_last_incomplete = (current_date - last_incomplete_date).days
+
+      else:
+          days_since_last_incomplete = None
+      result.append({
+          'username': get_username(score[0]),
+          'score': days_since_last_incomplete + 1 if score[2] == True else days_since_last_incomplete,
+          'gameMode': "geoQuest"
+      })
+  emit('geoquest top scores', result, room=request.sid)
+
+@socketio.on('geoquest get info')
+def handle_geoquest_get_info():
+  username = db_get_username(cursor, request.sid)
+  record = geoGetInfo(username)
+  if record:
+    emit('geoquest get info response', {'username': username, 'score': [1], 'completed': True if record[2] == 1 else False, 'lastIncomplete': record[3][:10]}, room=request.sid)
 
 if __name__ == '__main__':
   initialize_db() #init db if not already initialized

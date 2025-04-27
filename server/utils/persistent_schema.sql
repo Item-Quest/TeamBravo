@@ -17,5 +17,6 @@ CREATE TABLE if NOT EXISTS geoQuestData (
     playerId INTEGER Primary Key,
     score INTEGER,
     completed BOOLEAN,
+    lastIncomplete TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (playerId) REFERENCES users(id)
 );

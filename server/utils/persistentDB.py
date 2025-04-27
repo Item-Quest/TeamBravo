@@ -134,7 +134,7 @@ def _get_records(table_name, conditions=None, order_by=None, db_path=None):
 
     return records
 
-def _altar_records(table_name, record, conditions, db_path=None):
+def _altar_records(table_name, record, conditions=None, db_path=None):
     """
     Function to alter a record in the database.
     Updates only the columns provided in the `record` dictionary.
@@ -212,7 +212,9 @@ def save_score(username, score, game_mode, place):
     else:
         # TODO: error handiling for user not found
         pass
-    
+
+def get_username(id):
+    return _get_records("users", {"id": id})[0][1]
 
 
 def get_top_scores(game_mode=-1, orderBy=None):
@@ -249,9 +251,12 @@ def get_username(id):
 
 
 def find_user(username):
+    """finds a user in the database by username, returns the first record found"""
     user = _get_records("users", {"username": username})
     if user:
-        return user
+        return user[0]  # return the first record found
+    else:
+        return [-1, "Anonymous", ""]  # default user if not found
 
 
 def matchPassword(username, password):
@@ -263,19 +268,19 @@ def matchPassword(username, password):
 
 
 def userExists(username):
-    return find_user(username) != []
+    return find_user(username) != [-1, "Anonymous", ""]
 
 def create_user(username, password="Password"):
     _insert_record("users", {"username": username, "password": password})
     #create associated geoquest record
-    _insert_record("geoquestdata", {"playerId": find_user(username)[0][0], "score": 0, "completed": False})
+    _insert_record("geoquestdata", {"playerId": find_user(username)[0], "score": 0, "completed": False})
 
 #functions for geoquest
 def geoComplete(username):
     '''called when a user completes the geoquest game increments score and sets complete to true
         usage: GeoComplete(username)
     '''
-    playerId = find_user(username)[0][0] #first field of first record is the id
+    playerId = find_user(username)[0] #first field of first record is the id
     if playerId:
         _altar_records("geoquestdata", {"completed": True}, {"playerId": playerId})
         _increment_record_values("geoquestdata", "score", 1, {"playerId": playerId}) #increment score by 1
@@ -284,24 +289,43 @@ def geoGetScore(username):
     '''returns the score of the user in the geoquest game
         usage: GeoGetScore(username)
     '''
-    playerId = find_user(username)[0][0]
+    playerId = find_user(username)[0]
     if playerId:
-        return _get_records("geoquestdata", {"playerId": playerId})[0][1]
+        return _get_records("geoquestdata", {"playerId": playerId})[0][0]
+
+def geoGetInfo(username):
+    '''returns the score and completed status and when the last incomplete day was of the user in the geoquest game
+        usage: GeoGetInfo(username)
+    '''
+    playerId = find_user(username)[0]
+    if playerId != -1:
+        return _get_records("geoquestdata", {"playerId": playerId})[0]
+    else:
+        return None
+        
 
 def geoIsComplete(username):
     '''returns true if the user has completed the geoquest false if not complete
         usage: GeoIsComplete(username)
     '''
-    playerId = find_user(username)[0][0]
+    playerId = find_user(username)[0]
     if playerId:
         res = _get_records("geoquestdata", {"playerId": playerId})[0][2]
         return res == 1
 
 def geoNewDay():
-    '''called when a new day starts,sets completed to false
+    '''called when a new day starts, sets completed to false and updates lastIncomplete to today if completed is false
         usage: GeoNewDay()
     '''
-    _altar_records("geoquestdata", {"completed": False}, {})
+    _altar_records("geoquestdata", {"lastIncomplete": None}, {"completed": False}) #set lastIncomplete to default (None) if incomplete
+    _altar_records("geoquestdata", {"completed": False}, {}) #sets all completed to false
+
+def geoTopScores(count):
+    """
+    Retrieve the top `count` scores from the geoquestdata table, ordered from highest to lowest.
+    """
+    records = _get_records("geoquestdata", conditions=None, order_by="score DESC")
+    return records[:count]
 
 def construct_leaderboard_entry(record):
     """
@@ -320,7 +344,7 @@ def get_user_scores(username, game_mode=-1):
     print(username)
     if username == "Anonymous" or not userExists(username) :
         return None
-    userid = find_user(username)[0][0]
+    userid = find_user(username)[0]
     if game_mode == -1:
         return _get_records("scores", {"user_id": userid})
     else:

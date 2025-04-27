@@ -9,6 +9,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import socket from "../socket";
 import { loadModelAndPredict, setModelMode } from "../utils/imagePredict";
 import PlayCamera from "./PlayCamera";
+import { geoGetInfo, getGeoItem, submitGeoquest } from "../dataProvider";
 
 // Import logo
 // import logo from "../assets/logo2.png";
@@ -17,7 +18,7 @@ const GeoQuestPage = () => {
   const navigate = useNavigate();
   const [dailyItem, setDailyItem] = useState("");
   const [streak, setStreak] = useState(0);
-  const [lastCompletedDate, setLastCompletedDate] = useState(null);
+  const [lastIncompletedDate, setLastIncompletedDate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [prediction, setPrediction] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -26,13 +27,17 @@ const GeoQuestPage = () => {
   const [alertSeverity, setAlertSeverity] = useState("info");
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
-  const [timeFrame, setTimeFrame] = useState('all');
   const [AIOutput, setAIOutput] = useState("");
   const [gameState, setGameState] = useState("running");
   const [cameraBorderColor, setCameraBorderColor] = useState("transparent");
   const [showBorder, setShowBorder] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
+  const outDoorItems = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
+    'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
+    'bird', 'cat', 'dog', 'book bag', 'umbrella', 'frisbee', 'football', 'baseball bat',
+    'baseball glove', 'skateboard', 'tennis racket', 'pizza', 'donut', 'cake', 'plant',];
   // Get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
@@ -41,13 +46,13 @@ const GeoQuestPage = () => {
 
   // Function to receive AI output from the camera
   const getAIOutput = (label) => {
-    console.log("AI detected:", label);
     setAIOutput(label);
-    
+    //console.log("AI detected:", AIOutput, );
+
     // If there's a detection, show the border
     if (label) {
       setShowBorder(true);
-      
+      console.log("Label:", label, "and/but goal is:", dailyItem);
       // Set border color based on whether it matches the daily item
       if (label.toLowerCase() === dailyItem.toLowerCase()) {
         setCameraBorderColor("green");
@@ -71,65 +76,56 @@ const GeoQuestPage = () => {
   const camera = useMemo(() => {
     return <PlayCamera getAIOutput={getAIOutput} gameState={gameState} />;
   }, [gameState]);
+  const updatePersonalInfo = () => {
+    geoGetInfo((response) => {
+      if (response) {
+        console.log("getinfo response:", response);
+        setLastIncompletedDate(response.lastIncomplete);
+        setSuccess(response.completed);
+        setIsComplete(response.completed);
 
+        const lastDate = parseInt(response.lastIncomplete.replace(/-/g, ''), 10); // Convert yyyy-mm-dd to integer
+        const today = parseInt(getTodayDate().replace(/-/g, ''), 10);
+        const differenceInTime = today - lastDate;
+        const differenceInDays = Math.floor(differenceInTime / (1000 * 60 * 60 * 24));
+
+        console.log("Last Incompleted Date:", lastDate);
+        console.log("Today Date:", today);
+        console.log("Difference in Days:", differenceInDays);
+
+        setStreak(response.completed ? differenceInDays + 1 : differenceInDays);
+
+      }
+    });
+  };
   // Load user data from localStorage
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("geoQuestData")) || {
-      streak: 0,
-      lastCompletedDate: null
-    };
-    
-    setStreak(userData.streak);
-    setLastCompletedDate(userData.lastCompletedDate);
-    
-    // Set the model mode to GeoQuest
+
     setModelMode("GeoQuest");
-    
+
     // Generate today's item
     generateDailyItem();
-    
+
     // Fetch leaderboard data
     fetchLeaderboardData();
   }, []);
-
   // Fetch leaderboard data
   const fetchLeaderboardData = () => {
+    updatePersonalInfo();
     setLoadingLeaderboard(true);
-    
+
     // Set up socket event listener for leaderboard data
     const handleLeaderboardData = (data) => {
       setLeaderboardData(data);
       setLoadingLeaderboard(false);
     };
-    
+
     // Add event listener
-    socket.on('top scores', handleLeaderboardData);
-    
+    socket.on('geoquest top scores', handleLeaderboardData);
+
     // Request leaderboard data
-    socket.emit('get top scores', "geoQuest");
-    
-    // Clean up event listener after 5 seconds if no response
-    const timeoutId = setTimeout(() => {
-      if (loadingLeaderboard) {
-        // Create mock data if no response
-        const mockData = [
-          { username: "DailyExplorer", score: "15 days", gameMode: "geoQuest" },
-          { username: "GeoMaster", score: "12 days", gameMode: "geoQuest" },
-          { username: "ItemHunter", score: "10 days", gameMode: "geoQuest" },
-          { username: "StreakChaser", score: "8 days", gameMode: "geoQuest" },
-          { username: "DailyFinder", score: "5 days", gameMode: "geoQuest" }
-        ];
-        setLeaderboardData(mockData);
-        setLoadingLeaderboard(false);
-      }
-      socket.off('top scores', handleLeaderboardData);
-    }, 5000);
-    
-    return () => {
-      clearTimeout(timeoutId);
-      socket.off('top scores', handleLeaderboardData);
+    socket.emit('geoquest get top scores', "geoQuest");
     };
-  };
 
   // Save user data to localStorage
   const saveUserData = (newStreak, newLastCompletedDate) => {
@@ -143,97 +139,41 @@ const GeoQuestPage = () => {
   // Generate daily item based on the date
   const generateDailyItem = () => {
     setLoading(true);
-    
-    // Get today's date as a seed for the random item
-    const today = new Date();
-    const dateString = getTodayDate();
-    
+
     // Check if user has already completed today's challenge
-    if (lastCompletedDate === dateString) {
+    if (isComplete) {
       setAlertMessage("You've already completed today's challenge! Come back tomorrow for a new item.");
       setAlertSeverity("info");
       setShowAlert(true);
       setSuccess(true);
     }
-    
-    // Simple hash function to generate a consistent item for a specific date
-    let hash = 0;
-    for (let i = 0; i < dateString.length; i++) {
-      hash = ((hash << 5) - hash) + dateString.charCodeAt(i);
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    
-    // Get outdoor items from server (using the ones defined in app.py)
-    const outDoorItems = [
-      'person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
-      'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
-      'bird', 'cat', 'dog', 'backpack', 'umbrella', 'handbag', 'suitcase', 'frisbee',
-      'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove',
-      'skateboard', 'surfboard', 'tennis racket',
-      'banana', 'apple', 'sandwich', 'orange',
-      'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'potted plant'
-    ];
-    
-    // Use the hash to select a consistent item for the day
-    const itemIndex = Math.abs(hash) % outDoorItems.length;
-    const todayItem = outDoorItems[itemIndex];
-    
-    setDailyItem(todayItem);
+
+    getGeoItem((item) => { setDailyItem(item); console.log("Daily item:", item); });  
     setLoading(false);
   };
 
   // Handle item detection
   const handleItemDetected = (detectedItem) => {
     // Check if the detected item matches the daily item
-    const foundItem = detectedItem.toLowerCase() === dailyItem.toLowerCase();
-
-    if (foundItem) {
-      const today = getTodayDate();
-      
+      console.log("ITEM FOUND")
+      submitGeoquest()
       // Check if this is a new day compared to the last completed day
-      if (lastCompletedDate !== today) {
-        // Check if this is the next consecutive day to maintain streak
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayString = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-        
-        let newStreak = streak;
-        
-        if (lastCompletedDate === yesterdayString) {
-          // Consecutive day, increase streak
-          newStreak = streak + 1;
-        } else if (!lastCompletedDate) {
-          // First time playing
-          newStreak = 1;
-        } else {
-          // Streak broken
-          newStreak = 1;
-        }
-        
-        setStreak(newStreak);
-        setLastCompletedDate(today);
+      if (!isComplete) {
         setSuccess(true);
-        saveUserData(newStreak, today);
-        
-        // Save score to server
-        socket.emit('submit', { submit: dailyItem, gameMode: "geoQuest" });
-        
-        setAlertMessage(`Success! You found a ${dailyItem}. Your streak is now ${newStreak}!`);
+        setIsComplete(true);
+        setAlertMessage(`Success! You found a ${dailyItem}. Your streak is now ${streak}!`);
         setAlertSeverity("success");
         setShowAlert(true);
-        
+
         // Refresh leaderboard after successful submission
         fetchLeaderboardData();
-      } else {
+      }
+      else {
         setAlertMessage("You've already completed today's challenge!");
         setAlertSeverity("info");
         setShowAlert(true);
       }
-    } else {
-      setAlertMessage(`That's not a ${dailyItem}. Keep looking!`);
-      setAlertSeverity("warning");
-      setShowAlert(true);
-    }
+      fetchLeaderboardData();
   };
 
   // Format the player rank
@@ -281,7 +221,7 @@ const GeoQuestPage = () => {
         <Typography variant="h3" gutterBottom>
           GeoQuest
         </Typography>
-        
+
         <Card sx={{ width: "100%", mb: 4 }}>
           <CardContent>
             <Typography variant="h5" gutterBottom>
@@ -318,10 +258,10 @@ const GeoQuestPage = () => {
                   </Typography>
                 </Box>
               ) : (
-                <Box sx={{ 
-                  width: "100%", 
-                  height: "auto", 
-                  maxHeight: "480px", 
+                <Box sx={{
+                  width: "100%",
+                  height: "auto",
+                  maxHeight: "480px",
                   overflow: "hidden",
                   position: "relative",
                   display: "flex",
@@ -352,9 +292,9 @@ const GeoQuestPage = () => {
                   >
                     {camera}
                   </Box>
-                  
+
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle1" sx={{ 
+                    <Typography variant="subtitle1" sx={{
                       color: showBorder ? cameraBorderColor : 'inherit',
                       fontWeight: showBorder ? 'bold' : 'normal',
                       transition: "color 0.3s ease"
@@ -373,7 +313,9 @@ const GeoQuestPage = () => {
                   <EmojiEventsIcon sx={{ mr: 1 }} color="primary" />
                   Top Streaks
                 </Typography>
-                <Box display="flex" gap={1}>
+
+                {//take out time filter doesnt make sense
+                /* <Box display="flex" gap={1}>
                   <Chip 
                     label="All Time" 
                     color={timeFrame === 'all' ? 'primary' : 'default'} 
@@ -392,11 +334,11 @@ const GeoQuestPage = () => {
                     onClick={() => setTimeFrame('today')}
                     clickable
                   />
-                </Box>
+                </Box> */}
               </Box>
-              
+
               <Divider sx={{ mb: 2 }} />
-              
+
               {loadingLeaderboard ? (
                 <Box display="flex" justifyContent="center" p={3}>
                   <CircularProgress size={30} />
@@ -404,7 +346,7 @@ const GeoQuestPage = () => {
               ) : (
                 <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                   {leaderboardData.slice(0, 5).map((player, index) => (
-                    <ListItem 
+                    <ListItem
                       key={index}
                       secondaryAction={
                         <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
@@ -422,8 +364,8 @@ const GeoQuestPage = () => {
                           {getPlayerRank(index)}
                         </Avatar>
                       </ListItemAvatar>
-                      <ListItemText 
-                        primary={player.username} 
+                      <ListItemText
+                        primary={player.username}
                         secondary={`GeoQuest Player`}
                       />
                     </ListItem>
@@ -434,9 +376,9 @@ const GeoQuestPage = () => {
           </Box>
         )}
 
-        <Snackbar 
-          open={showAlert} 
-          autoHideDuration={6000} 
+        <Snackbar
+          open={showAlert}
+          autoHideDuration={6000}
           onClose={() => setShowAlert(false)}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >

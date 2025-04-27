@@ -63,6 +63,9 @@ export function getGameMode(callback) {
         }
     });
 }
+export function geoGetInfo(callback) {
+    socketCallWrapper('geoquest get info', null, 'geoquest get info response', callback);
+}
 
 export function whoAmI(callback) {
     socketCallWrapper('who am i', null, 'who am i response', callback);
@@ -77,10 +80,11 @@ export function getUserinfo(callback) {
 //geoquest functions
 export function getGeoItem(callback) {
     socketCallWrapper('get geo item', null, 'geo item', callback);
+    return callback;
 }
 
-export function submitGeoquest(answer, callback) {
-    socketCallWrapper('geosubmit', answer, 'geosubmit response', callback);
+export function submitGeoquest(callback) {
+    socket.emit('geosubmit', null);
 }
 
 export function geoGetScore(callback) {
