@@ -24,8 +24,8 @@ app = Flask(__name__, template_folder='../client/dist', static_folder='../client
 app.config['SECRET_KEY'] = 'secret!'
 
 #Initialize SocketIO
-# socketio = SocketIO(app, async_mode='eventlet')
-socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
+socketio = SocketIO(app, async_mode='eventlet')
+#socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=["http://localhost:5173","http://localhost:5174"])
 
 #variables for game control
 game_thread = None
@@ -370,8 +370,8 @@ def handle_end_game():
     #Get username
     gameMode = db_get_game_mode(cursor, roomCode)[0]
     print(f"game mode: {gameMode}")
-    if gameMode == "ItemBlitz":
-      save_scores(roomCode, "ItemBlitz")
+    if gameMode == "Item Blitz":
+      save_scores(roomCode, "Item Blitz")
       
     #Print that user requested to run game
     #Update game state to running

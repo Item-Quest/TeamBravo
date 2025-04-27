@@ -37,7 +37,7 @@ const Leaderboard = (props) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
     const [timeFrame, setTimeFrame] = useState('all');
-    const [gameMode, setGameMode] = useState('ItemRace');
+    const [gameMode, setGameMode] = useState('Item Race');
     const [loading, setLoading] = useState(true);
     const [leaderboardData, setLeaderboardData] = useState([]);
     const [error, setError] = useState(null);
@@ -253,20 +253,14 @@ const Leaderboard = (props) => {
                                                     <Box display="flex" gap={1}>
                                                         <Chip
                                                             label="Item Race"
-                                                            color={gameMode === 'ItemRace' ? 'primary' : 'default'}
-                                                            onClick={() => setGameMode('ItemRace')}
+                                                            color={gameMode === 'Item Race' ? 'primary' : 'default'}
+                                                            onClick={() => setGameMode('Item Race')}
                                                             clickable
                                                         />
                                                         <Chip
                                                             label="Item Blitz"
-                                                            color={gameMode === 'ItemBlitz' ? 'primary' : 'default'}
-                                                            onClick={() => setGameMode('ItemBlitz')}
-                                                            clickable
-                                                        />
-                                                        <Chip
-                                                            label="Geo Quest"
-                                                            color={gameMode === 'GeoQuest' ? 'primary' : 'default'}
-                                                            onClick={() => setGameMode('GeoQuest')}
+                                                            color={gameMode === 'Item Blitz' ? 'primary' : 'default'}
+                                                            onClick={() => setGameMode('Item Blitz')}
                                                             clickable
                                                         />
                                                     </Box>
@@ -325,8 +319,8 @@ const Leaderboard = (props) => {
                                                         return matchesGameMode && matchesTimeFrame;
                                                     })
                                                     .sort((a, b) => {
-                                                        if (gameMode === 'ItemRace') {
-                                                            // Sort lowest to highest for ItemRace
+                                                        if (gameMode === 'Item Race') {
+                                                            // Sort lowest to highest for Item Race
                                                             return a.Score - b.Score;
                                                         }
                                                         // Sort highest to lowest for other game modes
@@ -380,7 +374,7 @@ const Leaderboard = (props) => {
                                                                     }}
                                                                 >
                                                                     <Typography variant="h6" color="primary">
-                                                                        {player.Score} {player.GameMode === 'ItemRace' ? 'seconds' : 'points'}
+                                                                        {player.Score} {player.GameMode === 'Item Race' ? 'seconds' : 'points'}
                                                                     </Typography>
                                                                     <Typography variant="caption">
                                                                         {player.GameMode}
@@ -458,7 +452,7 @@ const Leaderboard = (props) => {
                                                         secondary={new Date(score[3]).toLocaleString()} // Date/time played
                                                     />
                                                     <Typography variant="body2">
-                                                        {score[2]} {score[1] === 'ItemRace' ? 'seconds' : 'points'}
+                                                        {score[2]} {score[1] === 'Item Race' ? 'seconds' : 'points'}
                                                     </Typography>
                                                 </ListItem>
                                             ))
