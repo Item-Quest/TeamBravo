@@ -12,12 +12,20 @@ import CreateGameModal from "./CreateGameModal";
 import { joinGame } from "../dataProvider.js";
 
 import SupportModal from "./SupportModal"
+import click from "../assets/SFX/click.wav"
 
 const Home = (updateGame) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [uiVolume] = useState(() => {
+    const storedVolume = localStorage.getItem('uiVolume');
+    return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+  });
+  
+  const clickSound = new Audio(click);
+  clickSound.volume = uiVolume
 
   const joinClick = () => {
     setIsModalOpen(true);
@@ -36,6 +44,7 @@ const Home = (updateGame) => {
   };
 
   const SupportClick = () => {
+    clickSound.play();
     setIsSupportOpen(true);
   };
 

@@ -12,10 +12,18 @@ import {
   Box,
 } from "@mui/material";
 import PropTypes from 'prop-types';
+import backClick from "../assets/SFX/backclick.wav"
 
 const SupportModal = ({ isOpen, onClose}) => {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
+    const [uiVolume] = useState(() => {
+      const storedVolume = localStorage.getItem('uiVolume');
+      return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+    });
+    
+    const backClickSound = new Audio(backClick);
+    backClickSound.volume = uiVolume
 
   const sendEmail = () => {
     if (!name || !message) {
@@ -88,7 +96,10 @@ const SupportModal = ({ isOpen, onClose}) => {
       </DialogContent>
       <DialogActions>
         <Button 
-          onClick={onClose} 
+          onClick={() => {
+            backClickSound.play();
+            onClose();
+          }}
           sx={{ 
             color: '#666',
             '&:hover': {
