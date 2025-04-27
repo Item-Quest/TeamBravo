@@ -1,16 +1,24 @@
 // client/src/components/NavigationPanel.jsx
 // eslint-disable-next-line no-unused-vars
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import logo from "../assets/logo2.png";
 import PropTypes from 'prop-types';
 import { createGame } from "../dataProvider.js";
+import click from "../assets/SFX/click.wav"
 
-const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
+
+const NavigationPanel = ({ onJoinClick, onCreateClick, uiVolume }) => {
+
+  const clickSound = new Audio(click);
+  
+
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+
 
   return (
     <Box
@@ -72,7 +80,10 @@ const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
       }}>
         <button
           className="fun-button fun-button-join"
-          onClick={onJoinClick}
+          onClick={() => {
+            clickSound.play();
+            onJoinClick();
+          }}
           style={{ 
             width: '100%', 
             marginBottom: isMobile ? 8 : 18,
@@ -162,6 +173,7 @@ const NavigationPanel = ({ onJoinClick, onCreateClick }) => {
 NavigationPanel.propTypes = {
   onJoinClick: PropTypes.func.isRequired,
   onCreateClick: PropTypes.func.isRequired,
+  uiVolume: PropTypes.number.isRequired,
 };
 
 export default NavigationPanel;

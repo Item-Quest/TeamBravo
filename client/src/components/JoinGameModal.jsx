@@ -1,6 +1,7 @@
 // client/src/components/JoinGameModal.jsx
 // eslint-disable-next-line no-unused-vars
 import React, {useState} from "react";
+import click from "../assets/SFX/click.wav"
 
 import {
   Button,
@@ -17,6 +18,7 @@ const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
   //state for getting username and room code
   // const [username, setUsername] = useState("Anonymous");
   const [roomCode, setRoomCode] = useState("");
+  const clickSound = new Audio(click);
 
   // Common text field styling
   const textFieldStyle = {
@@ -76,6 +78,7 @@ const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
         </Button>
         <Button
           onClick={() => {
+            clickSound.play();
             // Handle join logic
             onJoin(roomCode);
           }}

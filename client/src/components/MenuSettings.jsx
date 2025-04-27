@@ -17,6 +17,11 @@ const getStoredVolume = () => {
   return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
 };
 
+const getStoredUiVolume = () => {
+  const storedUiVolume = localStorage.getItem('uiVolume');
+  return storedUiVolume !== null ? parseInt(storedUiVolume) : 0.5;
+};
+
 // Get the muted state from localStorage or use default
 const getStoredMuted = () => {
   const storedMuted = localStorage.getItem('musicMuted');
@@ -37,7 +42,7 @@ const getStoredBackgroundColor = () => {
 
 const MenuSettings = () => {
   const navigate = useNavigate();
-  const [uiVolume, setUiVolume] = useState(50);
+  const [uiVolume, setUiVolume] = useState(getStoredUiVolume() * 100);
   const [musicVolume, setMusicVolume] = useState(getStoredVolume() * 100);
   const [accessibility, setAccessibility] = useState('none');
   const [backgroundConfig, setBackgroundConfig] = useState(getStoredBackgroundConfig());
@@ -61,6 +66,11 @@ const MenuSettings = () => {
       }
     }
   }, [musicVolume]);
+
+  useEffect(() => {
+    const uiVolumeDecimal = musicVolume / 100;
+    localStorage.setItem('uiVolume', uiVolumeDecimal.toString());
+  }, [uiVolume]);
 
   // Save background config to localStorage when it changes
   useEffect(() => {
@@ -660,8 +670,8 @@ const MenuSettings = () => {
                 textTransform: 'uppercase'
               }}
             >
-              Credits
             </Typography>
+              Credits
           </Box>
           
           <Typography 
