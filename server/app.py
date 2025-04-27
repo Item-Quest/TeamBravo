@@ -306,7 +306,7 @@ def handle_start_game(data=None):
     game_items = []
     print(game_mode)
     # selects game items based on mode
-    if game_mode == "ItemBlitz":
+    if game_mode == "Item Blitz":
       game_items.extend(random.sample(indoorItems, len(indoorItems)))
     else: #ItemRace
       game_items.extend(random.sample(indoorItems, 5))
@@ -399,7 +399,7 @@ def handle_submit(data):
     print(score)
     game_mode = data.get('mode')
     #check if victory
-    if score == 5 and game_mode == "ItemRace":
+    if score == 5 and game_mode == "Item Race":
       db_set_room_game_state(cursor,roomCode, "waiting")
       #TODO: emit win time
       username = db_get_username(cursor, request.sid)
@@ -428,20 +428,20 @@ def save_scores(roomCode, finalTime, gameMode):
   #gameMode = db_get_game_mode(roomCode)
   place = 1
   users = db_get_users_in_room_by_score(cursor, roomCode)
-  if gameMode == "ItemRace":
+  if gameMode == "Item Race":
     # score == time
     for user in users:
-      save_score(user[2], f"{finalTime} seconds", "ItemRace", place)
+      save_score(user[2], f"{finalTime} seconds", "Item Race", place)
       place += 1
-  elif gameMode == "ItemBlitz":
+  elif gameMode == "Item Blitz":
   # score == time;
       for user in users:
-        save_score(user[2], f"{user[3]} points", "ItemBlitz", place)
+        save_score(user[2], f"{user[3]} points", "Item Blitz", place)
         place += 1
   elif gameMode == "GeoQuest":
   # TODO i think this is first to complete may need to change 
     for user in users:
-        save_score(user[2], f"{finalTime} seconds", "ItemBlitz", place)
+        save_score(user[2], f"{finalTime} seconds", "Item Blitz", place)
         place += 1
   else:
     print(f"Unknown game mode: {gameMode}")

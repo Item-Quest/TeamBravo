@@ -244,7 +244,6 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
           >
             <MenuItem value="Item Race">Item Race</MenuItem>
             <MenuItem value="Item Blitz">Item Blitz</MenuItem>
-            <MenuItem value="GeoQuest">GeoQuest</MenuItem>
           </Select>
         </FormControl>
         
