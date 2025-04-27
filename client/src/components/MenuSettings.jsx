@@ -19,7 +19,7 @@ const getStoredVolume = () => {
 
 const getStoredUiVolume = () => {
   const storedUiVolume = localStorage.getItem('uiVolume');
-  return storedUiVolume !== null ? parseInt(storedUiVolume) : 0.5;
+  return storedUiVolume !== null ? parseFloat(storedUiVolume) : 0.5;
 };
 
 // Get the muted state from localStorage or use default
@@ -68,7 +68,7 @@ const MenuSettings = () => {
   }, [musicVolume]);
 
   useEffect(() => {
-    const uiVolumeDecimal = musicVolume / 100;
+    const uiVolumeDecimal = uiVolume / 100;
     localStorage.setItem('uiVolume', uiVolumeDecimal.toString());
   }, [uiVolume]);
 
@@ -79,6 +79,10 @@ const MenuSettings = () => {
 
   const handleMusicVolumeChange = (event, newValue) => {
     setMusicVolume(newValue);
+  };
+
+  const handleUicVolumeChange = (event, newValue) => {
+    setUiVolume(newValue);
   };
 
   const handleBackgroundConfigChange = (event) => {
@@ -265,7 +269,7 @@ const MenuSettings = () => {
               </Typography>
               <Slider
                 value={uiVolume}
-                onChange={(e, val) => setUiVolume(val)}
+                onChange={handleUicVolumeChange}
                 aria-labelledby="ui-volume-slider"
                 valueLabelDisplay="auto"
                 step={1}

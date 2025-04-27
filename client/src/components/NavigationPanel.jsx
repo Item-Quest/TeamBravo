@@ -1,6 +1,6 @@
 // client/src/components/NavigationPanel.jsx
 // eslint-disable-next-line no-unused-vars
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import logo from "../assets/logo2.png";
@@ -9,9 +9,32 @@ import { createGame } from "../dataProvider.js";
 import click from "../assets/SFX/click.wav"
 
 
-const NavigationPanel = ({ onJoinClick, onCreateClick, uiVolume }) => {
+const NavigationPanel = ({ onJoinClick, onCreateClick}) => {
+
+
+const [uiVolume, setVolume] = useState(() => {
+  const storedVolume = localStorage.getItem('uiVolume');
+  return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+});
+
+  // Check for volume changes from MenuSettings
+  useEffect(() => {
+    const checkVolumeChanges = () => {
+      const storedVolume = localStorage.getItem('uiVolume');
+      if (storedVolume !== null && parseFloat(storedVolume) !== uiVolume) {
+        setVolume(parseFloat(storedVolume));
+      }
+    };
+
+    // Check every second for changes
+    const intervalId = setInterval(checkVolumeChanges, 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [uiVolume]);
+
 
   const clickSound = new Audio(click);
+  clickSound.volume = uiVolume
   
 
   const navigate = useNavigate();
@@ -96,7 +119,10 @@ const NavigationPanel = ({ onJoinClick, onCreateClick, uiVolume }) => {
 
         <button
           className="fun-button fun-button-create"
-          onClick={onCreateClick}
+          onClick={() => {
+            clickSound.play();
+            onCreateClick();
+          }}
           style={{ 
             width: '100%', 
             marginBottom: isMobile ? 8 : 18,
@@ -109,7 +135,10 @@ const NavigationPanel = ({ onJoinClick, onCreateClick, uiVolume }) => {
 
         <button
           className="fun-button fun-button-geo"
-          onClick={() => navigate("/geoquest")}
+          onClick={() =>{
+            clickSound.play();
+            navigate("/geoquest");
+          }}
           style={{ 
             width: '100%', 
             marginBottom: isMobile ? 8 : 18,
@@ -122,7 +151,10 @@ const NavigationPanel = ({ onJoinClick, onCreateClick, uiVolume }) => {
 
         <button
           className="fun-button fun-button-leaderboard"
-          onClick={() => navigate("/leaderboard")}
+          onClick={() => {
+            clickSound.play();
+            navigate("/leaderboard");
+          }}
           style={{ 
             width: '100%', 
             marginBottom: isMobile ? 8 : 18,
@@ -144,7 +176,10 @@ const NavigationPanel = ({ onJoinClick, onCreateClick, uiVolume }) => {
         <div className="button-container">
           <button
             className="fun-button fun-button-settings"
-            onClick={() => navigate("/MenuSettings")}
+            onClick={() =>{
+              clickSound.play();
+              navigate("/MenuSettings");
+            }}
             style={{ 
               width: '48%',
               fontSize: isMobile ? "0.9rem" : "1.1rem", 
@@ -155,7 +190,10 @@ const NavigationPanel = ({ onJoinClick, onCreateClick, uiVolume }) => {
           </button>
           <button
             className="fun-button fun-button-login"
-            onClick={() => navigate("/Login")}
+            onClick={() => {
+              clickSound.play();
+              navigate("/Login");
+            }}
             style={{ 
               width: '48%',
               fontSize: isMobile ? "0.9rem" : "1.1rem", 
@@ -173,7 +211,6 @@ const NavigationPanel = ({ onJoinClick, onCreateClick, uiVolume }) => {
 NavigationPanel.propTypes = {
   onJoinClick: PropTypes.func.isRequired,
   onCreateClick: PropTypes.func.isRequired,
-  uiVolume: PropTypes.number.isRequired,
 };
 
 export default NavigationPanel;
