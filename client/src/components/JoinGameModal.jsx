@@ -2,6 +2,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, {useState} from "react";
 import click from "../assets/SFX/click.wav"
+import backClick from "../assets/SFX/backclick.wav"
 
 import {
   Button,
@@ -18,7 +19,15 @@ const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
   //state for getting username and room code
   // const [username, setUsername] = useState("Anonymous");
   const [roomCode, setRoomCode] = useState("");
+
+  const [uiVolume] = useState(() => {
+    const storedVolume = localStorage.getItem('uiVolume');
+    return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+  });
   const clickSound = new Audio(click);
+  clickSound.volume = uiVolume
+  const backClickSound = new Audio(backClick);
+  backClickSound.volume = uiVolume
 
   // Common text field styling
   const textFieldStyle = {
@@ -66,7 +75,10 @@ const JoinGameModal = ({ isOpen, onClose, onJoin}) => {
       </DialogContent>
       <DialogActions>
         <Button 
-          onClick={onClose} 
+          onClick={() => {
+            backClickSound.play();
+            onClose();
+          }}
           sx={{ 
             color: '#666',
             '&:hover': {

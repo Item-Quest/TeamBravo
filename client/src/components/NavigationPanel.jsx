@@ -17,22 +17,6 @@ const [uiVolume, setVolume] = useState(() => {
   return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
 });
 
-  // Check for volume changes from MenuSettings
-  useEffect(() => {
-    const checkVolumeChanges = () => {
-      const storedVolume = localStorage.getItem('uiVolume');
-      if (storedVolume !== null && parseFloat(storedVolume) !== uiVolume) {
-        setVolume(parseFloat(storedVolume));
-      }
-    };
-
-    // Check every second for changes
-    const intervalId = setInterval(checkVolumeChanges, 1000);
-    
-    return () => clearInterval(intervalId);
-  }, [uiVolume]);
-
-
   const clickSound = new Audio(click);
   clickSound.volume = uiVolume
   

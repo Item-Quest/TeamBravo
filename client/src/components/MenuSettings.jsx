@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeContext';
 import { Box, Typography, Slider, FormControl, InputLabel, Select, MenuItem, Paper, Button } from '@mui/material';
@@ -10,6 +10,8 @@ import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import InfoIcon from '@mui/icons-material/Info';
 import PaletteIcon from '@mui/icons-material/Palette';
+import click from "../assets/SFX/click.wav"
+import backClick from "../assets/SFX/backclick.wav"
 
 // Get the audio volume from localStorage or use default
 const getStoredVolume = () => {
@@ -50,6 +52,16 @@ const MenuSettings = () => {
   const { theme, setTheme, themes } = useTheme();
   const isMobile = window.innerWidth < 600;
 
+  const clickSoundRef = useRef(new Audio(click));
+  const backClickSoundRef = useRef(new Audio(backClick));
+
+  // Initial volume setting
+useEffect(() => {
+  clickSoundRef.current.volume = uiVolume / 100;
+  backClickSoundRef.current.volume = uiVolume / 100;
+}, [uiVolume]);
+
+
   // Update actual audio element when volume changes
   useEffect(() => {
     // Convert from percentage (0-100) to decimal (0-1)
@@ -71,6 +83,7 @@ const MenuSettings = () => {
     const uiVolumeDecimal = uiVolume / 100;
     localStorage.setItem('uiVolume', uiVolumeDecimal.toString());
   }, [uiVolume]);
+  
 
   // Save background config to localStorage when it changes
   useEffect(() => {
@@ -83,13 +96,16 @@ const MenuSettings = () => {
 
   const handleUicVolumeChange = (event, newValue) => {
     setUiVolume(newValue);
+    clickSoundRef.current.play();
   };
 
   const handleBackgroundConfigChange = (event) => {
+    clickSoundRef.current.play();
     setBackgroundConfig(event.target.value);
   };
 
   const handleBackgroundColorChange = (event) => {
+    clickSoundRef.current.play();
     const newValue = event.target.value;
     console.log("Background color change - selected value:", newValue);
     setBackgroundColor(newValue); // Update local state for the dropdown
@@ -128,6 +144,7 @@ const MenuSettings = () => {
   };
 
   const handleBackToHome = () => {
+    backClickSoundRef.current.play();
     navigate('/');
   };
 
@@ -336,6 +353,7 @@ const MenuSettings = () => {
               value={theme}
               label="Theme"
               onChange={(e) => {
+                clickSoundRef.current.play();
                 setTheme(e.target.value);
                 // Reset custom background color when theme changes
                 setBackgroundColor('');
@@ -601,7 +619,10 @@ const MenuSettings = () => {
               labelId="accessibility-select-label"
               value={accessibility}
               label="Accessibility Options"
-              onChange={(e) => setAccessibility(e.target.value)}
+              onChange={(e) =>{
+                clickSoundRef.current.play();
+               setAccessibility(e.target.value);
+              }}
               sx={{
                 '.MuiOutlinedInput-notchedOutline': {
                   borderColor: 'var(--accent-color)',

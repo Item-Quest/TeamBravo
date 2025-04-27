@@ -9,6 +9,7 @@ import '../styles/login.css';
 import socket from '../socket';
 import logo from "../assets/logo2.png";
 import SupportModal from "./SupportModal";
+import click from "../assets/SFX/click.wav"
 
 const Login = (props) => {
   const [username, setUsername] = useState("");
@@ -16,8 +17,14 @@ const Login = (props) => {
   const [confPass, setConfPass] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSupportOpen, setIsSupportOpen] = useState(false);
+  const [uiVolume] = useState(() => {
+    const storedVolume = localStorage.getItem('uiVolume');
+    return storedVolume !== null ? parseFloat(storedVolume) : 0.5;
+  });
 
   const navigate = useNavigate();
+  const clickSound = new Audio(click);
+  clickSound.volume = uiVolume
 
   function updateUsername(event) {
     setUsername(event.target.value);
@@ -38,6 +45,7 @@ const Login = (props) => {
       return;
     }
     if (password === confPass) {
+      clickSound.play();
       socket.emit('login', { 'username': username, 'password': password });
     }
     else {
@@ -51,6 +59,7 @@ const Login = (props) => {
       return;
     }
     if (password === confPass) {
+      clickSound.play();
       socket.emit('register', { 'username': username, 'password': password });
     }
     else {
