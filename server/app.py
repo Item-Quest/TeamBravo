@@ -128,14 +128,14 @@ def handle_join_attempt(data):
 
 #Create room Page
 @socketio.on('create game')
-def handle_create_game():
+def handle_create_game(data):
   #generate random 6 uppercase alphanumeric character room code
   roomCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
   while db_room_exists(cursor, roomCode):
     #Generate random 6 uppercase alphanumeric character room code
     roomCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
   # create room and set initial game state
-  db_add_room(cursor, roomCode, "waiting", "[no items]", 0, "ItemRace")
+  db_add_room(cursor, roomCode, "waiting", "[no items]", 0, data.get('mode'))
   #check if room exists
   if(db_room_exists(cursor, roomCode) == False):
     print("room creation failed")
@@ -464,20 +464,24 @@ if __name__ == '__main__':
   print("db location: ", DB_PATH)
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
-  # 1) Create a normal eventlet listening socket
+
+  #socketio.run(app,debug=True)
+
+  #1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))
 
-    # 2) Wrap it in SSL
-  ssl_listener = eventlet.wrap_ssl(
-        listener,
-        certfile='mycert.pem',    # Path to your certificate
-        keyfile='mykey.pem',      # Path to your private key
-        server_side=True
-    )
 
-    # 3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
-    #    We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
+  #2) Wrap it in SSL
+  ssl_listener = eventlet.wrap_ssl(
+      listener,
+      certfile='mycert.pem',    # Path to your certificate
+      keyfile='mykey.pem',      # Path to your private key
+      server_side=True
+  )
+
+  #3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
+  # We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
   eventlet.wsgi.server(
     ssl_listener,
     app
-)
+  )
