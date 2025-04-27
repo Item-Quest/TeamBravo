@@ -128,14 +128,14 @@ def handle_join_attempt(data):
 
 #Create room Page
 @socketio.on('create game')
-def handle_create_game():
+def handle_create_game(data):
   #generate random 6 uppercase alphanumeric character room code
   roomCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
   while db_room_exists(cursor, roomCode):
     #Generate random 6 uppercase alphanumeric character room code
     roomCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
   # create room and set initial game state
-  db_add_room(cursor, roomCode, "waiting", "[no items]", 0, "ItemRace")
+  db_add_room(cursor, roomCode, "waiting", "[no items]", 0, data.get('mode'))
   #check if room exists
   if(db_room_exists(cursor, roomCode) == False):
     print("room creation failed")
@@ -306,7 +306,7 @@ def handle_start_game(data=None):
     game_items = []
     print(game_mode)
     # selects game items based on mode
-    if game_mode == "ItemBlitz":
+    if game_mode == "Item Blitz":
       game_items.extend(random.sample(indoorItems, len(indoorItems)))
     else: #ItemRace
       game_items.extend(random.sample(indoorItems, 5))
@@ -399,7 +399,7 @@ def handle_submit(data):
     print(score)
     game_mode = data.get('mode')
     #check if victory
-    if score == 5 and game_mode == "ItemRace":
+    if score == 5 and game_mode == "Item Race":
       db_set_room_game_state(cursor,roomCode, "waiting")
       #TODO: emit win time
       username = db_get_username(cursor, request.sid)
@@ -428,20 +428,20 @@ def save_scores(roomCode, finalTime, gameMode):
   #gameMode = db_get_game_mode(roomCode)
   place = 1
   users = db_get_users_in_room_by_score(cursor, roomCode)
-  if gameMode == "ItemRace":
+  if gameMode == "Item Race":
     # score == time
     for user in users:
-      save_score(user[2], f"{finalTime} seconds", "ItemRace", place)
+      save_score(user[2], f"{finalTime} seconds", "Item Race", place)
       place += 1
-  elif gameMode == "ItemBlitz":
+  elif gameMode == "Item Blitz":
   # score == time;
       for user in users:
-        save_score(user[2], f"{user[3]} points", "ItemBlitz", place)
+        save_score(user[2], f"{user[3]} points", "Item Blitz", place)
         place += 1
   elif gameMode == "GeoQuest":
   # TODO i think this is first to complete may need to change 
     for user in users:
-        save_score(user[2], f"{finalTime} seconds", "ItemBlitz", place)
+        save_score(user[2], f"{finalTime} seconds", "Item Blitz", place)
         place += 1
   else:
     print(f"Unknown game mode: {gameMode}")
@@ -464,20 +464,24 @@ if __name__ == '__main__':
   print("db location: ", DB_PATH)
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
-  # 1) Create a normal eventlet listening socket
+
+  #socketio.run(app,debug=True)
+
+  #1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))
 
-    # 2) Wrap it in SSL
-  ssl_listener = eventlet.wrap_ssl(
-        listener,
-        certfile='mycert.pem',    # Path to your certificate
-        keyfile='mykey.pem',      # Path to your private key
-        server_side=True
-    )
 
-    # 3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
-    #    We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
+  #2) Wrap it in SSL
+  ssl_listener = eventlet.wrap_ssl(
+      listener,
+      certfile='mycert.pem',    # Path to your certificate
+      keyfile='mykey.pem',      # Path to your private key
+      server_side=True
+  )
+
+  #3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
+  # We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
   eventlet.wsgi.server(
     ssl_listener,
     app
-)
+  )

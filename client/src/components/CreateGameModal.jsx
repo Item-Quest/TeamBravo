@@ -94,7 +94,7 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
     }
 
     console.log("Creating game with mode:", gameMode, "and items:", selectedItems);
-    createGame(username, (result) => {
+    createGame(gameMode, (result) => {
       updateGame(username, result.roomCode, result.sid, selectedItems);
       navigate("/play");
     });
@@ -244,7 +244,6 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
           >
             <MenuItem value="Item Race">Item Race</MenuItem>
             <MenuItem value="Item Blitz">Item Blitz</MenuItem>
-            <MenuItem value="GeoQuest">GeoQuest</MenuItem>
           </Select>
         </FormControl>
         
