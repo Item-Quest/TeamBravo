@@ -5,9 +5,12 @@ import string
 import threading
 #Import Flask object
 from flask import Flask, render_template, request, g # type: ignore
+
+from apscheduler.schedulers.background import BackgroundScheduler
+
 #import socket.io
 from flask_socketio import SocketIO, join_room, leave_room, close_room, emit # type: ignore
-import random, string
+import random, string, datetime
 
 #import database functions
 from utils.memoryDB import *
@@ -71,7 +74,7 @@ def handle_username_change(data):
 def handle_register(data):
   username = data['username']
   password = data['password']
-  if(not find_user(username)):
+  if(not userExists(username)):
     #if user doesn't exist, register them
     print(f"Registering new user: {username}")
     create_user(username, password)
@@ -86,7 +89,6 @@ def handle_login(data):
   username = data['username']
   password = data['password']
   user= find_user(username)
-  if(user) : user = user[0] #get user data 
   print(f"Attempting to log in user: {username} with password: {password} should match {user[1] if user else 'None'}")
   if (user and user[2] == password):
     print(f"User {username} logged in successfully.")
@@ -128,14 +130,14 @@ def handle_join_attempt(data):
 
 #Create room Page
 @socketio.on('create game')
-def handle_create_game():
+def handle_create_game(data):
   #generate random 6 uppercase alphanumeric character room code
   roomCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
   while db_room_exists(cursor, roomCode):
     #Generate random 6 uppercase alphanumeric character room code
     roomCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
   # create room and set initial game state
-  db_add_room(cursor, roomCode, "waiting", "[no items]", 0, "ItemRace")
+  db_add_room(cursor, roomCode, "waiting", "[no items]", 0, data.get('mode'))
   #check if room exists
   if(db_room_exists(cursor, roomCode) == False):
     print("room creation failed")
@@ -306,7 +308,7 @@ def handle_start_game(data=None):
     game_items = []
     print(game_mode)
     # selects game items based on mode
-    if game_mode == "ItemBlitz":
+    if game_mode == "Item Blitz":
       game_items.extend(random.sample(indoorItems, len(indoorItems)))
     else: #ItemRace
       game_items.extend(random.sample(indoorItems, 5))
@@ -344,24 +346,34 @@ def handle_start_game(data=None):
 @socketio.on('end game')
 def handle_end_game():
   global game_running
+  print("end game")
   with game_lock:
-    #get room code of user
+    username = db_get_username(cursor, request.sid)
     roomCode = db_get_user_room(cursor,request.sid)
+    gameState = db_get_game_state(cursor, roomCode)
+
+    print(f"{request.sid}:{username} has requested to end the game in room:{roomCode}")
+    #get room code of user
     if roomCode == None or roomCode == "None":
+      print("room doesn't exist")
       #TODO: Error handling if user is not in room
       return
     # #Get game state
-    gameState = db_get_game_state(cursor, roomCode)
     if gameState == None:
+      print("game state is none")
       #TODO: Error handling if there is no game that exists
       return
     
     if not db_is_room_host(cursor, request.sid, roomCode):
+      print("user is not host, doesn not have permission to end game")
       return
     #Get username
-    username = db_get_username(cursor, request.sid)
+    gameMode = db_get_game_mode(cursor, roomCode)[0]
+    print(f"game mode: {gameMode}")
+    if gameMode == "Item Blitz":
+      save_scores(roomCode, "Item Blitz")
+      
     #Print that user requested to run game
-    print(f"{request.sid}:{username} has requested to end the game in room:{roomCode}")
     #Update game state to running
     db_set_room_game_state(cursor, roomCode, "waiting")
     #Update the game state
@@ -399,7 +411,7 @@ def handle_submit(data):
     print(score)
     game_mode = data.get('mode')
     #check if victory
-    if score == 5 and game_mode == "ItemRace":
+    if score == 5 and game_mode == "Item Race":
       db_set_room_game_state(cursor,roomCode, "waiting")
       #TODO: emit win time
       username = db_get_username(cursor, request.sid)
@@ -407,7 +419,7 @@ def handle_submit(data):
       startTime = db_get_room_time(cursor, roomCode)[0]
       endTime = time.time()
       finalTime = round(endTime - startTime, 4)
-      save_scores(roomCode, finalTime, game_mode)
+      save_scores(roomCode, game_mode, finalTime)
       emit('winner', {'message': f"{username}", 'time': f"{finalTime}"}, room=roomCode)
   #get new game state
   gameState = db_get_game_state(cursor, roomCode)
@@ -418,31 +430,26 @@ def handle_submit(data):
 def handle_get_leaderboard_data(data):
     top_scores = get_top_scores()
     
-    print("data from get_top_scores: ", top_scores)
     formatted_scores = [{'Id': score[0], 'Pfp': '', 'Name': get_username(score[1]), 'Score': score[2], 'GameMode': score[4], 'Time':score[3]} for score in top_scores]
-    print("formatted data: ", formatted_scores)
     emit('leaderboard data', formatted_scores, room=request.sid)
 
-def save_scores(roomCode, finalTime, gameMode):
+def save_scores(roomCode, gameMode, finalTime=None):
   print("saving scores")
   #gameMode = db_get_game_mode(roomCode)
   place = 1
   users = db_get_users_in_room_by_score(cursor, roomCode)
-  if gameMode == "ItemRace":
+  if gameMode == "Item Race":
     # score == time
     for user in users:
-      save_score(user[2], f"{finalTime} seconds", "ItemRace", place)
+      save_score(user[2], finalTime, "Item Race", place)
       place += 1
-  elif gameMode == "ItemBlitz":
+  elif gameMode == "Item Blitz":
   # score == time;
       for user in users:
-        save_score(user[2], f"{user[3]} points", "ItemBlitz", place)
+        save_score(user[2], user[3], "Item Blitz", place)
         place += 1
   elif gameMode == "GeoQuest":
-  # TODO i think this is first to complete may need to change 
-    for user in users:
-        save_score(user[2], f"{finalTime} seconds", "ItemBlitz", place)
-        place += 1
+    print("GeoQuest should be calling a different function to save score")
   else:
     print(f"Unknown game mode: {gameMode}")
     return
@@ -457,27 +464,115 @@ def get_gamemode():
 def set_gamemode(data):
   db_set_game_mode(cursor, db_get_user_room(cursor, request.sid), data)
 
+@socketio.on('who am i')
+def handle_who_am_i():
+  username = db_get_username(cursor, request.sid)
+  emit('who am i response', {'username': username}, room=request.sid)
+
+@socketio.on('get userinfo')
+def handle_get_userinfo():
+  username = db_get_username(cursor, request.sid)
+  scores = get_user_scores(username)
+  emit('userinfo response', {'username': username, 'scores': scores}, room=request.sid)
+
+#geoQuest functions
+
+def dailyReset(): #should only be run by scheduler
+  print("dailyReset")
+  geoNewDay()
+
+def getDailyitem():
+    # Get the current date
+    current_date = datetime.datetime.now()
+    # Get the current year, month, and day
+    year = current_date.year
+    month = current_date.month
+    day = current_date.day
+    day += 1
+    # Return the current date
+    seed = year*10000 + month*100 + day
+    random.seed(seed +1)
+    return outDoorItems[random.randint(0, len(outDoorItems)-1)]
+
+@socketio.on('get geo item')
+def handle_get_daily_item():
+  item = getDailyitem()
+  emit('geo item', item, room=request.sid)
+
+@socketio.on('geosubmit')
+def handle_geoquest_submit():
+  user = db_get_username(cursor, request.sid)
+  print(f"{user} has submitted todays geoquest item")
+  geoComplete(user)
+
+@socketio.on('geoquest get score')
+def handle_geoquest_get_score():
+  score = geoGetScore(db_get_username(cursor, request.sid))
+  emit('geoquest get score', score, room=request.sid)
+
+@socketio.on('geoquest is complete')
+def handle_geoquest_is_complete():
+  complete = geoIsComplete(db_get_username(cursor, request.sid))
+  emit('geoquest is complete response', complete, room=request.sid)
+
+@socketio.on('geoquest get top scores')
+def handle_geoquest_get_top_scores(data):
+  scores = geoTopScores(5)
+  result = []
+  for score in scores:
+      last_incomplete_date = score[3]
+      if last_incomplete_date:
+            last_incomplete_date = datetime.datetime.strptime(last_incomplete_date, '%Y-%m-%d %H:%M:%S')
+            last_incomplete_date = last_incomplete_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            current_date = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            days_since_last_incomplete = (current_date - last_incomplete_date).days
+
+      else:
+          days_since_last_incomplete = None
+      result.append({
+          'username': get_username(score[0]),
+          'score': days_since_last_incomplete + 1 if score[2] == True else days_since_last_incomplete,
+          'gameMode': "geoQuest"
+      })
+  emit('geoquest top scores', result, room=request.sid)
+
+@socketio.on('geoquest get info')
+def handle_geoquest_get_info():
+  username = db_get_username(cursor, request.sid)
+  record = geoGetInfo(username)
+  if record:
+    emit('geoquest get info response', {'username': username, 'score': [1], 'completed': True if record[2] == 1 else False, 'lastIncomplete': record[3][:10]}, room=request.sid)
+
 if __name__ == '__main__':
+  initialize_db() #init db if not already initialized
   # Register the signal handler to close the database connection on termination
-  initialize_db()
-  _, DB_PATH, _ = get_DB_path()
-  print("db location: ", DB_PATH)
+  print("localhost link: https://localhost:8050 or Cassini link: https://cassini.cs.kent.edu:8050")
+
+  # executes dailyReset every day at midnight
+  scheduler = BackgroundScheduler()
+  scheduler.add_job(dailyReset, 'cron', hour=0, minute=0) 
+  scheduler.start()
+
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
-  # 1) Create a normal eventlet listening socket
+
+  #socketio.run(app,debug=True)
+
+  #1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))
 
-    # 2) Wrap it in SSL
-  ssl_listener = eventlet.wrap_ssl(
-        listener,
-        certfile='mycert.pem',    # Path to your certificate
-        keyfile='mykey.pem',      # Path to your private key
-        server_side=True
-    )
 
-    # 3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
-    #    We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
+  #2) Wrap it in SSL
+  ssl_listener = eventlet.wrap_ssl(
+      listener,
+      certfile='mycert.pem',    # Path to your certificate
+      keyfile='mykey.pem',      # Path to your private key
+      server_side=True
+  )
+
+  #3) Serve your Flask-SocketIO app using eventlet’s wsgi.server
+  # We pass socketio.WSGIApp(...) so that Socket.IO routes also work.
   eventlet.wsgi.server(
     ssl_listener,
     app
-)
+  )

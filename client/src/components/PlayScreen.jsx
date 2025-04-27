@@ -48,7 +48,7 @@ const PlayScreen = (props) => {
   const [yourScore, setYourScore] = useState(0);
   const intervalRef = useRef(null);
   const [roomCode, updateRoomCode] = useState("");
-  const [gameMode, setGameMode] = useState("ItemRace");
+  const [gameMode, setGameMode] = useState("Item Race");
   const navigate = useNavigate();
   const [firstTime, setFirstTime] = useState(true); //for count down timer
   const [showPopUp, updatePopUp] = useState(false);
@@ -229,13 +229,13 @@ const PlayScreen = (props) => {
   useEffect(() => {
     let interval;
     if (props.gameState === "running") {
-      if (gameMode === "ItemRace") {
+      if (gameMode === "Item Race") {
         interval = setInterval(() => {
           updateTime((prev) => prev + 1);
         }, 1000);
       }
   
-      if (gameMode === "ItemBlitz") {
+      if (gameMode === "Item Blitz") {
         if (time === 0 && firstTime) {
           // Set the initial time only once when countdown starts
           updateTime(120);
@@ -412,7 +412,7 @@ const PlayScreen = (props) => {
     const selectedIndoor = indoorItems.filter(item => item.selected).map(item => item.name);
     const selectedOutdoor = outdoorItems.filter(item => item.selected).map(item => item.name);
     
-    if (gameMode === "ItemRace" || gameMode === "ItemBlitz") {
+    if (gameMode === "Item Race" || gameMode === "Item Blitz") {
       return selectedIndoor;
     } else {
       return selectedOutdoor;
@@ -734,9 +734,8 @@ const PlayScreen = (props) => {
                               }
                             }}
                           >
-                            <MenuItem value="ItemRace">Item Race</MenuItem>
-                            <MenuItem value="ItemBlitz">Item Blitz</MenuItem>
-                            <MenuItem value="GeoQuest">GeoQuest</MenuItem>
+                            <MenuItem value="Item Race">Item Race</MenuItem>
+                            <MenuItem value="Item Blitz">Item Blitz</MenuItem>
                           </Select>
                         </FormControl>
                         
@@ -753,7 +752,7 @@ const PlayScreen = (props) => {
                         {showItemSelection && (
                           <Paper sx={{ p: 2, mb: 2, maxHeight: '300px', overflow: 'auto' }}>
                             <Typography variant="subtitle1" gutterBottom>
-                              {gameMode === "ItemRace" || gameMode === "ItemBlitz" ? "Indoor Items" : "Outdoor Items"}
+                              {gameMode === "Item Race" || gameMode === "Item Blitz" ? "Indoor Items" : "Outdoor Items"}
                             </Typography>
                             
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
@@ -761,7 +760,7 @@ const PlayScreen = (props) => {
                                 size="small" 
                                 variant="outlined" 
                                 onClick={() => toggleAllItems(
-                                  gameMode === "ItemRace" || gameMode === "ItemBlitz", 
+                                  gameMode === "Item Race" || gameMode === "Item Blitz", 
                                   true
                                 )}
                               >
@@ -771,7 +770,7 @@ const PlayScreen = (props) => {
                                 size="small" 
                                 variant="outlined" 
                                 onClick={() => toggleAllItems(
-                                  gameMode === "ItemRace" || gameMode === "ItemBlitz", 
+                                  gameMode === "Item Race" || gameMode === "Item Blitz", 
                                   false
                                 )}
                               >
@@ -780,7 +779,7 @@ const PlayScreen = (props) => {
                             </Box>
                             
                             <Grid container spacing={1}>
-                              {(gameMode === "ItemRace" || gameMode === "ItemBlitz" ? indoorItems : outdoorItems).map((item, index) => (
+                              {(gameMode === "Item Race" || gameMode === "Item Blitz" ? indoorItems : outdoorItems).map((item, index) => (
                                 <Grid item xs={6} sm={4} key={index}>
                                   <Box 
                                     sx={{ 
@@ -801,7 +800,7 @@ const PlayScreen = (props) => {
                                     }}
                                     onClick={() => toggleItem(
                                       item.name, 
-                                      gameMode === "ItemRace" || gameMode === "ItemBlitz"
+                                      gameMode === "Item Race" || gameMode === "Item Blitz"
                                     )}
                                   >
                                     <Box 
@@ -836,7 +835,7 @@ const PlayScreen = (props) => {
                             </Grid>
                             
                             <Typography variant="caption" sx={{ display: 'block', mt: 1, color: 'text.secondary' }}>
-                              Selected items: {(gameMode === "ItemRace" || gameMode === "ItemBlitz" 
+                              Selected items: {(gameMode === "Item Race" || gameMode === "Item Blitz" 
                                 ? indoorItems 
                                 : outdoorItems).filter(item => item.selected).length}
                             </Typography>
