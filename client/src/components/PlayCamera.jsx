@@ -1,6 +1,24 @@
 import React, { useRef, useEffect } from 'react';
 import { loadModelAndPredict } from '../utils/imagePredict';
 
+// Function to calculate the average brightness of an image
+// This function is used to determine if the camera is in a well-lit environment & adjusts the model accordingly
+  function calculateAverageBrightness(imageData) {
+    let totalBrightness = 0;
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const brightness = (r + g + b) / 3;
+      totalBrightness += brightness;
+    }
+
+    return totalBrightness / (data.length / 4);
+  }
+
+
 function PlayCamera(props) {
   console.log("component mounted"); // For debugging purposes
   const videoRef = useRef(null);
@@ -16,8 +34,9 @@ function PlayCamera(props) {
         const constraints = {
           video: {
             facingMode: 'environment', // Use the back camera by default
-            width: { ideal: 640 },
-            height: { ideal: 480 }
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            frameRate: { ideal: 30, max: 60 } // Smoother capture if hardware supports it
           }
         };
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -39,6 +58,23 @@ function PlayCamera(props) {
       // Draw the current video frame onto the canvas
       context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+      // --- New Brightness Adjustment Logic ---
+      // --- New Brightness Adjustment Code ---
+      const avgBrightness = calculateAverageBrightness(imageData);
+      const overlayElement = document.querySelector('.camera-dark-overlay');
+
+      if (overlayElement) {
+        if (avgBrightness > 200) { // very bright
+          overlayElement.style.backgroundColor = 'rgba(0,0,0,0.25)';
+        } else if (avgBrightness > 150) { // moderately bright
+          overlayElement.style.backgroundColor = 'rgba(0,0,0,0.15)';
+        } else { // normal or darker environment
+          overlayElement.style.backgroundColor = 'rgba(0,0,0,0.05)';
+        }
+      }
+      // --- End of Brightness Adjustment ---
+
 
       try {
         // Predict the label using imageProcess.js
@@ -125,6 +161,20 @@ function PlayCamera(props) {
         muted
         width={640}
         height={480}
+      />
+      <div
+        className="camera-dark-overlay"
+        // This overlay is used to test the camera and ensure it is working properly within the light conditions
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '640px',
+        height: '480px',
+        backgroundColor: 'rgba(0, 0, 0, 0.15)', // Test overlay, add 15% darker tint
+        pointerEvents: 'none', // Prevent interaction with the overlay
+        zIndex: 1, // Ensure the overlay is above the video but below the canvas
+      }}
       />
       <canvas
         ref={canvasRef}
