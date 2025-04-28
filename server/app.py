@@ -482,10 +482,16 @@ def save_scores(roomCode, gameMode, finalTime=None):
   users = db_get_users_in_room_by_score(cursor, roomCode)
   if gameMode == "Item Race":
     # score == time
+      if(users[0][2] == None):
+        print("not a user")
+        return
       save_score(users[0][2], finalTime, "Item Race", place)
   elif gameMode == "Item Blitz":
   # score == time;
       for user in users:
+        if[user[2] == -1]:
+          print("not a user")
+          continue
         save_score(user[2], user[3], "Item Blitz", place)
         place += 1
   elif gameMode == "GeoQuest":
