@@ -281,4 +281,32 @@ def db_is_room_host(cursor, socket_id, room_code):
     print(f"db_set_user_join_error: {e}")
     return False
   
+def db_add_room_items(cursor, room_code, items):
+  try:
+    for item in items:
+      sql = '''INSERT INTO ROOM_ITEMS (room_code, item_name) VALUES (?, ?)'''
+      cursor.execute(sql, [room_code, item])
+    return True
+  except sqlite3.Error as e:
+    print(f"db_add_room_items error: {e}")
+    return False
+  
+def db_get_room_roomItems(cursor, room_code):
+  try:
+    sql = '''SELECT item_name FROM ROOM_ITEMS WHERE room_code = ?'''
+    cursor.execute(sql, [room_code])
+    items = cursor.fetchall()
+    # Extract item names from the query result
+    return [item[0] for item in items]
+  except sqlite3.Error as e:
+    print(f"db_get_room_items error: {e}")
+    return []
 
+def db_remove_room_items(cursor, room_code):
+  try:
+    sql = '''DELETE FROM ROOM_ITEMS WHERE room_code = ?'''
+    cursor.execute(sql, [room_code])
+    return True
+  except sqlite3.Error as e:
+    print(f"db_remove_room_items error: {e}")
+    return False

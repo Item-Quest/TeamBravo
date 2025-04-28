@@ -19,7 +19,7 @@ import {
   AccordionDetails
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { createGame } from '../dataProvider.js';
+import { createGame, emitSelectedItems } from '../dataProvider.js';
 import PropTypes from 'prop-types';
 import defaultpfp from '../assets/defaultpfp.png';
 import click from "../assets/SFX/click.wav"
@@ -42,12 +42,28 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
   
   // Item selection state
   const [indoorItems, setIndoorItems] = useState([
-    { name: 'shoe', selected: true },
     { name: 'mug', selected: true },
-    { name: 'notebook', selected: true },
     { name: 'phone', selected: true },
     { name: 'water_bottle', selected: true },
-    { name: 'plant', selected: true }
+    { name: 'plant', selected: true },
+    { name: 'book_bag', selected: true },
+    { name: 'tv', selected: true },
+    { name: 'laptop', selected: true },
+    { name: 'frisbee', selected: true },
+    { name: 'baseball_bat', selected: true },
+    { name: 'banana', selected: true },
+    { name: 'apple', selected: true },
+    { name: 'orange', selected: true },
+    { name: 'carrot', selected: true },
+    { name: 'sandwich', selected: true },
+    { name: 'tie', selected: true },
+    { name: 'wine_glass', selected: true },
+    { name: 'knife', selected: true },
+    { name: 'bowl', selected: true },
+    { name: 'scissors', selected: true },
+    { name: 'toothbrush', selected: true },
+    { name: 'football', selected: true },
+    { name: 'book', selected: true }
   ]);
   
   const [outdoorItems, setOutdoorItems] = useState([
@@ -98,18 +114,31 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
 
     // Get the selected items based on game mode
     const selectedItems = getSelectedItems();
+
+    console.log("selected items", selectedItems);
     
     // Only start the game if at least one item is selected
     if (selectedItems.length === 0) {
       alert("Please select at least one item to start the game.");
       return;
     }
+
+
+    //encode items as a string
+    const encodedSelectedItems = JSON.stringify(selectedItems);
+
     clickSound.play();
     console.log("Creating game with mode:", gameMode, "and items:", selectedItems);
     createGame(gameMode, (result) => {
       updateGame(username, result.roomCode, result.sid, selectedItems);
+      //Emit selected items to the server
       navigate("/play");
     });
+    emitSelectedItems(encodedSelectedItems, (response) => {
+      console.log("Server response for selected items:", response);
+    });
+    console.log("right before here 2");
+
     navigate("/play");
   };
 

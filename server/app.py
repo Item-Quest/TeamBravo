@@ -57,6 +57,33 @@ def close_db(signal, frame):
 def home():
   return render_template('index.html')
 
+@socketio.on('selected items')
+def handle_selected_items(data):
+  print("Received selected items:", data.get('items'))
+  #extract items
+  itemsJson = data.get('items')
+  roomCode = db_get_user_room(cursor, request.sid)
+  if not roomCode:
+    emit('selected items response', {'success': False, 'message': "Room code is missing"}, room=request.sid)
+    return
+  try:
+    items = json.loads(itemsJson)  # Parse the JSON string into a Python list
+  except json.JSONDecodeError:
+    emit('selected items response', {'success': False, 'message': "Invalid items format"}, room=request.sid)
+    return
+
+  # Use the abstracted function to insert items into the ROOM_ITEMS table
+  success = db_add_room_items(cursor, roomCode, items)
+  if success:
+      emit('selected items response', {'success': True, 'message': "Items stored successfully"}, room=request.sid)
+  else:
+      emit('selected items response', {'success': False, 'message': "Failed to store items"}, room=request.sid)
+
+  # check if all items are in room
+  itemsTets = db_get_room_items(cursor, roomCode)
+  print("here")
+  print(itemsTets)
+
 @socketio.on('connect')
 def hande_connection():
   print(f"A Client connected: {request.sid}")
@@ -299,19 +326,34 @@ def handle_start_game(data=None):
     ########################
     #Check if user a host that can start the game
     
+    #get items from room selection if they exist
+    selected_items = data.get('items')
+    if len(selected_items) > 0:
+      #remove old items
+      db_remove_room_items(cursor, roomCode)
+      #set new items
+      db_add_room_items(cursor, roomCode, selected_items)
+    print("selectedItems: ", selected_items)
+
     #Set start time
     db_set_room_time(cursor, roomCode, time.time())
     #Update game state to running
     db_set_room_game_state(cursor, roomCode, "running")
     #Generate items for players to guess
-    
+    items = db_get_room_roomItems(cursor, roomCode)
+    print("chosen items: ", items)
     game_items = []
+
+    if not items:
+      print("No items available for the room.")
+      return
+  
     print(game_mode)
     # selects game items based on mode
     if game_mode == "Item Blitz":
-      game_items.extend(random.sample(indoorItems, len(indoorItems)))
+      game_items.extend(random.sample(items, len(items)))
     else: #ItemRace
-      game_items.extend(random.sample(indoorItems, 5))
+      game_items.extend(random.sample(items, 5))
 
 
 
@@ -556,7 +598,7 @@ if __name__ == '__main__':
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
 
-  #socketio.run(app,debug=True)
+  socketio.run(app,debug=True)
 
   #1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))
