@@ -482,9 +482,7 @@ def save_scores(roomCode, gameMode, finalTime=None):
   users = db_get_users_in_room_by_score(cursor, roomCode)
   if gameMode == "Item Race":
     # score == time
-    for user in users:
-      save_score(user[2], finalTime, "Item Race", place)
-      place += 1
+      save_score(users[0][2], finalTime, "Item Race", place)
   elif gameMode == "Item Blitz":
   # score == time;
       for user in users:
@@ -598,7 +596,7 @@ if __name__ == '__main__':
   signal.signal(signal.SIGINT, close_db)
   signal.signal(signal.SIGTERM, close_db)
 
-  socketio.crun(app,debug=True)
+  #socketio.crun(app,debug=True)
 
   #1) Create a normal eventlet listening socket
   listener = eventlet.listen(('0.0.0.0', 8050))

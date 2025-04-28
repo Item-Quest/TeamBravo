@@ -103,22 +103,22 @@ export const ThemeProvider = ({ children }) => {
       typography: {
         fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
         h1: {
-          fontFamily: "'Fredoka One', 'Comic Sans MS', cursive, sans-serif",
+          fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
         },
         h2: {
-          fontFamily: "'Fredoka One', 'Comic Sans MS', cursive, sans-serif",
+          fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
         },
         h3: {
-          fontFamily: "'Fredoka One', 'Comic Sans MS', cursive, sans-serif",
+          fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
         },
         h4: {
-          fontFamily: "'Fredoka One', 'Comic Sans MS', cursive, sans-serif",
+          fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
         },
         h5: {
-          fontFamily: "'Fredoka One', 'Comic Sans MS', cursive, sans-serif",
+          fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
         },
         h6: {
-          fontFamily: "'Fredoka One', 'Comic Sans MS', cursive, sans-serif",
+          fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
         },
       },
     });
