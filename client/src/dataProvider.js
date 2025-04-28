@@ -67,6 +67,15 @@ export function geoGetInfo(callback) {
     socketCallWrapper('geoquest get info', null, 'geoquest get info response', callback);
 }
 
+export function emitSelectedItems(selectedItems, callback) {
+    const requestData = { items: selectedItems }; // Wrap selected items in an object
+    socketCallWrapper('selected items', requestData, 'selected items response', (response) => {
+        if (callback) {
+            callback(response);
+        }
+    });
+}
+
 export function whoAmI(callback) {
     socketCallWrapper('who am i', null, 'who am i response', callback);
 }

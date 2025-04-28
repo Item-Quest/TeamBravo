@@ -84,12 +84,28 @@ const PlayScreen = (props) => {
   
   // Item selection state
   const [indoorItems, setIndoorItems] = useState([
-    { name: 'shoe', selected: true },
     { name: 'mug', selected: true },
-    { name: 'notebook', selected: true },
     { name: 'phone', selected: true },
     { name: 'water_bottle', selected: true },
-    { name: 'plant', selected: true }
+    { name: 'plant', selected: true },
+    { name: 'book_bag', selected: true },
+    { name: 'tv', selected: true },
+    { name: 'laptop', selected: true },
+    { name: 'frisbee', selected: true },
+    { name: 'baseball_bat', selected: true },
+    { name: 'banana', selected: true },
+    { name: 'apple', selected: true },
+    { name: 'orange', selected: true },
+    { name: 'carrot', selected: true },
+    { name: 'sandwich', selected: true },
+    { name: 'tie', selected: true },
+    { name: 'wine_glass', selected: true },
+    { name: 'knife', selected: true },
+    { name: 'bowl', selected: true },
+    { name: 'scissors', selected: true },
+    { name: 'toothbrush', selected: true },
+    { name: 'football', selected: true },
+    { name: 'book', selected: true }
   ]);
   
   const [outdoorItems, setOutdoorItems] = useState([
