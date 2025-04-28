@@ -321,7 +321,9 @@ const PlayScreen = (props) => {
       setShowCorrectBanner(true);
       setTimeout(() => setShowCorrectBanner(false), 2000);
     } else if(props.AIOutput === item[yourScore%item.length]){
-      socket.emit('submit',{submit:props.AIOutput});
+      socket.emit('submit',{submit:props.AIOutput, mode: gameMode});
+      setShowCorrectBanner(true);
+      setTimeout(() => setShowCorrectBanner(false), 2000);
     }
     updateInput("");
   }
