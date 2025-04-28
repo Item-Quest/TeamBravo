@@ -40,32 +40,6 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
   const backClickSound = new Audio(backClick);
   backClickSound.volume = uiVolume
   
-  // Item selection state
-  const [indoorItems, setIndoorItems] = useState([
-    { name: 'mug', selected: true },
-    { name: 'phone', selected: true },
-    { name: 'water_bottle', selected: true },
-    { name: 'plant', selected: true },
-    { name: 'book_bag', selected: true },
-    { name: 'tv', selected: true },
-    { name: 'laptop', selected: true },
-    { name: 'frisbee', selected: true },
-    { name: 'baseball_bat', selected: true },
-    { name: 'banana', selected: true },
-    { name: 'apple', selected: true },
-    { name: 'orange', selected: true },
-    { name: 'carrot', selected: true },
-    { name: 'sandwich', selected: true },
-    { name: 'tie', selected: true },
-    { name: 'wine_glass', selected: true },
-    { name: 'knife', selected: true },
-    { name: 'bowl', selected: true },
-    { name: 'scissors', selected: true },
-    { name: 'toothbrush', selected: true },
-    { name: 'football', selected: true },
-    { name: 'book', selected: true }
-  ]);
-  
   const [outdoorItems, setOutdoorItems] = useState([
     { name: 'person', selected: true },
     { name: 'bicycle', selected: true },
@@ -112,33 +86,12 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
   const playClick = () => {
     if (!username.trim()) return;
 
-    // Get the selected items based on game mode
-    const selectedItems = getSelectedItems();
-
-    console.log("selected items", selectedItems);
-    
-    // Only start the game if at least one item is selected
-    if (selectedItems.length === 0) {
-      alert("Please select at least one item to start the game.");
-      return;
-    }
-
-
-    //encode items as a string
-    const encodedSelectedItems = JSON.stringify(selectedItems);
-
     clickSound.play();
-    console.log("Creating game with mode:", gameMode, "and items:", selectedItems);
     createGame(gameMode, (result) => {
-      updateGame(username, result.roomCode, result.sid, selectedItems);
+      //updateGame(username, result.roomCode, result.sid, selectedItems);
       //Emit selected items to the server
       navigate("/play");
     });
-    emitSelectedItems(encodedSelectedItems, (response) => {
-      console.log("Server response for selected items:", response);
-    });
-    console.log("right before here 2");
-
     navigate("/play");
   };
 
@@ -298,134 +251,6 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
             <MenuItem value="Item Blitz">Item Blitz</MenuItem>
           </Select>
         </FormControl>
-        
-        <Accordion 
-          expanded={expanded} 
-          onChange={() => setExpanded(!expanded)}
-          sx={{ 
-            mt: 2, 
-            boxShadow: 'none', 
-            border: '1px solid rgba(0, 0, 0, 0.12)',
-            '&:before': {
-              display: 'none',
-            }
-          }}
-        >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            sx={{ 
-              backgroundColor: 'rgba(0, 0, 0, 0.02)',
-              borderBottom: expanded ? '1px solid rgba(0, 0, 0, 0.12)' : 'none'
-            }}
-          >
-            <Typography>
-              Select Game Items ({getSelectedItems().length} selected)
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails sx={{ p: 2 }}>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2" gutterBottom>
-                {gameMode === "Item Race" || gameMode === "Item Blitz" ? "Indoor Items" : "Outdoor Items"}
-              </Typography>
-              
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Button 
-                  size="small" 
-                  variant="outlined" 
-                  onClick={() => toggleAllItems(
-                    gameMode === "Item Race" || gameMode === "Item Blitz", 
-                    true
-                  )}
-                >
-                  Select All
-                </Button>
-                <Button 
-                  size="small" 
-                  variant="outlined" 
-                  onClick={() =>{ 
-                    backClickSound.play();
-                    toggleAllItems(
-                    gameMode === "Item Race" || gameMode === "Item Blitz", 
-                    false
-                  );}}
-                >
-                  Deselect All
-                </Button>
-              </Box>
-              
-              <Box sx={{ maxHeight: '200px', overflow: 'auto', mt: 1 }}>
-                <Grid container spacing={1}>
-                  {(gameMode === "Item Race" || gameMode === "Item Blitz" ? indoorItems : outdoorItems).map((item, index) => (
-                    <Grid item xs={6} key={index}>
-                      <Box 
-                        sx={{ 
-                          display: 'flex', 
-                          alignItems: 'center',
-                          p: 1,
-                          border: '1px solid',
-                          borderColor: item.selected ? 'var(--accent-color)' : 'rgba(0,0,0,0.12)',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          backgroundColor: item.selected ? 'rgba(var(--accent-color-rgb), 0.1)' : 'transparent',
-                          transition: 'all 0.2s',
-                          '&:hover': {
-                            backgroundColor: item.selected 
-                              ? 'rgba(var(--accent-color-rgb), 0.2)' 
-                              : 'rgba(0,0,0,0.04)'
-                          }
-                        }}
-                        onClick={() => toggleItem(
-                          item.name, 
-                          gameMode === "Item Race" || gameMode === "Item Blitz"
-                        )}
-                      >
-                        <Box 
-                          sx={{ 
-                            width: '20px', 
-                            height: '20px', 
-                            borderRadius: '4px',
-                            border: '2px solid',
-                            borderColor: item.selected ? 'var(--accent-color)' : 'rgba(0,0,0,0.38)',
-                            mr: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'var(--accent-color)',
-                            fontSize: '16px'
-                          }}
-                        >
-                          {item.selected && '✓'}
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <img 
-                            src={defaultpfp} 
-                            alt={item.name}
-                            style={{ 
-                              width: '24px', 
-                              height: '24px', 
-                              borderRadius: '4px',
-                              marginRight: '8px',
-                              border: '1px solid rgba(0,0,0,0.12)'
-                            }} 
-                          />
-                          <Typography 
-                            variant="body2" 
-                            sx={{ 
-                              textTransform: 'capitalize',
-                              fontWeight: item.selected ? 'bold' : 'normal'
-                            }}
-                          >
-                            {item.name.replace('_', ' ')}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-            </Box>
-          </AccordionDetails>
-        </Accordion>
       </DialogContent>
       <DialogActions>
         <Button 
