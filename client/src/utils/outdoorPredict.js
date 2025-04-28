@@ -14,7 +14,7 @@ const validOutdoorItems = [
 const labelMap = {
     'potted plant': 'plant',
     'backpack': 'book bag',
-    'sports ball': 'football'
+    'sports ball': 'basketball'
   };
   
 

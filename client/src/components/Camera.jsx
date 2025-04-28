@@ -11,7 +11,15 @@ function Camera() {
   useEffect(() => {
     const getCameraStream = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // const stream = await navigator.mediaDevices.getUserMedia({ video: true }); // original camera implementation
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: 'environment', // Use the back camera by default
+            frameRate: { ideal: 30, max: 60 } // Smoother capture if hardware supports it
+          }
+        });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.onloadedmetadata = () => {

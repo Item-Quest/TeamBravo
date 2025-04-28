@@ -19,7 +19,7 @@ const labelMap = {
   'potted plant': 'plant',
   'cup': 'mug', 
   'backpack': 'book bag',
-  'sports ball': 'football'
+  'sports ball': 'basketball'
 };
 
 // Function to load and predict

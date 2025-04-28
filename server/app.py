@@ -37,13 +37,13 @@ connection, cursor = db_init_game_db()
 
 #Game items
 # indoorItems = ['shoe','mug'] (old indoor items (using teachable Model))
-indoorItems = ['mug', 'phone', 'water bottle', 'plant', 'book bag', 'tv', 'laptop', 'frisbee', 
+indoorItems = ['mug', 'phone', 'plant', 'book bag', 'tv', 'laptop', 'frisbee', 
                'baseball bat', 'banana', 'apple', 'orange', 'carrot', 'sandwich', 'tie', 'wine glass',
-              'knife', 'bowl', 'scissors', 'toothbrush' , 'football', 'book']
+              'knife', 'bowl', 'scissors', 'toothbrush' , 'basketball', 'book']
 
 outDoorItems = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck',
     'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench',
-    'bird', 'cat', 'dog', 'book bag', 'umbrella', 'frisbee', 'football', 'baseball bat',
+    'bird', 'cat', 'dog', 'book bag', 'umbrella', 'frisbee', 'basketball', 'baseball bat',
     'baseball glove', 'skateboard', 'tennis racket', 'pizza', 'donut', 'cake', 'plant', ]
 
 #ensures connection is closed and database is freed
