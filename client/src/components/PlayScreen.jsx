@@ -24,7 +24,10 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel
+  InputLabel,
+  Snackbar,
+  Alert,
+  Tooltip
 } from '@mui/material';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
@@ -64,6 +67,7 @@ const PlayScreen = (props) => {
   const [isResetTimerActive, setIsResetTimerActive] = useState(false);
   const [formattedResetTime, setFormattedResetTime] = useState("00:00");
   const [showCorrectBanner, setShowCorrectBanner] = useState(false);
+  const [showCopyToast, setShowCopyToast] = useState(false);
 
     const [uiVolume] = useState(() => {
       const storedVolume = localStorage.getItem('uiVolume');
@@ -478,15 +482,40 @@ const PlayScreen = (props) => {
                 />
               </Grid>
               <Grid item xs={4} align="center">
-                <Typography variant="h5">
-                  {props.gameState === "waiting" ? "Waiting for game to start" : "Game in progress"}
-                </Typography>
+                <Paper sx={{
+                  p: 2,
+                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                  border: '2px solid var(--accent-color)'
+                }}>
+                  <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>
+                    {props.gameState === "waiting" ? "Waiting for game to start" : "Game in progress"}
+                  </Typography>
+                </Paper>
               </Grid>
               <Grid item xs={4} align="right">
                 {roomCode && (
-                  <Typography variant="h5">
-                    Room Code: {roomCode}
-                  </Typography>
+                  <Tooltip title="Click to copy">
+                    <Typography
+                      variant="h5"
+                      onClick={() => {
+                        navigator.clipboard.writeText(roomCode);
+                        setShowCopyToast(true);
+                        clickSound.play();
+                      }}
+                      sx={{
+                        cursor: 'pointer',
+                        '&:hover': {
+                          color: 'var(--accent-color)',
+                          textDecoration: 'underline'
+                        },
+                        transition: 'color 0.2s'
+                      }}
+                    >
+                      Room Code: {roomCode}
+                    </Typography>
+                  </Tooltip>
                 )}
               </Grid>
             </Grid>
@@ -584,30 +613,11 @@ const PlayScreen = (props) => {
                     <Typography variant="subtitle1">
                       Detected Item: {props.AIOutput || "Nothing detected"}
                     </Typography>
-                    <Box sx={{ display: 'flex', mt: 1 }}>
-                      <TextField
-                        fullWidth
-                        variant="outlined"
-                        value={input}
-                        onChange={changeInput}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Enter Item"
-                        size="small"
-                      />
-                      <Button 
-                        variant="contained" 
-                        color="primary" 
-                        onClick={submit}
-                        sx={{ ml: 1 }}
-                      >
-                        Submit
-                      </Button>
-                    </Box>
                   </Box>
                 </Grid>
 
                 <Grid item xs={12} md={4}>
-                  <Paper sx={{ p: 2, mb: 2 }}>
+                  <Paper sx={{ p: 2, mb: 2, backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
                     <Typography variant="h6" gutterBottom>Game Info</Typography>
                     
                     <Grid container spacing={2} sx={{ textAlign: 'center' }}>
@@ -661,7 +671,7 @@ const PlayScreen = (props) => {
                     </Grid>
                   </Paper> */}
 
-                  <Paper sx={{ p: 2, mb: 2 }}>
+                  <Paper sx={{ p: 2, mb: 2, backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
                     <Typography variant="h6" gutterBottom>Skips</Typography>
                     <Box display="flex" alignItems="center" mb={1}>
                       {Array.from({ length: skips }, (_, i) => (
@@ -684,7 +694,7 @@ const PlayScreen = (props) => {
                     )}
                   </Paper>
 
-                  <Paper sx={{ p: 2 }}>
+                  <Paper sx={{ p: 2, backgroundColor: 'rgba(255, 255, 255, 0.7)' }}>
                     <Typography variant="h6" gutterBottom>Connected Players</Typography>
                     <List dense>
                       {usersInRoom.map((user, index) => (
@@ -750,7 +760,7 @@ const PlayScreen = (props) => {
                         </Button>
                         
                         {showItemSelection && (
-                          <Paper sx={{ p: 2, mb: 2, maxHeight: '300px', overflow: 'auto' }}>
+                          <Paper sx={{ p: 2, mb: 2, maxHeight: '300px', overflow: 'auto', backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
                             <Typography variant="subtitle1" gutterBottom>
                               {gameMode === "Item Race" || gameMode === "Item Blitz" ? "Indoor Items" : "Outdoor Items"}
                             </Typography>
@@ -809,7 +819,7 @@ const PlayScreen = (props) => {
                                         height: '20px', 
                                         borderRadius: '4px',
                                         border: '2px solid',
-                                        borderColor: item.selected ? 'var(--accent-color)' : 'rgba(0,0,0,0.38)',
+                                        borderColor: item.selected ? 'var(--accent-color)' : 'rgba(0,0,0,0.4)',
                                         mr: 1,
                                         display: 'flex',
                                         alignItems: 'center',
@@ -868,16 +878,7 @@ const PlayScreen = (props) => {
                       </Box>
                     )}
                     
-                    <Button 
-                      variant="outlined" 
-                      color="info" 
-                      onClick={() => setShowDebugInfo(true)}
-                      fullWidth
-                      size="small"
-                      sx={{ mt: 1 }}
-                    >
-                      Debug Info
-                    </Button>
+                   
                   </Paper>
                 </Grid>
               </Grid>
@@ -894,7 +895,7 @@ const PlayScreen = (props) => {
               backgroundColor: 'white',
               color: '#333',
               borderRadius: '8px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)'
             }
           }}
         >
@@ -919,7 +920,7 @@ const PlayScreen = (props) => {
           </DialogActions>
         </Dialog>
 
-        {/* Debug Info Dialog */}
+        Debug Info Dialog
         <Dialog 
           open={showDebugInfo} 
           onClose={() => setShowDebugInfo(false)}
@@ -1041,6 +1042,22 @@ const PlayScreen = (props) => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* Copy Toast */}
+        <Snackbar
+          open={showCopyToast}
+          autoHideDuration={2000}
+          onClose={() => setShowCopyToast(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert
+            onClose={() => setShowCopyToast(false)}
+            severity="success"
+            sx={{ width: '100%', bgcolor: 'var(--accent-color)', color: 'white' }}
+          >
+            Room code copied to clipboard!
+          </Alert>
+        </Snackbar>
       </Box>
     </div>
   );

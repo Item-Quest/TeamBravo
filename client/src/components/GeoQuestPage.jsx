@@ -6,6 +6,7 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import PersonIcon from "@mui/icons-material/Person";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HomeIcon from "@mui/icons-material/Home";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import socket from "../socket";
 import { loadModelAndPredict, setModelMode } from "../utils/imagePredict";
 import PlayCamera from "./PlayCamera";
@@ -207,15 +208,18 @@ const GeoQuestPage = () => {
   };
 
   return (
+    <div style={{display: 'flex', justifyContent: 'center', width: '100%', boxSizing: 'border-box'}}>
     <Box sx={{
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      alignItems: "center",
-      color: "text.primary",
-      minHeight: "100vh",
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100vh',
+      width: '100%',
+      overflow: 'auto',
+      position: 'relative',
+      boxSizing: 'border-box',
+      maxWidth: '100%'
     }}>
-      <AppBar position="static" sx={{ width: '100%', backgroundColor: 'rgba(0,0,0,0.1)' }}>
+      <AppBar position="static" sx={{ width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.6)', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', borderBottom: '2px solid var(--accent-color)' }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'var(--text-color)' }}>
             GeoQuest Daily Challenge
@@ -229,12 +233,22 @@ const GeoQuestPage = () => {
       </AppBar>
 
       {/* Main Content */}
-      <Box sx={{ p: 4, display: "flex", flexDirection: "column", alignItems: "center", flexGrow: 1, width: "100%", maxWidth: "800px" }}>
+      <Grid container spacing={0} sx={{
+        p: 2,
+        flexGrow: 0,
+        justifyContent: 'center',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        boxSizing: 'border-box',
+        width: '100%'
+      }}>
+      <Grid item xs={12} sx={{ boxSizing: 'border-box', maxWidth: '100%' }}>
+      <Box sx={{ p: 4, display: "flex", flexDirection: "column", alignItems: "center", flexGrow: 1, width: "100%", maxWidth: "1200px" }}>
         <Typography variant="h3" gutterBottom>
           GeoQuest
         </Typography>
 
-        <Card sx={{ width: "100%", mb: 4 }}>
+        <Card sx={{ width: "100%", mb: 4, backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
           <CardContent>
             <Typography variant="h5" gutterBottom>
               Your Current Streak: {streak} {streak === 1 ? "day" : "days"}
@@ -249,7 +263,7 @@ const GeoQuestPage = () => {
           <CircularProgress />
         ) : (
           <Box sx={{ width: "100%", maxWidth: 600 }}>
-            <Paper elevation={3} sx={{ p: 3, mb: 4, textAlign: "center" }}>
+            <Paper elevation={3} sx={{ p: 3, mb: 4, textAlign: "center", backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
               <Typography variant="h5" gutterBottom>
                 Today's Challenge
               </Typography>
@@ -274,17 +288,16 @@ const GeoQuestPage = () => {
                   width: "100%",
                   height: "auto",
                   maxHeight: "480px",
-                  overflow: "hidden",
+                  overflow: "auto",
                   position: "relative",
                   display: "flex",
                   flexDirection: "column",
                   borderRadius: "12px",
-                  mb: 2
                 }}>
                   {/* Camera Container */}
                   <Box
                     sx={{
-                      width: "100%",
+                      width: "90%",
                       flex: 1,
                       backgroundColor: "rgba(0, 0, 0, 0.5)",
                       display: "flex",
@@ -294,15 +307,43 @@ const GeoQuestPage = () => {
                       padding: 0,
                       overflow: "hidden",
                       position: "relative",
-                      border: showBorder ? `5px solid ${cameraBorderColor}` : "3px solid var(--text-color)",
-                      boxShadow: showBorder ? `0 0 15px ${cameraBorderColor}` : "0 4px 0 rgba(0, 0, 0, 0.2)",
-                      transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+                      border: "12px solid var(--text-color)",
+                      borderColor: showBorder ? cameraBorderColor : 'black',
+                      boxShadow: "0 4px 0 rgba(0, 0, 0, 0.2)",
                       zIndex: 1,
                       mb: { xs: 1, sm: 1 },
                       minHeight: { xs: "300px", sm: "400px" }
                     }}
                   >
                     {camera}
+                    
+                    {/* Camera overlay with instructions */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        padding: { xs: 1, sm: 2 },
+                        background: "linear-gradient(transparent, rgba(0,0,0,0.8))",
+                        display: "flex",
+                        alignItems: "center",
+                        zIndex: 2
+                      }}
+                    >
+                      <InfoOutlinedIcon sx={{ mr: 1, color: "var(--accent-color)", fontSize: { xs: "1rem", sm: "1.25rem" } }} />
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "white",
+                          fontFamily: "'Fredoka One', 'Comic Sans MS', cursive, sans-serif",
+                          fontSize: { xs: "0.7rem", sm: "0.9rem" },
+                          textTransform: "uppercase"
+                        }}
+                      >
+                        Position items clearly in frame for best results
+                      </Typography>
+                    </Box>
                   </Box>
 
                   <Box sx={{ mt: 2 }}>
@@ -319,7 +360,7 @@ const GeoQuestPage = () => {
             </Paper>
 
             {/* Leaderboard Section */}
-            <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+            <Paper elevation={3} sx={{ p: 3, mb: 4, backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
                   <EmojiEventsIcon sx={{ mr: 1 }} color="primary" />
@@ -407,7 +448,10 @@ const GeoQuestPage = () => {
           </Alert>
         </Snackbar>
       </Box>
+      </Grid>
+      </Grid>
     </Box>
+    </div>
   );
 };
 

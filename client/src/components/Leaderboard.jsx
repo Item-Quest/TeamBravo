@@ -187,9 +187,17 @@ const Leaderboard = (props) => {
                                 />
                             </Grid>
                             <Grid item xs={4} align="center">
-                                <Typography variant="h5">
-                                    Leaderboard
-                                </Typography>
+                                <Paper sx={{
+                                    p: 2,
+                                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                    border: '2px solid var(--accent-color)'
+                                }}>
+                                    <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>
+                                        Leaderboard
+                                    </Typography>
+                                </Paper>
                             </Grid>
                             <Grid item xs={4} align="right">
                                 <Button
@@ -216,7 +224,7 @@ const Leaderboard = (props) => {
                             width: '100%'
                         }}>
                             <Grid item xs={12} md={8}>
-                                <Paper sx={{ p: 3, borderRadius: '8px' }}>
+                                <Paper sx={{ p: 3, borderRadius: '8px', backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
                                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                                         <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
                                             <EmojiEventsIcon sx={{ mr: 1 }} color="primary" />
@@ -420,7 +428,7 @@ const Leaderboard = (props) => {
                             </Grid>
 
                             <Grid item xs={12} md={4}>
-                                <Paper sx={{ p: 2, mb: 2 }}>
+                                <Paper sx={{ p: 2, mb: 2, backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
                                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                                         <Typography variant="h5">Your Stats</Typography>
                                         <Typography variant="h6">
@@ -440,7 +448,7 @@ const Leaderboard = (props) => {
                                             <PersonIcon />
                                         </Avatar>
                                     </Box>
-                                    <Box sx={{ p: 2, backgroundColor: 'rgba(25, 118, 210, 0.08)', borderRadius: '4px' }}>
+                                    <Box sx={{ p: 2, backgroundColor: 'rgba(25, 118, 210, 0.4)', borderRadius: '4px' }}>
                                         <Grid container spacing={2}>
                                             <Grid item xs={6}>
                                                 <Typography variant="subtitle2">Rank</Typography>
@@ -470,7 +478,7 @@ const Leaderboard = (props) => {
                                     </Box>
                                 </Paper>
 
-                                <Paper sx={{ p: 2, mb: 2 }}>
+                                <Paper sx={{ p: 2, mb: 2, backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
                                     <Typography variant="h6" gutterBottom>Game History</Typography>
                                     <List dense>
                                         {userScores.length > 0 ? (

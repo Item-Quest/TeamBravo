@@ -48,7 +48,16 @@ const SupportModal = ({ isOpen, onClose}) => {
       },
       '&.Mui-focused fieldset': {
         borderColor: 'var(--primary-color)'
+      },
+      '&.Mui-focused input': {
+        color: '#333' // Keep text color black when focused
       }
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: 'var(--primary-color)' // Keep the label color consistent with border
+    },
+    '& .MuiInputBase-input': {
+      color: '#333' // Default text color
     }
   };
 

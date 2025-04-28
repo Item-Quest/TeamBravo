@@ -12,7 +12,15 @@ function PlayCamera(props) {
   useEffect(() => {
     const getCameraStream = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // Add specific constraints to prevent fullscreen on iOS
+        const constraints = {
+          video: {
+            facingMode: 'environment', // Use the back camera by default
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          }
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         videoRef.current.srcObject = stream;
       } catch (error) {
         console.error('Error accessing the camera', error);
@@ -110,7 +118,14 @@ function PlayCamera(props) {
 
   return (
     <div className="camera-container" style={{ position: 'relative' }}>
-      <video ref={videoRef} autoPlay width={640} height={480} />
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        width={640}
+        height={480}
+      />
       <canvas
         ref={canvasRef}
         width={640}

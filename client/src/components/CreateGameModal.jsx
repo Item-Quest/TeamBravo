@@ -170,6 +170,12 @@ const CreateGameModal = ({ isOpen, onClose, updateGame, navigate }) => {
       '&.Mui-focused fieldset': {
         borderColor: 'var(--primary-color)'
       }
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: 'var(--primary-color)' // Keep the label color consistent with border
+    },
+    '& .MuiInputBase-input': {
+      color: '#333' // Default text color
     }
   };
 
