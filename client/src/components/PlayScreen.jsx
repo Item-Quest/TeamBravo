@@ -689,28 +689,6 @@ const PlayScreen = (props) => {
                     </Grid>
                   </Paper> */}
 
-                  <Paper sx={{ p: 2, mb: 2, backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
-                    <Typography variant="h6" gutterBottom>Skips</Typography>
-                    <Box display="flex" alignItems="center" mb={1}>
-                      {Array.from({ length: skips }, (_, i) => (
-                        <SkipNextIcon key={i} color="primary" />
-                      ))}
-                    </Box>
-                    <Button 
-                      variant="contained" 
-                      color="secondary" 
-                      onClick={handleSkip}
-                      disabled={skips === 0 || props.gameState !== "running"}
-                      fullWidth
-                    >
-                      Skip Item
-                    </Button>
-                    {isResetTimerActive && (
-                      <Box mt={1}>
-                        <Typography variant="subtitle2">Recharge: {formattedResetTime}</Typography>
-                      </Box>
-                    )}
-                  </Paper>
 
                   <Paper sx={{ p: 2, backgroundColor: 'rgba(255, 255, 255, 0.7)' }}>
                     <Typography variant="h6" gutterBottom>Connected Players</Typography>
